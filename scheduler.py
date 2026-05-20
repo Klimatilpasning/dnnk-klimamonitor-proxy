@@ -24,19 +24,28 @@ QUERIES = [
 
     # ── Vandkredsløbet & grundvand ──
     "grundvand BNBO indvindingstilladelse",
-    "vandløb vandløbsrestaurering rørlagt",
+    "vandløb vandløbsrestaurering rørlagt vandløb",
     "vådområde lavbund sørestaurering",
-    "vandbalance afstrømning nedbør",
+    "vandbalance afstrømning nedbør fordampning",
+    "drænvand nitrat fosfor vandkvalitet",
 
     # ── Kreative & innovative vinkler ──
     "svampeby blå-grøn naturbaseret løsning",
     "klimakvarter skybrudsplan vandplus",
     "klimatilpasset byggeri grønt tag resiliens",
     "sponge city living shoreline biomimicry",
+    "urban heat island varmeø afkøling",
+    "adaptive design fremtidssikring robusthed",
 
     # ── Lovgivning & EU ──
     "oversvømmelsesdirektiv klimatilpasningsloven høring",
     "Interreg LIFE Horizon klimatilpasning",
+    "folketing klima miljø lovforslag",
+
+    # ── Videnskab & forskning ──
+    "climate adaptation research urban flooding",
+    "nature-based solutions flood groundwater",
+    "water cycle resilience infrastructure",
 ]
 
 def load_sent_articles() -> set:
