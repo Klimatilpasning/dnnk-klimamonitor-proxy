@@ -47,6 +47,9 @@ KEYWORDS = [
 
     # ── Nordiske & internationale termer ──
     "klimatanpassning", "översvämning", "dagvatten", "overvannshåndtering",
+    "kustplanering", "havsnivå", "stigande hav", "kustskydd", "kusterosion",
+    "kustzon", "havsplanering", "flexibel markanvändning", "stegvis planering",
+    "robusta städer", "urbana landskap", "Movium", "SGI", "HaV",
     "Interreg", "LIFE programme", "Horizon Europe", "Climate-ADAPT",
     "flood risk", "coastal adaptation", "water resilience",
     "DHI", "SCALGO", "Stormrådet", "Realdania", "Deltares",
@@ -492,7 +495,8 @@ async def scrape_news(client, source, url, gruppe, query):
             "klima", "vand", "oversvøm", "regnvand", "spildevand", "kyst",
             "stormflod", "LAR", "klimatilpasning", "klimasikring", "skybrud",
             "forsyning", "vandmiljø", "grundvand", "renseanlæg", "kloak",
-            "nature-based", "havvand", "vandstand", "klimahandling"
+            "nature-based", "havvand", "vandstand", "klimahandling",
+            "kust", "havsnivå", "kustplaner", "klimatanpassning"
         ]
         filtered = []
         for a in articles:
