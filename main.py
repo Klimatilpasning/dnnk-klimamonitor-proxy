@@ -47,14 +47,21 @@ KEYWORDS = [
 
     # ── Nordiske & internationale termer ──
     "klimatanpassning", "översvämning", "dagvatten", "overvannshåndtering",
+    "kustplanering", "havsnivå", "kustskydd", "kusterosion",
+    "kustzon", "havsplanering", "flexibel markanvändning", "stegvis planering",
+    "robusta städer", "urbana landskap", "Movium", "SGI",
     "Interreg", "LIFE programme", "Horizon Europe", "Climate-ADAPT",
     "flood risk", "coastal adaptation", "water resilience",
     "DHI", "SCALGO", "Stormrådet", "Realdania", "Deltares",
     "C40", "ICLEI", "waterboards", "Rijkswaterstaat",
 
     # ── Brede nøgleord ──
-    "klima", "vand", "miljø", "natur", "bæredygtig",
-    "climate", "water", "flood", "urban", "infrastructure",
+    # Bevidst smal: "natur" og "water" fjernet pga. falsk-positiv-match
+    # mod engelske ord ("natural", "watercolor") ved ordstarts-matching.
+    # Specifikke termer som "naturbaseret løsning" og "water resilience"
+    # dækker stadig de relevante koncepter.
+    "klima", "vand", "miljø", "bæredygtig",
+    "climate", "flood", "urban", "infrastructure",
 ]
 
 RSS_HEADERS = {
@@ -62,6 +69,15 @@ RSS_HEADERS = {
     "Accept": "application/rss+xml, application/xml, text/xml, */*",
     "Accept-Language": "da,en;q=0.9",
 }
+
+def kw_match(keyword: str, text: str) -> bool:
+    """Match keyword at the start of a word. Prevents 'LAR' from matching
+    'klart' or 'hav' from matching 'havde', while still allowing Scandinavian
+    compound matches like 'klima' in 'klimaforandring'."""
+    if not keyword:
+        return False
+    pattern = r'(?<!\w)' + re.escape(keyword)
+    return bool(re.search(pattern, text, re.IGNORECASE | re.UNICODE))
 
 def parse_item_bs(item):
     """Parse et RSS/Atom item med BeautifulSoup"""
@@ -150,23 +166,25 @@ async def fetch_rss(client, source, url, query):
         
         results = []
         q_lower = query.lower()
-        kw_lower = [k.lower() for k in KEYWORDS]
-        
+
         for parser, item in items[:20]:
             if parser == "et":
                 title, description, link, pub_date = parse_item_et(item)
             else:
                 title, description, link, pub_date = parse_item_bs(item)
-            
+
             if not title:
                 continue
-            combined = (title + " " + description).lower()
-            q_match = any(w in combined for w in q_lower.split() if len(w) > 3)
-            score = sum(1 for kw in kw_lower if kw in combined) + (3 if q_match else 0)
+            combined = title + " " + description
+            q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
+            score = sum(1 for kw in KEYWORDS if kw_match(kw, combined)) + (3 if q_match else 0)
+            # Skip articles with zero relevance — pure noise from broad feeds
+            if score == 0:
+                continue
             results.append({
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
-                "tags": [kw for kw in KEYWORDS[:6] if kw.lower() in combined][:3],
+                "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
                 "relevance": min(round(score / 8, 2), 1.0), "url": link, "value": None
             })
         results.sort(key=lambda x: x["relevance"], reverse=True)
@@ -406,7 +424,6 @@ async def scrape_news(client, source, url, gruppe, query):
             tag.decompose()
 
         q_lower = query.lower()
-        kw_lower = [k.lower() for k in KEYWORDS]
 
         # Find kandidater — prøv progressivt mere generelle selektorer
         candidates = (
@@ -468,9 +485,9 @@ async def scrape_news(client, source, url, gruppe, query):
             desc_el = el.find("p")
             description = desc_el.get_text(strip=True)[:300] if desc_el else ""
 
-            combined = (title + " " + description).lower()
-            q_match = any(w in combined for w in q_lower.split() if len(w) > 3)
-            score = sum(1 for kw in kw_lower if kw in combined) + (3 if q_match else 0)
+            combined = title + " " + description
+            q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
+            score = sum(1 for kw in KEYWORDS if kw_match(kw, combined)) + (3 if q_match else 0)
 
             articles.append({
                 "source": "scrape",
@@ -479,7 +496,7 @@ async def scrape_news(client, source, url, gruppe, query):
                 "org": source,
                 "date": pub_date,
                 "summary": description,
-                "tags": [kw for kw in KEYWORDS[:6] if kw.lower() in combined][:3],
+                "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
                 "relevance": min(round(score / 8, 2), 1.0),
                 "url": article_url,
                 "value": None,
@@ -492,12 +509,12 @@ async def scrape_news(client, source, url, gruppe, query):
             "klima", "vand", "oversvøm", "regnvand", "spildevand", "kyst",
             "stormflod", "LAR", "klimatilpasning", "klimasikring", "skybrud",
             "forsyning", "vandmiljø", "grundvand", "renseanlæg", "kloak",
-            "nature-based", "havvand", "vandstand", "klimahandling"
+            "nature-based", "havvand", "vandstand", "klimahandling",
+            "kust", "havsnivå", "kustplaner", "klimatanpassning"
         ]
         filtered = []
         for a in articles:
-            title_lower = a["title"].lower()
-            if a["relevance"] > 0 or any(kw.lower() in title_lower for kw in CORE_KEYWORDS):
+            if a["relevance"] > 0 or any(kw_match(kw, a["title"]) for kw in CORE_KEYWORDS):
                 filtered.append(a)
 
         filtered.sort(key=lambda x: x["relevance"], reverse=True)

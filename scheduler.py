@@ -46,6 +46,12 @@ QUERIES = [
     "climate adaptation research urban flooding",
     "nature-based solutions flood groundwater",
     "water cycle resilience infrastructure",
+
+    # ── Nordiske & svenske kystkilder ──
+    "kustplanering havsnivå klimatanpassning",
+    "Movium urbana landskap robusta städer",
+    "SGI flexibel markanvändning stegvis planering",
+    "kustskydd kusterosion stigande hav",
 ]
 
 def load_sent_articles() -> set:
