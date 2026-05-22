@@ -178,6 +178,9 @@ async def fetch_rss(client, source, url, query):
             combined = title + " " + description
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
             score = sum(1 for kw in KEYWORDS if kw_match(kw, combined)) + (3 if q_match else 0)
+            # Skip articles with zero relevance — pure noise from broad feeds
+            if score == 0:
+                continue
             results.append({
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
