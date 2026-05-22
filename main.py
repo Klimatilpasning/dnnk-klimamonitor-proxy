@@ -321,6 +321,63 @@ async def chat(request: dict):
         )
         return resp.json()
 
+
+# In-memory cache for query expansions (resets on restart)
+_expand_cache = {}
+
+@app.get("/expand-query")
+async def expand_query(q: str = Query(..., min_length=2)):
+    """Udvider en søgeforespørgsel med relaterede danske fagudtryk via Claude Haiku."""
+    import os, json as _json
+    q_key = q.strip().lower()
+    if q_key in _expand_cache:
+        return {"query": q, "terms": _expand_cache[q_key], "cached": True}
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return {"query": q, "terms": [], "error": "Ingen server-API-nøgle konfigureret"}
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 200,
+                    "messages": [{
+                        "role": "user",
+                        "content": (
+                            f'Brugeren søger på "{q}" i en vidensbank om klimatilpasning og vandkredsløb. '
+                            f"Giv 8-12 relaterede danske fagudtryk og synonymer der ville matche relevante webinarer. "
+                            f"Inkluder både brede og specifikke termer. Svar KUN med valid JSON-liste, fx: "
+                            f'["term1","term2","term3"]'
+                        )
+                    }]
+                }
+            )
+            data = resp.json()
+            if "content" not in data:
+                return {"query": q, "terms": [], "error": "Ugyldigt svar fra Claude"}
+            raw = data["content"][0]["text"].strip()
+            # Strip code fences
+            import re as _re
+            raw = _re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = _re.sub(r"\s*```$", "", raw)
+            terms = _json.loads(raw)
+            if isinstance(terms, list):
+                terms = [str(t) for t in terms if t][:15]
+                _expand_cache[q_key] = terms
+                return {"query": q, "terms": terms}
+    except Exception as e:
+        return {"query": q, "terms": [], "error": str(e)[:200]}
+
+    return {"query": q, "terms": []}
+
 @app.get("/")
 def root():
     return {"status": "ok", "service": "DNNK Klimamonitor Proxy",
