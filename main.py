@@ -56,8 +56,12 @@ KEYWORDS = [
     "C40", "ICLEI", "waterboards", "Rijkswaterstaat",
 
     # ── Brede nøgleord ──
-    "klima", "vand", "miljø", "natur", "bæredygtig",
-    "climate", "water", "flood", "urban", "infrastructure",
+    # Bevidst smal: "natur" og "water" fjernet pga. falsk-positiv-match
+    # mod engelske ord ("natural", "watercolor") ved ordstarts-matching.
+    # Specifikke termer som "naturbaseret løsning" og "water resilience"
+    # dækker stadig de relevante koncepter.
+    "klima", "vand", "miljø", "bæredygtig",
+    "climate", "flood", "urban", "infrastructure",
 ]
 
 RSS_HEADERS = {
