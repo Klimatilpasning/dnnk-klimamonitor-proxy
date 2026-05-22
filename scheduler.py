@@ -58,6 +58,46 @@ def load_sent_articles() -> set:
         pass
     return set()
 
+DNNK_INDEX_URL = "https://raw.githubusercontent.com/klimatilpasning/dnnk-vidensassistent/main/search-index.json"
+_dnnk_index_cache = None
+
+async def fetch_dnnk_index() -> list:
+    """Hent DNNK's webinar-indeks (cached i hukommelsen for denne koersel)."""
+    global _dnnk_index_cache
+    if _dnnk_index_cache is not None:
+        return _dnnk_index_cache
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            r = await client.get(DNNK_INDEX_URL)
+            if r.status_code == 200:
+                _dnnk_index_cache = r.json()
+                print(f"Hentet DNNK-indeks: {len(_dnnk_index_cache)} webinarer")
+                return _dnnk_index_cache
+    except Exception as e:
+        print(f"Kunne ikke hente DNNK-indeks: {e}")
+    _dnnk_index_cache = []
+    return []
+
+def find_relevant_webinars(article: dict, dnnk_index: list, top_n: int = 2) -> list:
+    """Find op til top_n DNNK-webinarer der matcher artiklen via noegleord-overlap."""
+    if not dnnk_index:
+        return []
+    text = (article.get("title", "") + " " + article.get("summary", "")).lower()
+    article_words = set(w for w in text.replace(",", " ").replace(".", " ").split() if len(w) > 4)
+    scored = []
+    for entry in dnnk_index:
+        if not entry.get("youtube_url"):
+            continue
+        kws = [k.lower() for k in entry.get("keywords", [])]
+        title_low = entry.get("title", "").lower()
+        kw_score = sum(1 for kw in kws if any(w in kw or kw in w for w in article_words))
+        title_score = sum(1 for w in article_words if len(w) > 5 and w in title_low)
+        total = kw_score * 2 + title_score
+        if total >= 3:
+            scored.append((total, entry))
+    scored.sort(key=lambda x: -x[0])
+    return [e for _, e in scored[:top_n]]
+
 def save_sent_articles(titles: set):
     """Gem sendte artikel-titler — behold kun de seneste 500"""
     try:
@@ -124,26 +164,34 @@ async def fetch_ted(query: str, size: int = 5) -> list:
         print(f"Fejl ved hentning af TED-udbud: {e}")
         return []
 
-def build_html_email(articles: list, scrape_articles: list, ted_notices: list, scan_date: str, new_count: int) -> str:
+def build_html_email(articles: list, scrape_articles: list, ted_notices: list, scan_date: str, new_count: int, dnnk_index: list = None) -> str:
 
-    def article_row(art, badge=""):
+    def article_row(art, badge="", related=None):
         tags = ", ".join(art.get("tags", []))
         url = art.get("url", "#") or "#"
         gruppe = art.get("gruppe", "")
         gruppe_html = f'<span style="background:#e8f4fd;color:#1a4d6e;padding:2px 6px;border-radius:3px;font-size:11px;margin-left:6px;">{gruppe}</span>' if gruppe else ""
+        related_html = ""
+        if related:
+            items = "".join([
+                f'<div style="margin-top:3px;"><a href="{w.get("youtube_url","#")}" style="color:#5B9BBF;text-decoration:none;font-size:12px;">&#9654; {w.get("title","")[:90]}</a></div>'
+                for w in related
+            ])
+            related_html = f'<div style="margin-top:8px;padding:6px 10px;background:#F4F8FB;border-left:3px solid #5B9BBF;border-radius:0 3px 3px 0;"><div style="color:#5B9BBF;font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Fra DNNKs arkiv</div>{items}</div>'
         return f"""
         <tr>
           <td style="padding:12px 0; border-bottom:1px solid #e8f0e0;">
             {f'<span style="background:#52b788;color:white;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:bold;margin-right:6px;">NY</span>' if badge == 'ny' else ''}
             <a href="{url}" style="color:#2d6a4f;font-weight:bold;text-decoration:none;">{art.get('title','')}</a>{gruppe_html}<br>
-            <span style="color:#666;font-size:12px;">{art.get('feedSource','')} · {art.get('date','')}</span><br>
+            <span style="color:#666;font-size:12px;">{art.get('feedSource','')} &middot; {art.get('date','')}</span><br>
             <span style="color:#444;font-size:13px;">{(art.get('summary','') or '')[:200]}{'...' if len(art.get('summary','') or '') > 200 else ''}</span><br>
             {'<span style="color:#888;font-size:11px;">' + tags + '</span>' if tags else ''}
+            {related_html}
           </td>
         </tr>"""
 
-    article_rows = "".join([article_row(a, "ny") for a in articles])
-    scrape_rows = "".join([article_row(a, "ny") for a in scrape_articles[:10]])
+    article_rows = "".join([article_row(a, "ny", find_relevant_webinars(a, dnnk_index or [])) for a in articles])
+    scrape_rows = "".join([article_row(a, "ny", find_relevant_webinars(a, dnnk_index or [])) for a in scrape_articles[:10]])
 
     ted_rows = ""
     for notice in ted_notices[:5]:
@@ -226,6 +274,7 @@ async def send_brevo_email(subject: str, html_content: str):
 
 async def run_daily_digest():
     print(f"[{datetime.now().strftime('%H:%M')}] Starter daglig scanning...")
+    dnnk_index = await fetch_dnnk_index()
 
     # Hent tidligere sendte artikler
     sent_titles = load_sent_articles()
@@ -276,7 +325,7 @@ async def run_daily_digest():
         print("Ingen nye artikler — e-mail ikke sendt")
     else:
         scan_date = datetime.now().strftime("%d. %B %Y")
-        html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new)
+        html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new, dnnk_index)
         subject = f"DNNK Klimamonitor · {scan_date} · {total_new} nye artikler"
         await send_brevo_email(subject, html)
 
