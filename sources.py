@@ -50,6 +50,9 @@ RSS_NORDEN = {
     "SMHI Sverige":             "https://www.smhi.se/rss",
     "Norsk Vann":               "https://www.norskvann.no/rss",
     "SYKE Finland":             "https://www.syke.fi/rss",
+    "HaV Sverige":              "https://www.mynewsdesk.com/rss/current_news/6994",
+    "SGI nyheder (SE)":         "https://api.client.notified.com/api/rss/publish/view/41885?type=news",
+    "SGI presse (SE)":          "https://api.client.notified.com/api/rss/publish/view/41885?type=press",
 }
 
 # ── EU PROJEKTER ──
@@ -303,4 +306,8 @@ SCRAPE_SOURCES = {
     "Helsingør Kommune":                {"url": "https://www.helsingor.dk/nyheder", "gruppe": "Kommuner"},
     "Kolding Kommune":                  {"url": "https://www.kolding.dk/nyheder", "gruppe": "Kommuner"},
     "Bornholm Kommune":                 {"url": "https://www.brk.dk/nyheder", "gruppe": "Kommuner"},
+
+    # ── NORDISKE NABOER (uden RSS) ──
+    "Movium nyheder (SE)":              {"url": "https://movium.slu.se/nyheter/", "gruppe": "Nordiske naboer"},
+    "Movium kalendarium (SE)":          {"url": "https://movium.slu.se/kalendarium/", "gruppe": "Nordiske naboer"},
 }
