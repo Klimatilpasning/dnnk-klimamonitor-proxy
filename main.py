@@ -313,31 +313,39 @@ async def _scheduler_loop():
 
 @app.post("/chat")
 async def chat(request: dict):
-    """Proxy til Anthropic API for at undgå CORS"""
-    import httpx
-    api_key = request.get("api_key", "")
+    """Proxy til Anthropic API. Bruger serverens egen ANTHROPIC_API_KEY
+    (sat som miljøvariabel på Render) — klienten skal IKKE sende en nøgle."""
+    import os
     messages = request.get("messages", [])
     system = request.get("system", "")
-    
+    max_tokens = int(request.get("max_tokens", 1024))
+
+    if not isinstance(messages, list) or not messages:
+        return {"error": "Ingen beskeder"}
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
-        return {"error": "Ingen API-nøgle"}
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "claude-haiku-4-5-20250714",
-                "max_tokens": 800,
-                "system": system,
-                "messages": messages
-            }
-        )
-        return resp.json()
+        return {"error": "Ingen server-API-nøgle konfigureret"}
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": min(max(max_tokens, 1), 4096),
+                    "system": system,
+                    "messages": messages
+                }
+            )
+            return resp.json()
+    except Exception as e:
+        return {"error": str(e)[:200]}
 
 
 # In-memory cache for query expansions (resets on restart)
