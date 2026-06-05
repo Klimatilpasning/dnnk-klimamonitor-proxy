@@ -1,0 +1,31 @@
+name: DNNK digest & analyse
+
+# Ekstern cron der udløser digest/analyse på Render. Nødvendig fordi Render
+# free-tier lukker tjenesten ned ved inaktivitet, så den interne scheduler
+# ikke kører pålideligt. Dette kald vækker både serveren OG sender mailen.
+#
+# Tider er i UTC. 06:0x UTC = 08:0x dansk sommertid (07:0x om vinteren).
+# Bemærk: planlagte workflows kører kun fra default-branchen (main) — aktiveres
+# først når denne branch er merget.
+
+on:
+  schedule:
+    - cron: '7 6 * * *'      # dagligt ~08:07 dansk tid: daglig digest + relevansanalyse
+    - cron: '9 6 * * 1'      # mandag ~08:09 dansk tid: ugentlig dyb indholdsanalyse
+  workflow_dispatch:          # tillad manuel kørsel fra Actions-fanen
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Udløs daglig digest
+        if: github.event.schedule == '7 6 * * *' || github.event_name == 'workflow_dispatch'
+        run: |
+          curl --fail --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors \
+            "https://dnnk-klimamonitor-proxy.onrender.com/send-digest?token=${{ secrets.DNNK_ACCESS_CODE }}"
+
+      - name: Udløs ugentlig analyse
+        if: github.event.schedule == '9 6 * * 1'
+        run: |
+          curl --fail --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors \
+            "https://dnnk-klimamonitor-proxy.onrender.com/send-weekly-analysis?token=${{ secrets.DNNK_ACCESS_CODE }}"
