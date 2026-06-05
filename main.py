@@ -1,20 +1,59 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import httpx
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from datetime import datetime
 import asyncio
 import re
+import os
+import time
+import collections
 
 app = FastAPI(title="DNNK Klimamonitor Proxy")
 
+# CORS låst til DNNK's GitHub Pages-domæne (begge frontends ligger her).
+# Sæt evt. ekstra domæner via miljøvariablen DNNK_ALLOWED_ORIGINS (komma-sep).
+ALLOWED_ORIGINS = ["https://klimatilpasning.github.io"]
+_extra = os.environ.get("DNNK_ALLOWED_ORIGINS", "")
+if _extra:
+    ALLOWED_ORIGINS += [o.strip() for o in _extra.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# ── Misbrugsbeskyttelse på de endpoints der bruger serverens API-nøgle ──
+_RATE = collections.defaultdict(list)
+RATE_LIMIT = int(os.environ.get("DNNK_RATE_LIMIT", "20"))   # kald pr. vindue pr. IP
+RATE_WINDOW = 60                                            # sekunder
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "ukendt"
+
+def is_rate_limited(request: Request) -> bool:
+    ip = _client_ip(request)
+    now = time.time()
+    hits = [t for t in _RATE[ip] if now - t < RATE_WINDOW]
+    hits.append(now)
+    _RATE[ip] = hits
+    return len(hits) > RATE_LIMIT
+
+def access_ok(request: Request) -> bool:
+    """Delt adgangskode. Hvis DNNK_ACCESS_CODE ikke er sat, er checket slået fra.
+    Bemærk: koden sendes fra frontenden og kan ses i klient-JS — det er et
+    værn mod tilfældigt/automatiseret misbrug, ikke mod en målrettet bruger."""
+    code = os.environ.get("DNNK_ACCESS_CODE", "")
+    if not code:
+        return True
+    return request.headers.get("x-dnnk-code", "") == code
 
 KEYWORDS = [
     # ── Klimatilpasning – kerneord ──
@@ -312,13 +351,17 @@ async def _scheduler_loop():
 
 
 @app.post("/chat")
-async def chat(request: dict):
+async def chat(payload: dict, request: Request):
     """Proxy til Anthropic API. Bruger serverens egen ANTHROPIC_API_KEY
     (sat som miljøvariabel på Render) — klienten skal IKKE sende en nøgle."""
-    import os
-    messages = request.get("messages", [])
-    system = request.get("system", "")
-    max_tokens = int(request.get("max_tokens", 1024))
+    if not access_ok(request):
+        return JSONResponse(status_code=401, content={"error": "Adgang nægtet"})
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
+
+    messages = payload.get("messages", [])
+    system = payload.get("system", "")
+    max_tokens = int(payload.get("max_tokens", 1024))
 
     if not isinstance(messages, list) or not messages:
         return {"error": "Ingen beskeder"}
@@ -352,12 +395,15 @@ async def chat(request: dict):
 _expand_cache = {}
 
 @app.get("/expand-query")
-async def expand_query(q: str = Query(..., min_length=2)):
+async def expand_query(request: Request, q: str = Query(..., min_length=2)):
     """Udvider en søgeforespørgsel med relaterede danske fagudtryk via Claude Haiku."""
-    import os, json as _json
+    import json as _json
     q_key = q.strip().lower()
     if q_key in _expand_cache:
         return {"query": q, "terms": _expand_cache[q_key], "cached": True}
+
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"query": q, "terms": [], "error": "For mange forespørgsler"})
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
