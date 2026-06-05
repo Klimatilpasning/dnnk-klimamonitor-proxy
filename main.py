@@ -55,6 +55,16 @@ def access_ok(request: Request) -> bool:
         return True
     return request.headers.get("x-dnnk-code", "") == code
 
+def trigger_ok(request: Request) -> bool:
+    """Beskytter de trigger-endpoints der koster API/e-mail. Token kan gives
+    som ?token=... eller X-DNNK-Code-header. Slået fra hvis DNNK_ACCESS_CODE
+    ikke er sat."""
+    code = os.environ.get("DNNK_ACCESS_CODE", "")
+    if not code:
+        return True
+    token = request.query_params.get("token", "") or request.headers.get("x-dnnk-code", "")
+    return token == code
+
 KEYWORDS = [
     # ── Klimatilpasning – kerneord ──
     "klimatilpasning", "skybrud", "oversvømmelse", "regnvand", "LAR",
@@ -327,12 +337,16 @@ async def get_kilder():
     return {gruppe: list(feeds.keys()) for gruppe, feeds in ALLE_FEEDS.items()}
 
 @app.get("/send-digest")
-async def trigger_digest():
+async def trigger_digest(request: Request):
+    if not trigger_ok(request):
+        return JSONResponse(status_code=401, content={"error": "Adgang nægtet"})
     asyncio.create_task(_run_digest())
     return {"status": "Digest scanning startet – e-mail sendes om ca. 60 sek"}
 
 @app.get("/send-weekly-analysis")
-async def trigger_weekly():
+async def trigger_weekly(request: Request):
+    if not trigger_ok(request):
+        return JSONResponse(status_code=401, content={"error": "Adgang nægtet"})
     asyncio.create_task(_run_weekly())
     return {"status": "Ugentlig indholdsanalyse startet – e-mail sendes om ca. 60 sek"}
 
