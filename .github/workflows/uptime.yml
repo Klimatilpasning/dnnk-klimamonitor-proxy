@@ -1,0 +1,23 @@
+name: DNNK oppetidstjek
+
+# Tjekker hver 6. time at de to sider + backend svarer. Hvis et trin fejler,
+# fejler jobbet, og GitHub sender automatisk en mail til repo-ejeren
+# (standard-notifikation ved fejlede workflows). Ingen ekstra opsætning krævet.
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'   # hver 6. time (på skæve minutter)
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Klimamonitor (frontend)
+        run: curl --fail --show-error --silent --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors -o /dev/null "https://klimatilpasning.github.io/dnnk-klimamonitor-proxy/"
+
+      - name: Vidensassistent (frontend)
+        run: curl --fail --show-error --silent --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors -o /dev/null "https://klimatilpasning.github.io/dnnk-vidensassistent/"
+
+      - name: Backend (Render) — vækkes og tjekkes
+        run: curl --fail --show-error --silent --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors -o /dev/null "https://dnnk-klimamonitor-proxy.onrender.com/"

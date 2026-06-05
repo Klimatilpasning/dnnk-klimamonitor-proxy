@@ -458,15 +458,16 @@ async def run_daily_digest():
     total_new = len(new_articles) + len(new_scrape)
     print(f"Nye artikler: {len(new_articles)} RSS + {len(new_scrape)} scrape = {total_new} i alt")
 
-    # Send kun hvis der er nye artikler
+    # Send altid en daglig mail (også på dage uden nye artikler), så leveringen
+    # er forudsigelig. På stille dage kommer der blot ingen artikel-rækker.
+    scan_date = datetime.now().strftime("%d. %B %Y")
+    analysis_html = await build_daily_analysis_html(new_articles[:15] + new_scrape[:10])
+    html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new, dnnk_index, analysis_html)
     if total_new == 0:
-        print("Ingen nye artikler — e-mail ikke sendt")
+        subject = f"DNNK Klimamonitor · {scan_date} · ingen nye artikler i dag"
     else:
-        scan_date = datetime.now().strftime("%d. %B %Y")
-        analysis_html = await build_daily_analysis_html(new_articles[:15] + new_scrape[:10])
-        html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new, dnnk_index, analysis_html)
         subject = f"DNNK Klimamonitor · {scan_date} · {total_new} nye artikler"
-        await send_brevo_email(subject, html)
+    await send_brevo_email(subject, html)
 
     # Gem alle sendte titler
     all_sent = sent_titles | {a.get("title", "") for a in unique_articles + unique_scrape}
