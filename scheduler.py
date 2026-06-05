@@ -170,7 +170,7 @@ async def fetch_ted(query: str, size: int = 5) -> list:
         print(f"Fejl ved hentning af TED-udbud: {e}")
         return []
 
-def build_html_email(articles: list, scrape_articles: list, ted_notices: list, scan_date: str, new_count: int, dnnk_index: list = None) -> str:
+def build_html_email(articles: list, scrape_articles: list, ted_notices: list, scan_date: str, new_count: int, dnnk_index: list = None, analysis_html: str = "") -> str:
 
     def article_row(art, badge="", related=None):
         tags = ", ".join(art.get("tags", []))
@@ -235,6 +235,7 @@ def build_html_email(articles: list, scrape_articles: list, ted_notices: list, s
     <p style="color:#b7e4c7;margin:6px 0 0;">Daglig scanning · {scan_date} · <strong style="color:white;">{new_count} nye artikler</strong></p>
   </div>
   <div style="background:white;padding:24px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    {analysis_html}
     <h2 style="color:#2d6a4f;border-bottom:2px solid #b7e4c7;padding-bottom:8px;">📰 Nyheder og fagartikler</h2>
     <table width="100%" cellpadding="0" cellspacing="0">
       {article_rows if article_rows else "<tr><td style='color:#888;padding:10px 0;'>Ingen nye nyheder siden sidst.</td></tr>"}
@@ -277,6 +278,137 @@ async def send_brevo_email(subject: str, html_content: str):
             print(f"E-mail sendt til {DIGEST_EMAIL_TO} via Brevo ✅")
         else:
             print(f"Brevo fejl {resp.status_code}: {resp.text}")
+
+# ─────────────────────────────────────────────────────────────
+# INDHOLDS- & RELEVANSANALYSE (Claude Haiku, server-side nøgle)
+# ─────────────────────────────────────────────────────────────
+
+async def claude_analysis(prompt: str, max_tokens: int = 700) -> str:
+    """Kør en analyse via Claude Haiku med serverens egen nøgle.
+    Returnerer ren HTML-tekst, eller '' ved fejl (så mailen stadig sendes)."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return ""
+    try:
+        async with httpx.AsyncClient(timeout=40) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": max_tokens,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+            )
+            data = resp.json()
+            if "content" in data and data["content"]:
+                return data["content"][0].get("text", "").strip()
+    except Exception as e:
+        print(f"Analyse-fejl: {e}")
+    return ""
+
+
+def _articles_to_lines(articles: list, limit: int = 30) -> str:
+    lines = []
+    for a in articles[:limit]:
+        kilde = a.get("gruppe", "") or a.get("feedSource", "")
+        lines.append(f"- [{kilde}] {a.get('title','')} :: {(a.get('summary','') or '')[:160]}")
+    return "\n".join(lines)
+
+
+async def build_daily_analysis_html(articles: list) -> str:
+    """Kort daglig relevans- og temaanalyse til toppen af digesten."""
+    if not articles:
+        return ""
+    prompt = (
+        "Du er DNNK's redaktionelle analytiker for klimatilpasning. "
+        "Her er dagens fundne artikler fra Klimamonitor:\n\n"
+        + _articles_to_lines(articles, 30)
+        + "\n\nLav en KORT analyse på dansk:\n"
+        "1) Relevans: hvor stor en andel virker reelt relevant for klimatilpasning, "
+        "og nævn tydeligt off-topic støj (med titel) hvis der er noget.\n"
+        "2) Dagens hovedtemaer (2-4 punkter).\n"
+        "3) Det vigtigste at bemærke (2-3 sætninger).\n"
+        "Svar i ren HTML med <p>, <ul>, <li>, <strong> — INGEN <html>/<body>-tags."
+    )
+    html = await claude_analysis(prompt, max_tokens=700)
+    if not html:
+        return ""
+    return (
+        '<div style="background:#F4F8FB;border-left:4px solid #5B9BBF;'
+        'padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">'
+        '<div style="color:#3a6e8a;font-size:12px;font-weight:bold;text-transform:uppercase;'
+        'letter-spacing:0.5px;margin-bottom:6px;">🔍 Dagens relevansanalyse</div>'
+        f'<div style="color:#2c2c2c;font-size:13px;line-height:1.6;">{html}</div>'
+        '<div style="color:#999;font-size:10px;margin-top:8px;">Automatisk genereret analyse — vurdér selv.</div>'
+        '</div>'
+    )
+
+
+async def run_weekly_analysis():
+    """Dybere ugentlig indholdsanalyse — sendes som separat e-mail."""
+    print(f"[{datetime.now().strftime('%H:%M')}] Starter ugentlig indholdsanalyse...")
+    dnnk_index = await fetch_dnnk_index()
+
+    all_articles = []
+    for query in QUERIES:
+        all_articles.extend(await fetch_articles(query, limit=5))
+    all_articles.extend(await fetch_scrape("klimatilpasning"))
+
+    # Dedupliker + behold seneste uge
+    seen, unique = set(), []
+    for a in all_articles:
+        t = a.get("title", "")
+        if t and t not in seen:
+            seen.add(t)
+            unique.append(a)
+    unique.sort(key=lambda x: (x.get("relevance", 0), x.get("date", "")), reverse=True)
+
+    if not unique:
+        print("Ugentlig analyse: ingen artikler — springer over")
+        return
+
+    webinar_titles = ", ".join(e.get("title", "") for e in (dnnk_index or [])[:60])
+    prompt = (
+        "Du er DNNK's redaktionelle analytiker for klimatilpasning. "
+        "Her er ugens samlede artikler fra Klimamonitor:\n\n"
+        + _articles_to_lines(unique, 60)
+        + "\n\nDNNK's webinar-arkiv (titler):\n" + webinar_titles
+        + "\n\nLav en GRUNDIG ugentlig analyse på dansk:\n"
+        "1) Overordnet relevansvurdering af ugens output (signal vs. støj).\n"
+        "2) De vigtigste 3-5 temaer/tendenser med kort begrundelse.\n"
+        "3) Kobling til DNNK's vidensbank: hvilke eksisterende webinarer er mest "
+        "relevante for ugens temaer, og hvor er der huller arkivet ikke dækker?\n"
+        "4) Anbefalinger: hvad bør DNNK holde øje med eller producere indhold om.\n"
+        "Svar i ren HTML med <h3>, <p>, <ul>, <li>, <strong> — INGEN <html>/<body>-tags."
+    )
+    analysis = await claude_analysis(prompt, max_tokens=1600)
+    if not analysis:
+        print("Ugentlig analyse: tom — springer over")
+        return
+
+    scan_date = datetime.now().strftime("%d. %B %Y")
+    html = f"""
+<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;background:#f9fdf6;padding:20px;">
+  <div style="background:#3a6e8a;padding:24px;border-radius:8px 8px 0 0;">
+    <h1 style="color:white;margin:0;font-size:22px;">📊 DNNK Ugentlig indholdsanalyse</h1>
+    <p style="color:#cfe4f0;margin:6px 0 0;">Uge afsluttet {scan_date} · {len(unique)} artikler analyseret</p>
+  </div>
+  <div style="background:white;padding:24px;border-radius:0 0 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);font-size:14px;line-height:1.65;color:#2c2c2c;">
+    {analysis}
+    <p style="color:#aaa;font-size:11px;margin-top:32px;border-top:1px solid #eee;padding-top:12px;">
+      Automatisk genereret af DNNK Klimamonitor · vurdér altid indholdet selv.
+    </p>
+  </div>
+</body></html>"""
+    await send_brevo_email(f"DNNK Ugentlig indholdsanalyse · {scan_date}", html)
+    print("run_weekly_analysis afsluttet")
+
 
 async def run_daily_digest():
     print(f"[{datetime.now().strftime('%H:%M')}] Starter daglig scanning...")
@@ -331,7 +463,8 @@ async def run_daily_digest():
         print("Ingen nye artikler — e-mail ikke sendt")
     else:
         scan_date = datetime.now().strftime("%d. %B %Y")
-        html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new, dnnk_index)
+        analysis_html = await build_daily_analysis_html(new_articles[:15] + new_scrape[:10])
+        html = build_html_email(new_articles[:15], new_scrape[:10], ted_notices, scan_date, total_new, dnnk_index, analysis_html)
         subject = f"DNNK Klimamonitor · {scan_date} · {total_new} nye artikler"
         await send_brevo_email(subject, html)
 
@@ -352,3 +485,6 @@ async def scheduler_loop():
         print(f"Næste scanning: {next_run.strftime('%d/%m %H:%M')} (om {int(wait_seconds // 3600)}t {int((wait_seconds % 3600) // 60)}m)")
         await asyncio.sleep(wait_seconds)
         await run_daily_digest()
+        # Ugentlig dyb indholdsanalyse om mandagen (efter den daglige digest)
+        if datetime.now(cph).weekday() == 0:
+            await run_weekly_analysis()

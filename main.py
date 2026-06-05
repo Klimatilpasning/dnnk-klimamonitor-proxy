@@ -331,6 +331,18 @@ async def trigger_digest():
     asyncio.create_task(_run_digest())
     return {"status": "Digest scanning startet – e-mail sendes om ca. 60 sek"}
 
+@app.get("/send-weekly-analysis")
+async def trigger_weekly():
+    asyncio.create_task(_run_weekly())
+    return {"status": "Ugentlig indholdsanalyse startet – e-mail sendes om ca. 60 sek"}
+
+async def _run_weekly():
+    try:
+        from scheduler import run_weekly_analysis
+        await run_weekly_analysis()
+    except Exception as e:
+        print(f"Ugentlig analyse fejl: {e}")
+
 async def _run_digest():
     try:
         from scheduler import run_daily_digest
