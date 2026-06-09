@@ -10,22 +10,21 @@ name: DNNK digest & analyse
 
 on:
   schedule:
-    - cron: '7 6 * * *'      # dagligt ~08:07 dansk tid: daglig digest + relevansanalyse
-    - cron: '9 6 * * 1'      # mandag ~08:09 dansk tid: ugentlig dyb indholdsanalyse
+    - cron: '7 6 * * 5'      # fredag ~08:07 dansk tid: ugentlig digest + dyb analyse
   workflow_dispatch:          # tillad manuel kørsel fra Actions-fanen
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Udløs daglig digest
-        if: github.event.schedule == '7 6 * * *' || github.event_name == 'workflow_dispatch'
+      - name: Udløs ugentlig digest
+        if: github.event.schedule == '7 6 * * 5' || github.event_name == 'workflow_dispatch'
         run: |
           curl --fail --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors \
             "https://dnnk-klimamonitor-proxy.onrender.com/send-digest?token=${{ secrets.DNNK_ACCESS_CODE }}"
 
       - name: Udløs ugentlig analyse
-        if: github.event.schedule == '9 6 * * 1'
+        if: github.event.schedule == '7 6 * * 5' || github.event_name == 'workflow_dispatch'
         run: |
           curl --fail --max-time 120 --retry 4 --retry-delay 30 --retry-all-errors \
             "https://dnnk-klimamonitor-proxy.onrender.com/send-weekly-analysis?token=${{ secrets.DNNK_ACCESS_CODE }}"

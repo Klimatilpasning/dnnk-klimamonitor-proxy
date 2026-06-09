@@ -476,16 +476,16 @@ async def run_daily_digest():
 
 async def scheduler_loop():
     cph = timezone(timedelta(hours=1))
-    print("Scheduler startet – venter på kl. 08:00...")
+    print("Scheduler startet – venter på fredag kl. 08:00...")
     while True:
         now = datetime.now(cph)
-        next_run = now.replace(hour=8, minute=0, second=0, microsecond=0)
+        # Find næste fredag kl. 08:00
+        days_until_friday = (4 - now.weekday()) % 7
+        next_run = (now + timedelta(days=days_until_friday)).replace(hour=8, minute=0, second=0, microsecond=0)
         if now >= next_run:
-            next_run = next_run + timedelta(days=1)
+            next_run = next_run + timedelta(weeks=1)
         wait_seconds = (next_run - now).total_seconds()
         print(f"Næste scanning: {next_run.strftime('%d/%m %H:%M')} (om {int(wait_seconds // 3600)}t {int((wait_seconds % 3600) // 60)}m)")
         await asyncio.sleep(wait_seconds)
         await run_daily_digest()
-        # Ugentlig dyb indholdsanalyse om mandagen (efter den daglige digest)
-        if datetime.now(cph).weekday() == 0:
-            await run_weekly_analysis()
+        await run_weekly_analysis()
