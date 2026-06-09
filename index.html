@@ -797,10 +797,11 @@ function markCurrentAsSeen() {
 
 // ─── Fetch ──────────────────────────────────────────────────
 // Henter JSON med timeout og retry. Render free-tier sover efter 15 min,
-// og cold-start tager ofte 30-60 sek — derfor prøver vi igen med backoff
-// i stedet for at fejle på første forsøg. onRetry kaldes mellem forsøgene,
-// så UI kan vise at serveren er ved at vågne.
-async function fetchJson(url, { timeoutMs = 30000, retries = 2, backoffMs = 4000, onRetry = null } = {}) {
+// og cold-start holder ofte forbindelsen åben i 30-60 sek og svarer DEREFTER
+// — derfor en lang timeout (75s), så første forsøg rider cold-starten ud i
+// stedet for at afbryde for tidligt. Retries er backup hvis det stadig fejler.
+// onRetry kaldes mellem forsøgene, så UI kan vise at serveren er ved at vågne.
+async function fetchJson(url, { timeoutMs = 75000, retries = 2, backoffMs = 3000, onRetry = null } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
@@ -825,7 +826,7 @@ async function fetchJson(url, { timeoutMs = 30000, retries = 2, backoffMs = 4000
 // Opdaterer loading-beskeden i en container, så brugeren kan se at
 // serveren vågner i stedet for at tro siden er død.
 function setWakingMsg(container) {
-  if (container) container.innerHTML = '<div class="loading">Serveren vågner (Render free-tier) – prøver igen<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
+  if (container) container.innerHTML = '<div class="loading">Serveren vågner (Render free-tier) – kan tage op til ~1 min første gang, henter automatisk<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
 }
 
 async function search() {
@@ -841,12 +842,17 @@ async function search() {
   if (searchBtn) searchBtn.disabled = true;
   if (scanBtn) scanBtn.disabled = true;
 
+  // Hvis svaret trækker ud (>6s) er serveren sandsynligvis ved at vågne —
+  // skift besked så brugeren ved at siden ikke er frossen.
+  const wakeTimer = setTimeout(() => setWakingMsg(articlesContainer), 6000);
+
   // allSettled: ét fejlende endpoint må ikke skjule de andre
   const [newsR, tedR, scrapeR] = await Promise.allSettled([
     fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(q)}&limit=5`, { onRetry: () => setWakingMsg(articlesContainer) }),
     fetchJson(`${PROXY}/ted?q=${encodeURIComponent(q)}&size=10`),
     fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(q)}`)
   ]);
+  clearTimeout(wakeTimer);
 
   const newsData = newsR.status === 'fulfilled' ? newsR.value : {};
   const tedData = tedR.status === 'fulfilled' ? tedR.value : {};
@@ -894,9 +900,13 @@ async function autoScan() {
   const all = [], tedAll = [];
   let errors = 0, feedsChecked = 0;
 
+  // Skift besked hvis serveren trækker ud (vågner) — som i search()
+  const wakeTimer = setTimeout(() => setWakingMsg(articlesContainer), 6000);
+
   const newsResults = await Promise.allSettled(
     queries.map(q => fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(q)}&limit=4`, { onRetry: () => setWakingMsg(articlesContainer) }))
   );
+  clearTimeout(wakeTimer);
   for (const r of newsResults) {
     if (r.status === 'fulfilled') {
       all.push(...(r.value.articles||[]));
