@@ -126,7 +126,36 @@ def kw_match(keyword: str, text: str) -> bool:
     if not keyword:
         return False
     pattern = r'(?<!\w)' + re.escape(keyword)
+    # Akronymer (kun versaler/tal, fx LAR, BNBO, DHI, DK2020) skal matche som
+    # helt ord — ellers rammer "LAR" navnet "Lars" og "DHI" rammer "DHILiving".
+    # Almindelige ord beholder kun start-grænsen, så "klima" stadig matcher
+    # sammensætninger som "klimaforandring".
+    if keyword.upper() == keyword and any(c.isalpha() for c in keyword):
+        pattern += r'(?!\w)'
     return bool(re.search(pattern, text, re.IGNORECASE | re.UNICODE))
+
+# Brede nøgleord vejer let — ét enkelt match (fx kun "klima" eller "miljø")
+# er IKKE nok til at en artikel regnes som relevant. Det er disse ord der
+# ellers lukker ministerrokade, elpriser og "klimaaftryk"-historier ind.
+# Alle øvrige KEYWORDS er kerneord og vejer tungt.
+BROAD_KEYWORDS = {
+    "klima", "vand", "miljø", "bæredygtig",
+    "climate", "urban", "infrastructure",
+}
+
+def score_article(combined: str, q_match: bool):
+    """Returnér (relevance 0-1, keep).
+
+    Kerneord vejer 3, brede ord 1, et søge-match giver 3. En artikel beholdes
+    kun hvis den rammer mindst ét kerneord, matcher søgningen, eller rammer
+    mindst to brede ord — så artikler der blot strejfer 'klima'/'miljø' (fx
+    ministerrokade eller elpriser) sorteres fra i stedet for at score 1."""
+    core_hits = sum(1 for kw in KEYWORDS
+                    if kw not in BROAD_KEYWORDS and kw_match(kw, combined))
+    broad_hits = sum(1 for kw in BROAD_KEYWORDS if kw_match(kw, combined))
+    keep = core_hits >= 1 or q_match or broad_hits >= 2
+    raw = core_hits * 3 + broad_hits + (3 if q_match else 0)
+    return min(round(raw / 12, 2), 1.0), keep
 
 def parse_item_bs(item):
     """Parse et RSS/Atom item med BeautifulSoup"""
@@ -226,15 +255,15 @@ async def fetch_rss(client, source, url, query):
                 continue
             combined = title + " " + description
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
-            score = sum(1 for kw in KEYWORDS if kw_match(kw, combined)) + (3 if q_match else 0)
-            # Skip articles with zero relevance — pure noise from broad feeds
-            if score == 0:
+            relevance, keep = score_article(combined, q_match)
+            # Drop artikler der kun strejfer brede ord — ren støj fra brede feeds
+            if not keep:
                 continue
             results.append({
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
                 "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
-                "relevance": min(round(score / 8, 2), 1.0), "url": link, "value": None
+                "relevance": relevance, "url": link, "value": None
             })
         results.sort(key=lambda x: x["relevance"], reverse=True)
         return results[:5]
@@ -567,7 +596,10 @@ async def scrape_news(client, source, url, gruppe, query):
 
             combined = title + " " + description
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
-            score = sum(1 for kw in KEYWORDS if kw_match(kw, combined)) + (3 if q_match else 0)
+            relevance, keep = score_article(combined, q_match)
+            # Drop artikler der kun strejfer brede ord — samme tærskel som RSS
+            if not keep:
+                continue
 
             articles.append({
                 "source": "scrape",
@@ -577,28 +609,14 @@ async def scrape_news(client, source, url, gruppe, query):
                 "date": pub_date,
                 "summary": description,
                 "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
-                "relevance": min(round(score / 8, 2), 1.0),
+                "relevance": relevance,
                 "url": article_url,
                 "value": None,
                 "gruppe": gruppe,
             })
 
-        # Filtrer artikler uden klimarelevans fra scraping
-        # Kun behold hvis relevance > 0 ELLER titlen indeholder et kernenøgleord
-        CORE_KEYWORDS = [
-            "klima", "vand", "oversvøm", "regnvand", "spildevand", "kyst",
-            "stormflod", "LAR", "klimatilpasning", "klimasikring", "skybrud",
-            "forsyning", "vandmiljø", "grundvand", "renseanlæg", "kloak",
-            "nature-based", "havvand", "vandstand", "klimahandling",
-            "kust", "havsnivå", "kustplaner", "klimatanpassning"
-        ]
-        filtered = []
-        for a in articles:
-            if a["relevance"] > 0 or any(kw_match(kw, a["title"]) for kw in CORE_KEYWORDS):
-                filtered.append(a)
-
-        filtered.sort(key=lambda x: x["relevance"], reverse=True)
-        return filtered[:5]
+        articles.sort(key=lambda x: x["relevance"], reverse=True)
+        return articles[:5]
 
     except Exception:
         return []
