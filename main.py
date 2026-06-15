@@ -395,6 +395,11 @@ async def _run_digest():
 
 @app.on_event("startup")
 async def start_scheduler():
+    # Intern scheduler er som standard slået FRA (digest-mails stoppet på brugerens anmodning).
+    # Sæt miljøvariablen SCHEDULER_ENABLED=true på Render for at aktivere igen.
+    if os.environ.get("SCHEDULER_ENABLED", "").lower() not in ("1", "true", "yes"):
+        print("Scheduler deaktiveret (SCHEDULER_ENABLED ikke sat) – sender ingen digest-mails.")
+        return
     asyncio.create_task(_scheduler_loop())
 
 async def _scheduler_loop():
