@@ -120,7 +120,6 @@ RSS_VIDENSKAB = {
     "Nature Water":             "https://www.nature.com/natwater.rss",
     "Science Advances":         "https://advances.sciencemag.org/rss/current.xml",
     "Climatic Change":          "https://link.springer.com/search.rss?query=climate+adaptation&search-within=Journal&facet-journal-id=10584",
-    "Hydrology & Earth Sci.":   "https://www.hydrol-earth-syst-sci.net/xml/rss2.xml",
     "Urban Climate":            "https://rss.sciencedirect.com/publication/science/22120955",
     "Journal Water Research":   "https://rss.sciencedirect.com/publication/science/00431354",
     # Fjernet (døde RSS, dækket af SCRAPE_SOURCES: DTU Byg, KU SCIENCE, DCE
