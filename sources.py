@@ -7,34 +7,26 @@ RSS_NEWS = {
     "Ingeniøren":               "https://ing.dk/rss",
     "Ingeniøren Energi & Miljø":"https://ing.dk/term/rss/1964",
     "Altinget Miljø":           "https://www.altinget.dk/miljoe/rss.aspx",
-    "Altinget Plan & Byg":      "https://www.altinget.dk/plan/rss.aspx",
     "DR Viden":                 "https://www.dr.dk/nyheder/service/feeds/viden",
     "DR Vejret":                "https://www.dr.dk/nyheder/service/feeds/vejret",
-    "Politiken Klima":          "https://politiken.dk/rss/sektion/klima/",
-    "Jyllands-Posten Klima":    "https://jyllands-posten.dk/rss/klima/",
-    "Berlingske Viden":         "https://www.berlingske.dk/rss/viden",
     "Børsen":                   "https://borsen.dk/rss",
-    "KTC Nyt":                  "https://www.ktc.dk/nyt/rss",
+    # Fjernet (døde RSS, nu dækket af "Brede søgninger"/Bing News): Altinget
+    # Plan & Byg, Politiken Klima, Jyllands-Posten Klima, Berlingske Viden.
+    # KTC flyttet til SCRAPE_SOURCES (RSS nedlagt).
 }
 
 # ── VIDENSINSTITUTIONER ──
 RSS_VIDEN = {
-    "IDA":                      "https://ida.dk/rss",
-    "DANVA":                    "https://www.danva.dk/rss",
     "Vand i Byer":              "https://vandibyer.dk/feed/",
     "Klimatorium":              "https://klimatorium.dk/feed/",
-    "CONCITO":                  "https://concito.dk/rss",
-    "DMI":                      "https://www.dmi.dk/rss",
+    # Fjernet (døde RSS, flyttet til SCRAPE_SOURCES): IDA, DANVA, CONCITO, DMI.
 }
 
 # ── RÅDGIVERE ──
 RSS_RAADGIVERE = {
     "Sweco":                    "https://www.sweco.dk/rss",
-    "Rambøll":                  "https://ramboll.com/rss",
-    "COWI":                     "https://www.cowi.com/rss",
-    "Niras":                    "https://www.niras.dk/rss",
-    "Krüger":                   "https://www.kruger.dk/rss",
-    "Orbicon|WSP":              "https://www.wsp.com/rss",
+    # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Rambøll, COWI,
+    # Niras, Krüger, Orbicon|WSP.
 }
 
 # ── FORSYNINGER RSS ──
@@ -46,11 +38,11 @@ RSS_FORSYNINGER_RSS = {
 RSS_NORDEN = {
     "SVT Nyheder Klima":        "https://www.svt.se/nyheter/rss.xml",
     "VA-guiden (SE)":           "https://www.vaguiden.se/rss",
-    "NCCS Norge":               "https://www.nccs.no/rss",
     "NRK Klima":                "https://www.nrk.no/toppsaker.rss",
     "SMHI Sverige":             "https://www.smhi.se/rss/nyheter-fran-smhi",
     "Norsk Vann":               "https://www.norskvann.no/rss",
-    "SYKE Finland":             "https://www.syke.fi/rss",
+    # Fjernet: NCCS Norge (forkert institution — CO2-lagring, ikke
+    # klimaservice; rette site har intet RSS) og SYKE Finland (intet RSS).
     "HaV Sverige":              "https://www.mynewsdesk.com/rss/current_news/6994",
     "SGI nyheder (SE)":         "https://api.client.notified.com/api/rss/publish/view/41885?type=news",
     "SGI presse (SE)":          "https://api.client.notified.com/api/rss/publish/view/41885?type=press",
@@ -72,9 +64,8 @@ RSS_PLATFORME = {
     "BLOXHUB":                  "https://bloxhub.org/rss",
     "Gate 21":                  "https://www.gate21.dk/rss",
     "State of Green":           "https://stateofgreen.com/en/feed/",
-    "Realdania":                "https://realdania.dk/rss",
-    "Velux Fonden":             "https://veluxfoundations.dk/rss",
-    "Forsikring & Pension":     "https://www.forsikringogpension.dk/rss",
+    # Fjernet (døde RSS): Realdania og Forsikring & Pension (dækket af
+    # SCRAPE_SOURCES); Velux Fonden (intet RSS, ingen brugbar nyhedsliste).
 }
 
 # ── INTERNATIONALE INSTITUTIONER ──
@@ -120,8 +111,7 @@ RSS_KREATIVT = {
     "The Conversation Env.":    "https://theconversation.com/environment/articles.atom",
     "WEF Natur & Klima":        "https://www.weforum.org/agenda/feed/",
     "Fast Company Innov.":      "https://www.fastcompany.com/feed",
-    "Tredje Natur":             "https://tredjenatur.dk/feed/",
-    "SLA Arkitekter":           "https://www.sla.dk/feed/",
+    # Fjernet (døde RSS, dækket af SCRAPE_SOURCES): Tredje Natur, SLA Arkitekter.
     "Citylab (Bloomberg)":      "https://www.bloomberg.com/feeds/bbiz/sitemap_index.xml",
     "Planetizen":               "https://www.planetizen.com/rss.xml",
 }
@@ -131,9 +121,8 @@ RSS_LOVGIVNING = {
     "Folketing":                "https://www.ft.dk/da/aktuelt/nyheder/rss",
     "Folketing Dagsorden":      "https://www.ft.dk/da/aktuelt/kalender/rss",
     "Klimarådet":               "https://klimaraadet.dk/da/rss.xml",
-    "Miljøministeriet":         "https://www.mim.dk/rss",
-    "Kystdirektoratet":         "https://kyst.dk/rss",
-    "Energistyrelsen":          "https://ens.dk/rss",
+    # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Miljøministeriet,
+    # Kystdirektoratet, Energistyrelsen.
 }
 
 # ── VIDENSKAB & FORSKNING ──
@@ -145,9 +134,8 @@ RSS_VIDENSKAB = {
     "Hydrology & Earth Sci.":   "https://www.hydrol-earth-syst-sci.net/xml/rss2.xml",
     "Urban Climate":            "https://rss.sciencedirect.com/publication/science/22120955",
     "Journal Water Research":   "https://rss.sciencedirect.com/publication/science/00431354",
-    "DTU Research":             "https://www.dtu.dk/nyheder/rss",
-    "AU Forskning":             "https://news.au.dk/rss",
-    "KU Nyheder":               "https://www.ku.dk/nyheder/rss",
+    # Fjernet (døde RSS, dækket af SCRAPE_SOURCES: DTU Byg, KU SCIENCE, DCE
+    # Aarhus): DTU Research, AU Forskning, KU Nyheder.
 }
 
 # ── BREDE SØGE-FEEDS (Bing News) ──
@@ -172,8 +160,8 @@ RSS_BREDE_SOEGNINGER = {
 
 # ── PODCASTS (RSS til nye episoder) ──
 RSS_PODCASTS = {
-    "Vandkanten (DNNK)":        "https://feeds.buzzsprout.com/1234567.rss",
-    "Hav og himmel (DMI)":      "https://feeds.megaphone.fm/DMI-podcast",
+    # Fjernet (døde/placeholder-RSS): "Vandkanten (DNNK)" (1234567.rss var en
+    # dummy-ID) og "Hav og himmel (DMI)" (404 — feed findes ikke).
     "The Water Values":         "https://www.waterpolicygroup.com/feed/podcast/",
     "Sustainability Defined":   "https://feeds.buzzsprout.com/1086681.rss",
     "Warm Regards (klima)":     "https://feeds.feedburner.com/WarmRegardsPodcast",
@@ -219,6 +207,9 @@ SCRAPE_SOURCES = {
     "DCE Aarhus Univ.":                 {"url": "https://dce.au.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
     "DHI":                              {"url": "https://www.dhigroup.com/news", "gruppe": "Vidensinstitutioner"},
     "Teknologisk Institut":             {"url": "https://www.teknologisk.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
+    "DMI":                              {"url": "https://www.dmi.dk/nyheder", "gruppe": "Vidensinstitutioner"},
+    "IDA":                              {"url": "https://ida.dk/nyheder", "gruppe": "Vidensinstitutioner"},
+    "KTC":                              {"url": "https://www.ktc.dk/nyheder", "gruppe": "Vidensinstitutioner"},
 
     # ── GRUNDVAND & VANDKREDSLØB ──
     "GEUS Grundvand":                   {"url": "https://www.geus.dk/vores-viden/vand/grundvand/nyheder/", "gruppe": "Vandkredsløb & grundvand"},

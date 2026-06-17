@@ -554,7 +554,12 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     from urllib.parse import urlparse, urljoin
     try:
         resp = await client.get(url, timeout=15, follow_redirects=True, headers=RSS_HEADERS)
-        if resp.status_code != 200:
+        # Bemærk: flere danske CMS/SPA-sider (DMI, IDA, Klimarådet, SLA, HOFOR)
+        # svarer HTTP 404 på serverniveau, men leverer alligevel hele nyhedslisten
+        # i body. Vi afviser derfor IKKE på statuskode alene — vi forsøger at parse
+        # så længe der er substantielt indhold. Selektorerne + relevans-filteret
+        # giver naturligt 0 resultater for ægte (tomme) fejlsider.
+        if not resp.text or len(resp.text) < 2000:
             return []
 
         soup = BeautifulSoup(resp.text, "lxml")
