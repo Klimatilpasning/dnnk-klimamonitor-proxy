@@ -533,6 +533,92 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
 
     return {"query": q, "terms": []}
 
+
+# In-memory cache for webinar-vurderinger (nulstilles ved genstart)
+_webinar_cache = {}
+
+WEBINAR_SYSTEM = (
+    "Du vurderer om en nyhed er værd for DNNK (Det Nationale Netværk for "
+    "Klimatilpasning) at forfølge til et kort, case-drevet morgenwebinar "
+    "('Godmorgen med DNNK'). Vægtet efter vigtighed:\n"
+    "1) Konkret case + oplagt oplægsholder (VIGTIGST): et reelt, navngivet "
+    "projekt OG en oplagt person/organisation at invitere. Uden dette bliver "
+    "det sjældent til et webinar.\n"
+    "2) Klimatilpasnings-kerne: vand/tilpasning (skybrud, oversvømmelse, "
+    "regnvand/LAR, grundvand, kyst, vandløb, klimasikret byudvikling). "
+    "IKKE CO2/mitigation/energi — det er uden for DNNK's fokus.\n"
+    "3) Aktualitet: nyt nok til at trække publikum nu.\n"
+    "4) Bred medlemsrelevans: kan mange kommuner/forsyninger bruge det.\n\n"
+    "Svar KUN med valid JSON, intet andet:\n"
+    '{"verdict":"groen|gul|roed","begrundelse":"max 20 ord","vinkel":"kort '
+    'webinar-vinkel eller tom streng","oplaegsholder":"hvem kunne holde '
+    'oplæg, eller tom streng"}\n'
+    "groen = forfølg (opfylder case+oplægsholder og klimatilpasnings-kerne). "
+    "gul = måske (skriv i begrundelse hvad der mangler). "
+    "roed = drop (uden for fokus, for gammelt, eller ingen case)."
+)
+
+@app.post("/webinar-vurder")
+async def webinar_vurder(payload: dict, request: Request):
+    """Vurderer om en artikel er værd at forfølge til et DNNK-webinar.
+    Bruger serverens egen ANTHROPIC_API_KEY (Claude Haiku). Beskyttet af
+    rate-limit + CORS + server-cache + lavt token-loft (intern, billig brug)."""
+    import json as _json, re as _re
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"verdict": "", "error": "For mange forespørgsler"})
+
+    title = (payload.get("title") or "").strip()
+    summary = (payload.get("summary") or "").strip()
+    source = (payload.get("source") or "").strip()
+    if not title:
+        return {"verdict": "", "error": "Ingen titel"}
+
+    key = title.lower()
+    if key in _webinar_cache:
+        return {**_webinar_cache[key], "cached": True}
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return {"verdict": "", "error": "Ingen server-API-nøgle konfigureret"}
+
+    user = f"Titel: {title}\nKilde: {source}\nResumé: {summary[:600]}\n\nVurdér."
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 220,
+                    "system": WEBINAR_SYSTEM,
+                    "messages": [{"role": "user", "content": user}],
+                },
+            )
+            data = resp.json()
+            if "content" not in data:
+                return {"verdict": "", "error": "Ugyldigt svar fra Claude"}
+            raw = data["content"][0]["text"].strip()
+            raw = _re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = _re.sub(r"\s*```$", "", raw)
+            parsed = _json.loads(raw)
+            verdict = str(parsed.get("verdict", "")).lower().strip()
+            if verdict not in ("groen", "gul", "roed"):
+                return {"verdict": "", "error": "Ugyldig verdict"}
+            result = {
+                "verdict": verdict,
+                "begrundelse": str(parsed.get("begrundelse", ""))[:200],
+                "vinkel": str(parsed.get("vinkel", ""))[:200],
+                "oplaegsholder": str(parsed.get("oplaegsholder", ""))[:200],
+            }
+            _webinar_cache[key] = result
+            return result
+    except Exception as e:
+        return {"verdict": "", "error": str(e)[:150]}
+
 @app.get("/")
 def root():
     return {"status": "ok", "service": "DNNK Klimamonitor Proxy",
