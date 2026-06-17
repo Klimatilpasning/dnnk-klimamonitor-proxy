@@ -150,6 +150,22 @@ RSS_VIDENSKAB = {
     "KU Nyheder":               "https://www.ku.dk/nyheder/rss",
 }
 
+# ── BREDE SØGE-FEEDS (Google News) ──
+# Query-baserede RSS-feeds der fanger danske klimatilpasningshistorier på
+# tværs af ALLE medier — også dem hvis egne RSS er nedlagt (Politiken, JP,
+# Berlingske, KTC m.fl.). gl=DK&ceid=DK:da pinner dansk udgave fra serveren.
+# Relevans-scoringen i main.py frasorterer støj. Æøå er %-encodet.
+RSS_BREDE_SOEGNINGER = {
+    "Google News – klimatilpasning":
+        "https://news.google.com/rss/search?q=klimatilpasning+OR+skybrud+OR+kystbeskyttelse&hl=da&gl=DK&ceid=DK:da",
+    "Google News – oversvømmelse & kyst":
+        "https://news.google.com/rss/search?q=oversv%C3%B8mmelse+OR+stormflod+OR+havvandsstigning&hl=da&gl=DK&ceid=DK:da",
+    "Google News – regnvand & klimasikring":
+        "https://news.google.com/rss/search?q=regnvand+OR+klimasikring+OR+skybrudssikring&hl=da&gl=DK&ceid=DK:da",
+    "Google News – grundvand & vandløb":
+        "https://news.google.com/rss/search?q=grundvand+OR+vandl%C3%B8b+OR+v%C3%A5domr%C3%A5de&hl=da&gl=DK&ceid=DK:da",
+}
+
 # ── PODCASTS (RSS til nye episoder) ──
 RSS_PODCASTS = {
     "Vandkanten (DNNK)":        "https://feeds.buzzsprout.com/1234567.rss",
@@ -161,6 +177,7 @@ RSS_PODCASTS = {
 }
 
 ALLE_FEEDS = {
+    "Brede søgninger":          RSS_BREDE_SOEGNINGER,
     "Nyheder & fagblade":       RSS_NEWS,
     "Vidensinstitutioner":      RSS_VIDEN,
     "Rådgivere":                RSS_RAADGIVERE,
