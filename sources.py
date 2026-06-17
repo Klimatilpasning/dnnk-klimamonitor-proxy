@@ -150,20 +150,24 @@ RSS_VIDENSKAB = {
     "KU Nyheder":               "https://www.ku.dk/nyheder/rss",
 }
 
-# ── BREDE SØGE-FEEDS (Google News) ──
+# ── BREDE SØGE-FEEDS (Bing News) ──
 # Query-baserede RSS-feeds der fanger danske klimatilpasningshistorier på
 # tværs af ALLE medier — også dem hvis egne RSS er nedlagt (Politiken, JP,
-# Berlingske, KTC m.fl.). gl=DK&ceid=DK:da pinner dansk udgave fra serveren.
-# Relevans-scoringen i main.py frasorterer støj. Æøå er %-encodet.
+# Berlingske, KTC m.fl.). Bing News bruges frem for Google News, fordi Google
+# låser locale på serverens egress-IP (Render → norsk) og ignorerer gl/ceid;
+# Bing respekterer cc=dk&setlang=da&mkt=da-DK pålideligt. Bing News RSS forstår
+# IKKE OR-operatoren, så hvert kernebegreb har sit eget feed. Æøå er %-encodet.
+# Relevans-scoringen i main.py frasorterer støj.
+_BING = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK"
 RSS_BREDE_SOEGNINGER = {
-    "Google News – klimatilpasning":
-        "https://news.google.com/rss/search?q=klimatilpasning+OR+skybrud+OR+kystbeskyttelse&hl=da&gl=DK&ceid=DK:da",
-    "Google News – oversvømmelse & kyst":
-        "https://news.google.com/rss/search?q=oversv%C3%B8mmelse+OR+stormflod+OR+havvandsstigning&hl=da&gl=DK&ceid=DK:da",
-    "Google News – regnvand & klimasikring":
-        "https://news.google.com/rss/search?q=regnvand+OR+klimasikring+OR+skybrudssikring&hl=da&gl=DK&ceid=DK:da",
-    "Google News – grundvand & vandløb":
-        "https://news.google.com/rss/search?q=grundvand+OR+vandl%C3%B8b+OR+v%C3%A5domr%C3%A5de&hl=da&gl=DK&ceid=DK:da",
+    "Bing News – klimatilpasning":   _BING.format("klimatilpasning"),
+    "Bing News – skybrud":           _BING.format("skybrud"),
+    "Bing News – kystbeskyttelse":   _BING.format("kystbeskyttelse"),
+    "Bing News – stormflod":         _BING.format("stormflod"),
+    "Bing News – oversvømmelse":     _BING.format("oversv%C3%B8mmelse"),
+    "Bing News – regnvand":          _BING.format("regnvand"),
+    "Bing News – grundvand":         _BING.format("grundvand"),
+    "Bing News – klimasikring":      _BING.format("klimasikring"),
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
