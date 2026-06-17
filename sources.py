@@ -71,10 +71,11 @@ RSS_INTERNATIONAL = {
     "FloodList":                "https://floodlist.com/feed",
     "ICLEI":                    "https://iclei.org/news/rss/",
     "UN Environment":           "https://www.unep.org/rss.xml",
-    "C40 Cities":               "https://www.c40.org/news/feed/",
     "IPCC":                     "https://www.ipcc.ch/feed/",
     "World Resources Inst.":    "https://www.wri.org/insights/rss.xml",
     # Fjernet (intet fungerende RSS): Deltares, The Nature Conservancy.
+    # Fjernet: C40 Cities (Cloudflare 403'er Renders server-IP — virker fra
+    # almindelige IP'er men leverer aldrig indhold fra serveren).
 }
 
 # ── VANDKREDSLØB & GRUNDVAND ──
@@ -97,13 +98,11 @@ RSS_VAND_INT = {
 RSS_KREATIVT = {
     "Dezeen Arkitektur":        "https://www.dezeen.com/feed/",
     "ArchDaily":                "https://www.archdaily.com/feed",
-    "Landscape Architecture":   "https://www.landscapearchitecturemagazine.org/feed/",
-    "Landezine":                "https://landezine.com/feed/",
     "The Conversation Env.":    "https://theconversation.com/global/environment/articles.atom",
-    "Fast Company Innov.":      "https://www.fastcompany.com/feed",
     "Planetizen":               "https://www.planetizen.com/rss.xml",
-    # Fjernet: Tredje Natur, SLA (dækket af SCRAPE_SOURCES); WEF Natur & Klima
-    # (403); Citylab/Bloomberg (sitemap, ikke et nyhedsfeed).
+    # Fjernet: Tredje Natur, SLA (dækket af SCRAPE_SOURCES); WEF Natur & Klima,
+    # Landezine, Fast Company (403 — bot-blok); Landscape Architecture (404);
+    # Citylab/Bloomberg (sitemap, ikke et nyhedsfeed).
 }
 
 # ── LOVGIVNING & POLITIK ──
@@ -125,7 +124,8 @@ RSS_VIDENSKAB = {
     "Urban Climate":            "https://rss.sciencedirect.com/publication/science/22120955",
     "Journal Water Research":   "https://rss.sciencedirect.com/publication/science/00431354",
     # Fjernet (døde RSS, dækket af SCRAPE_SOURCES: DTU Byg, KU SCIENCE, DCE
-    # Aarhus): DTU Research, AU Forskning, KU Nyheder.
+    # Aarhus): DTU Research, AU Forskning, KU Nyheder. Fjernet: Hydrology &
+    # Earth Sci. (404, intet fungerende feed).
 }
 
 # ── BREDE SØGE-FEEDS (Bing News) ──
@@ -146,16 +146,19 @@ RSS_BREDE_SOEGNINGER = {
     "Bing News – regnvand":          _BING.format("regnvand"),
     "Bing News – grundvand":         _BING.format("grundvand"),
     "Bing News – klimasikring":      _BING.format("klimasikring"),
+    "Bing News – klimatilpasningsplan": _BING.format("klimatilpasningsplan"),
+    "Bing News – regnvandsbassin":   _BING.format("regnvandsbassin"),
+    "Bing News – kloakseparering":   _BING.format("kloakseparering"),
+    "Bing News – diger":             _BING.format("diger"),
+    "Bing News – spildevand":        _BING.format("spildevand"),
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
 RSS_PODCASTS = {
-    # Fjernet (døde/placeholder-RSS): "Vandkanten (DNNK)" (1234567.rss var en
-    # dummy-ID) og "Hav og himmel (DMI)" (404 — feed findes ikke).
-    "The Water Values":         "https://www.waterpolicygroup.com/feed/podcast/",
-    "Sustainability Defined":   "https://feeds.buzzsprout.com/1086681.rss",
     "Warm Regards (klima)":     "https://feeds.feedburner.com/WarmRegardsPodcast",
-    "Drilled (klima-journalisme)": "https://feeds.megaphone.fm/drilled",
+    # Fjernet (døde/placeholder-RSS): Vandkanten (DNNK) (dummy-ID), Hav og
+    # himmel (DMI), The Water Values, Sustainability Defined, Drilled (alle
+    # 404 — feeds nedlagt/flyttet).
 }
 
 ALLE_FEEDS = {
