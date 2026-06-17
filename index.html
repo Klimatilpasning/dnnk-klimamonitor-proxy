@@ -460,6 +460,25 @@
     vertical-align: middle;
   }
 
+  .webinar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    cursor: help;
+    white-space: nowrap;
+  }
+  .webinar-badge.groen { background: #E3F3E8; color: #1B6B3A; border-color: #BFE3CB; }
+  .webinar-badge.gul   { background: #FDF3DA; color: #8A6D1A; border-color: #F0E0A8; }
+  .webinar-badge.roed  { background: #FBE6E6; color: #A33; border-color: #F0C4C4; }
+  .webinar-badge.pending { background: #EEE; color: #999; border-color: #E0E0E0; cursor: default; }
+
   .laest-separator {
     font-size: 0.68rem;
     letter-spacing: 0.08em;
@@ -599,6 +618,9 @@ let hideRead = false;
 let readArticles = new Set(safeParse('dnnk_read', []));
 let seenArticles = new Set(safeParse('dnnk_seen', []));
 let relevanceVotes = safeParse('dnnk_relevance', {});
+let webinarVerdicts = safeParse('dnnk_webinar', {});
+const webinarPending = new Set();
+let webinarQueueRunning = false;
 
 // ─── DR-filter ─────────────────────────────────────────────
 const DR_IRRELEVANT = [
@@ -623,6 +645,65 @@ function saveRead() {
 }
 function saveSeen() { localStorage.setItem('dnnk_seen', JSON.stringify([...seenArticles])); }
 function saveVotes() { localStorage.setItem('dnnk_relevance', JSON.stringify(relevanceVotes)); }
+function saveWebinar() { try { localStorage.setItem('dnnk_webinar', JSON.stringify(webinarVerdicts)); } catch (e) {} }
+
+// ─── Webinar-vurdering ─────────────────────────────────────
+// Hver artikel får automatisk et 🟢/🟡/🔴-mærke for webinar-relevans.
+// Vurderes én gang via backendens /webinar-vurder (Claude Haiku) og caches i
+// localStorage, så den ikke kører igen. Køen er throttlet (1 ad gangen, ~1,3s
+// mellem) så vi holder os under backendens rate-grænse på 20/min.
+const WEBINAR_LABELS = { groen: ['🟢', 'Forfølg'], gul: ['🟡', 'Måske'], roed: ['🔴', 'Drop'] };
+
+function webinarBadgeHtml(id) {
+  const enc = encodeURIComponent(id);
+  const v = webinarVerdicts[id];
+  if (!v || !WEBINAR_LABELS[v.verdict]) {
+    return `<span class="webinar-badge pending" data-wb="${enc}" title="Vurderer webinar-relevans…">⏳ webinar</span>`;
+  }
+  const m = WEBINAR_LABELS[v.verdict];
+  const tip = [v.begrundelse, v.vinkel ? ('Vinkel: ' + v.vinkel) : '',
+               v.oplaegsholder ? ('Oplægsholder: ' + v.oplaegsholder) : '']
+              .filter(Boolean).join(' · ');
+  return `<span class="webinar-badge ${v.verdict}" data-wb="${enc}" title="${escapeHtml(tip || 'Webinar-vurdering')}">${m[0]} ${m[1]}</span>`;
+}
+
+function updateWebinarBadge(id) {
+  const enc = encodeURIComponent(id);
+  document.querySelectorAll(`.webinar-badge[data-wb="${enc}"]`).forEach(el => {
+    el.outerHTML = webinarBadgeHtml(id);
+  });
+}
+
+async function scheduleWebinarAssessment(articles) {
+  if (webinarQueueRunning) return;
+  webinarQueueRunning = true;
+  try {
+    for (const a of articles) {
+      const id = getArticleId(a);
+      if (webinarVerdicts[id] || webinarPending.has(id) || !a.title) continue;
+      webinarPending.add(id);
+      try {
+        const res = await fetch(PROXY + '/webinar-vurder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: a.title, summary: a.summary || '', source: a.feedSource || a.org || '', date: a.date || '' }),
+        });
+        if (res.ok) {
+          const v = await res.json();
+          if (v && WEBINAR_LABELS[v.verdict]) {
+            webinarVerdicts[id] = v;
+            saveWebinar();
+            updateWebinarBadge(id);
+          }
+        }
+      } catch (e) { /* lad badgen blive pending — prøves igen ved næste render */ }
+      finally { webinarPending.delete(id); }
+      await new Promise(r => setTimeout(r, 1300));
+    }
+  } finally {
+    webinarQueueRunning = false;
+  }
+}
 
 function updateReadCount() {
   document.getElementById('read-count-display').textContent = readArticles.size + ' læst';
@@ -740,6 +821,7 @@ function renderArticles(articles) {
             <a href="${safeUrl(a.url || '#')}" target="_blank" rel="noopener noreferrer" onclick="markAsRead('${encodeURIComponent(id)}')">${escapeHtml(a.title || 'Uden titel')}</a>
             ${a.gruppe ? `<span class="gruppe-badge">${escapeHtml(a.gruppe)}</span>` : ''}
             ${isNew && !isRead ? '<span class="new-badge">Ny</span>' : ''}
+            ${webinarBadgeHtml(id)}
           </div>
           <div class="article-meta">${escapeHtml(a.feedSource || '')} · ${escapeHtml(a.date || '')}</div>
           <div class="article-summary">${escapeHtml(summary)}</div>
@@ -757,6 +839,9 @@ function renderArticles(articles) {
         </div>
       </div>`;
   }).join('');
+
+  // Start automatisk webinar-vurdering af de viste artikler (cachede springes over)
+  scheduleWebinarAssessment(filtered);
 }
 
 function markAsRead(encodedId) {
