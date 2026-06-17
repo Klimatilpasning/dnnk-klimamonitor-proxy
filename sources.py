@@ -48,7 +48,7 @@ RSS_NORDEN = {
     "VA-guiden (SE)":           "https://www.vaguiden.se/rss",
     "NCCS Norge":               "https://www.nccs.no/rss",
     "NRK Klima":                "https://www.nrk.no/toppsaker.rss",
-    "SMHI Sverige":             "https://www.smhi.se/rss",
+    "SMHI Sverige":             "https://www.smhi.se/rss/nyheter-fran-smhi",
     "Norsk Vann":               "https://www.norskvann.no/rss",
     "SYKE Finland":             "https://www.syke.fi/rss",
     "HaV Sverige":              "https://www.mynewsdesk.com/rss/current_news/6994",
@@ -130,7 +130,7 @@ RSS_KREATIVT = {
 RSS_LOVGIVNING = {
     "Folketing":                "https://www.ft.dk/da/aktuelt/nyheder/rss",
     "Folketing Dagsorden":      "https://www.ft.dk/da/aktuelt/kalender/rss",
-    "Klimarådet":               "https://klimaraadet.dk/da/rss",
+    "Klimarådet":               "https://klimaraadet.dk/da/rss.xml",
     "Miljøministeriet":         "https://www.mim.dk/rss",
     "Kystdirektoratet":         "https://kyst.dk/rss",
     "Energistyrelsen":          "https://ens.dk/rss",
