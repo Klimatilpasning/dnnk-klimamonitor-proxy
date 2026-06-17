@@ -208,8 +208,10 @@ SCRAPE_SOURCES = {
     "DHI":                              {"url": "https://www.dhigroup.com/news", "gruppe": "Vidensinstitutioner"},
     "Teknologisk Institut":             {"url": "https://www.teknologisk.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
     "DMI":                              {"url": "https://www.dmi.dk/nyheder", "gruppe": "Vidensinstitutioner"},
-    "IDA":                              {"url": "https://ida.dk/nyheder", "gruppe": "Vidensinstitutioner"},
-    "KTC":                              {"url": "https://www.ktc.dk/nyheder", "gruppe": "Vidensinstitutioner"},
+    # IDA, KTC, HOFOR, SLA kan IKKE scrapes: nyhedslisterne er JavaScript-
+    # renderede SPA'er (server-HTML har kun navigation), IDA/nyheder er en
+    # soft-404, SLA er 403 bot-blokeret. Kræver headless browser. De dækkes
+    # i stedet af de brede Bing-feeds. Kun DMI server-renderer og virker.
 
     # ── GRUNDVAND & VANDKREDSLØB ──
     "GEUS Grundvand":                   {"url": "https://www.geus.dk/vores-viden/vand/grundvand/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
