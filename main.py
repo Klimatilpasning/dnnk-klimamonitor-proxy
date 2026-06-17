@@ -197,14 +197,11 @@ def parse_item_bs(item):
     else:
         url = ""
     
-    for tag in ["pubdate", "published", "updated", "date"]:
-        d = item.find(tag)
-        if d:
-            pub_date = normalize_date(d.get_text(strip=True))
-            break
-    else:
-        pub_date = ""
-    
+    # Case-insensitivt: BeautifulSoups xml-parser bevarer versalisering, så
+    # Bing News' <pubDate> ikke matches af et rent lille-bogstavs-opslag.
+    d = item.find(re.compile(r'(?i)^(pubdate|published|updated|date)$'))
+    pub_date = normalize_date(d.get_text(strip=True)) if d else ""
+
     return title, description, url, pub_date
 
 def parse_item_et(item):

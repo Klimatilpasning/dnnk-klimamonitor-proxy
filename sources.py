@@ -135,7 +135,10 @@ RSS_VIDENSKAB = {
 # Bing respekterer cc=dk&setlang=da&mkt=da-DK pålideligt. Bing News RSS forstår
 # IKKE OR-operatoren, så hvert kernebegreb har sit eget feed. Æøå er %-encodet.
 # Relevans-scoringen i main.py frasorterer støj.
-_BING = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK"
+# VIGTIGT: qft=interval="8" filtrerer til seneste måned. Uden den sorterer Bing
+# på relevans og blander gamle artikler ind (helt tilbage til 2010) — så vi får
+# AKTUELLE nyheder i stedet for et tidløst relevans-mix.
+_BING = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK&qft=interval%3d%228%22"
 RSS_BREDE_SOEGNINGER = {
     "Bing News – klimatilpasning":   _BING.format("klimatilpasning"),
     "Bing News – skybrud":           _BING.format("skybrud"),
