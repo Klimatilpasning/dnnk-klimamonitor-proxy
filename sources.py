@@ -51,12 +51,10 @@ RSS_NORDEN = {
 # ── EU PROJEKTER ──
 RSS_EU = {
     "Interreg Baltic Sea":      "https://interreg-baltic.eu/feed/",
-    "Climate-ADAPT":            "https://climate-adapt.eea.europa.eu/rss",
-    "EEA Nyheder":              "https://www.eea.europa.eu/rss",
-    "EU Kommissionen ENV":      "https://ec.europa.eu/environment/rss_en.xml",
-    "EU Kommissionen Klima":    "https://ec.europa.eu/clima/rss_en.xml",
     "Copernicus Klima":         "https://climate.copernicus.eu/rss.xml",
-    "JRC Science Hub":          "https://joint-research-centre.ec.europa.eu/rss.xml",
+    # Fjernet (intet fungerende RSS længere — EEA/EU har nedlagt deres feeds;
+    # alle kandidater testet 404/500/tom): Climate-ADAPT, EEA Nyheder,
+    # EU Kommissionen ENV, EU Kommissionen Klima, JRC Science Hub.
 }
 
 # ── PLATFORME & NETVÆRK ──
@@ -73,33 +71,26 @@ RSS_INTERNATIONAL = {
     "FloodList":                "https://floodlist.com/feed",
     "ICLEI":                    "https://iclei.org/news/rss/",
     "UN Environment":           "https://www.unep.org/rss.xml",
-    "C40 Cities":               "https://www.c40.org/rss",
-    "Deltares":                 "https://www.deltares.nl/rss",
-    "IPCC":                     "https://www.ipcc.ch/news_and_events/rss.xml",
-    "World Resources Inst.":    "https://www.wri.org/rss.xml",
-    "The Nature Conservancy":   "https://www.nature.org/en-us/newsroom/rss-feeds/",
+    "C40 Cities":               "https://www.c40.org/news/feed/",
+    "IPCC":                     "https://www.ipcc.ch/feed/",
+    "World Resources Inst.":    "https://www.wri.org/insights/rss.xml",
+    # Fjernet (intet fungerende RSS): Deltares, The Nature Conservancy.
 }
 
 # ── VANDKREDSLØB & GRUNDVAND ──
 RSS_VAND = {
-    "NGWA Groundwater":         "https://www.ngwa.org/rss.xml",
-    "H2O Waternetwerk (NL)":    "https://www.h2owaternetwerk.nl/rss.xml",
-    "Water Research Fdn":       "https://www.waterrf.org/rss.xml",
-    "IWA Water":                "https://iwa-network.org/feed/",
-    "The Source (IWA)":         "https://iwa-network.org/the-source/feed/",
-    "Stormwater Report":        "https://stormwaterreport.com/feed/",
     "Circle of Blue":           "https://www.circleofblue.org/feed/",
-    "WaterWorld":               "https://www.waterworld.com/rss.xml",
-    "Water & Wastewater Int.":  "https://www.waterworld.com/rss.xml",
+    # Fjernet (døde/tomme RSS, ingen fungerende alternativ fundet): NGWA,
+    # H2O Waternetwerk, Water Research Fdn, IWA Water, The Source (IWA),
+    # Stormwater Report (DNS-fejl), WaterWorld, Water & Wastewater Int.
 }
 
 # ── INT. VANDMYNDIGHEDER (NL, UK, US) ──
 RSS_VAND_INT = {
-    "Rijkswaterstaat (NL)":     "https://www.rijkswaterstaat.nl/rss.xml",
     "Env. Agency (UK)":         "https://www.gov.uk/search/news-and-communications.atom?organisations[]=environment-agency",
-    "USGS Water":               "https://www.usgs.gov/rss.xml",
-    "Dutch Water Authorities":  "https://www.uvw.nl/rss.xml",
-    "KWR Water Research":       "https://www.kwrwater.nl/rss.xml",
+    "Dutch Water Authorities":  "https://www.uvw.nl/feed/",
+    "KWR Water Research":       "https://www.kwrwater.nl/feed/",
+    # Fjernet (intet fungerende RSS): Rijkswaterstaat, USGS Water.
 }
 
 # ── KREATIVE VINKLER: design, arkitektur, innovation ──
@@ -108,19 +99,18 @@ RSS_KREATIVT = {
     "ArchDaily":                "https://www.archdaily.com/feed",
     "Landscape Architecture":   "https://www.landscapearchitecturemagazine.org/feed/",
     "Landezine":                "https://landezine.com/feed/",
-    "The Conversation Env.":    "https://theconversation.com/environment/articles.atom",
-    "WEF Natur & Klima":        "https://www.weforum.org/agenda/feed/",
+    "The Conversation Env.":    "https://theconversation.com/global/environment/articles.atom",
     "Fast Company Innov.":      "https://www.fastcompany.com/feed",
-    # Fjernet (døde RSS, dækket af SCRAPE_SOURCES): Tredje Natur, SLA Arkitekter.
-    "Citylab (Bloomberg)":      "https://www.bloomberg.com/feeds/bbiz/sitemap_index.xml",
     "Planetizen":               "https://www.planetizen.com/rss.xml",
+    # Fjernet: Tredje Natur, SLA (dækket af SCRAPE_SOURCES); WEF Natur & Klima
+    # (403); Citylab/Bloomberg (sitemap, ikke et nyhedsfeed).
 }
 
 # ── LOVGIVNING & POLITIK ──
 RSS_LOVGIVNING = {
-    "Folketing":                "https://www.ft.dk/da/aktuelt/nyheder/rss",
-    "Folketing Dagsorden":      "https://www.ft.dk/da/aktuelt/kalender/rss",
     "Klimarådet":               "https://klimaraadet.dk/da/rss.xml",
+    # Fjernet: Folketing + Folketing Dagsorden (403 — ft.dk bot-blokerer også
+    # Renders server-IP, så feedet returnerer aldrig indhold).
     # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Miljøministeriet,
     # Kystdirektoratet, Energistyrelsen.
 }
