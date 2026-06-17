@@ -119,6 +119,32 @@ RSS_HEADERS = {
     "Accept-Language": "da,en;q=0.9",
 }
 
+def normalize_date(raw: str) -> str:
+    """Normalisér en RSS/Atom-dato til YYYY-MM-DD.
+
+    Håndterer ISO (2026-06-17, 2026-06-17T10:00:00Z) OG RFC822
+    (Tue, 17 Jun 2026 10:00:00 GMT). Returnerer "" hvis dato ikke kan tolkes.
+    Vigtigt: tidligere blev råteksten bare afkortet til 10 tegn, hvilket
+    ødelagde RFC822-datoer (→ "Tue, 17 J") og slog både dato-sortering og
+    is_recent-filteret i digesten ud."""
+    if not raw:
+        return ""
+    raw = raw.strip()
+    m = re.match(r'(\d{4}-\d{2}-\d{2})', raw)
+    if m:
+        return m.group(1)
+    try:
+        from email.utils import parsedate_to_datetime
+        dt = parsedate_to_datetime(raw)
+        if dt:
+            return dt.strftime("%Y-%m-%d")
+    except Exception:
+        pass
+    m2 = re.search(r'(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})', raw)
+    if m2:
+        return f"{m2.group(3)}-{m2.group(2).zfill(2)}-{m2.group(1).zfill(2)}"
+    return ""
+
 def kw_match(keyword: str, text: str) -> bool:
     """Match keyword at the start of a word. Prevents 'LAR' from matching
     'klart' or 'hav' from matching 'havde', while still allowing Scandinavian
@@ -174,7 +200,7 @@ def parse_item_bs(item):
     for tag in ["pubdate", "published", "updated", "date"]:
         d = item.find(tag)
         if d:
-            pub_date = d.get_text(strip=True)[:10]
+            pub_date = normalize_date(d.get_text(strip=True))
             break
     else:
         pub_date = ""
@@ -200,10 +226,10 @@ def parse_item_et(item):
         elif tag == "id" and not link:
             link = text
         elif tag in ("pubDate", "published", "updated", "date") and not pub_date:
-            pub_date = text[:10] if text else ""
+            pub_date = normalize_date(text) if text else ""
     return title, description, link, pub_date
 
-async def fetch_rss(client, source, url, query):
+async def fetch_rss(client, source, url, query, limit: int = 8):
     try:
         resp = await client.get(url, timeout=15, follow_redirects=True, headers=RSS_HEADERS)
         if resp.status_code != 200:
@@ -245,7 +271,7 @@ async def fetch_rss(client, source, url, query):
         results = []
         q_lower = query.lower()
 
-        for parser, item in items[:20]:
+        for parser, item in items[:40]:
             if parser == "et":
                 title, description, link, pub_date = parse_item_et(item)
             else:
@@ -265,8 +291,8 @@ async def fetch_rss(client, source, url, query):
                 "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
                 "relevance": relevance, "url": link, "value": None
             })
-        results.sort(key=lambda x: x["relevance"], reverse=True)
-        return results[:5]
+        results.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+        return results[:limit]
     except Exception:
         return []
 
@@ -342,13 +368,13 @@ async def get_news(q: str = Query("klimatilpasning")):
     return {"articles": articles, "total": len(articles), "query": q}
 
 @app.get("/news/full")
-async def get_news_full(q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(5)):
+async def get_news_full(q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
     from sources import ALL_FEEDS_FLAT, ALLE_FEEDS
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
         feeds = {k: {"url": v, "gruppe": gruppe} for k, v in ALLE_FEEDS[gruppe].items()}
     async with httpx.AsyncClient() as client:
-        tasks = [fetch_rss(client, navn, meta["url"], q) for navn, meta in feeds.items()]
+        tasks = [fetch_rss(client, navn, meta["url"], q, limit) for navn, meta in feeds.items()]
         nested = await asyncio.gather(*tasks)
     articles = []
     for i, (navn, meta) in enumerate(feeds.items()):
@@ -523,7 +549,7 @@ def root():
 # SCRAPE_SOURCES importeres fra sources.py
 from sources import SCRAPE_SOURCES
 
-async def scrape_news(client, source, url, gruppe, query):
+async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
     from urllib.parse import urlparse, urljoin
     try:
@@ -620,19 +646,19 @@ async def scrape_news(client, source, url, gruppe, query):
                 "gruppe": gruppe,
             })
 
-        articles.sort(key=lambda x: x["relevance"], reverse=True)
-        return articles[:5]
+        articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+        return articles[:limit]
 
     except Exception:
         return []
 
 
 @app.get("/news/scrape")
-async def get_scraped_news(q: str = Query("klimatilpasning")):
+async def get_scraped_news(q: str = Query("klimatilpasning"), limit: int = Query(8)):
     """Hent nyheder via direkte scraping fra sider uden RSS"""
     async with httpx.AsyncClient() as client:
         tasks = [
-            scrape_news(client, navn, meta["url"], meta["gruppe"], q)
+            scrape_news(client, navn, meta["url"], meta["gruppe"], q, limit)
             for navn, meta in SCRAPE_SOURCES.items()
         ]
         nested = await asyncio.gather(*tasks)
