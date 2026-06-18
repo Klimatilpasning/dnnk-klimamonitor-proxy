@@ -145,6 +145,23 @@ def normalize_date(raw: str) -> str:
         return f"{m2.group(3)}-{m2.group(2).zfill(2)}-{m2.group(1).zfill(2)}"
     return ""
 
+def real_url(url: str) -> str:
+    """Udtræk den rigtige artikel-URL fra Bing News' apiclick-omdirigering.
+    Bing-links ser ud som bing.com/news/apiclick.aspx?...&url=<encoded>&... —
+    vi peger direkte på kilden, så links er rene OG dubletter (samme artikel
+    fanget af både et RSS-feed og et Bing-søgefeed) kan slås sammen."""
+    if not url:
+        return url
+    if "bing.com/news/apiclick" in url:
+        try:
+            from urllib.parse import urlparse, parse_qs, unquote
+            q = parse_qs(urlparse(url).query)
+            if q.get("url"):
+                return unquote(q["url"][0])
+        except Exception:
+            pass
+    return url
+
 def kw_match(keyword: str, text: str) -> bool:
     """Match keyword at the start of a word. Prevents 'LAR' from matching
     'klart' or 'hav' from matching 'havde', while still allowing Scandinavian
@@ -286,7 +303,7 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
                 "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
-                "relevance": relevance, "url": link, "value": None
+                "relevance": relevance, "url": real_url(link), "value": None
             })
         results.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return results[:limit]
@@ -378,6 +395,22 @@ async def get_news_full(q: str = Query("klimatilpasning"), gruppe: str = Query(N
         for art in nested[i][:limit]:
             art["gruppe"] = meta["gruppe"]
             articles.append(art)
+
+    # Slå dubletter sammen: samme artikel fanges ofte af både et direkte RSS-feed
+    # OG et Bing-søgefeed (Bing-links er nu normaliseret til kilde-URL'en, så de
+    # matcher). Behold den bedste pr. URL: foretræk det direkte feed frem for
+    # Bing, derefter højere relevans, derefter den med en dato.
+    def _pref(a):
+        return (1 if str(a.get("feedSource", "")).startswith("Bing News") else 0,
+                -(a.get("relevance") or 0),
+                0 if a.get("date") else 1)
+    bedste = {}
+    for a in articles:
+        key = a.get("url") or (a.get("title", "") + "|" + a.get("feedSource", ""))
+        if key not in bedste or _pref(a) < _pref(bedste[key]):
+            bedste[key] = a
+    articles = list(bedste.values())
+
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
             "feeds_checked": len(feeds), "query": q,
