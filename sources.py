@@ -293,7 +293,7 @@ SCRAPE_SOURCES = {
 
     # ── FORSYNINGER – Fyn & Sjælland ──
     "VandCenter Syd":                   {"url": "https://vandcenter.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Danva":                            {"url": "https://www.danva.dk/nyheder/", "gruppe": "Forsyninger"},
+    "Danva":                            {"url": "https://www.danva.dk/nyheder/2026/", "gruppe": "Forsyninger"},
     "Holbæk Forsyning":                 {"url": "https://holbaekforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Næstved Forsyning":                {"url": "https://naestvedforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Lolland Forsyning":                {"url": "https://lollandforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
