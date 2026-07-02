@@ -50,6 +50,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Model-id ét sted (bruges i /chat, /expand-query og scheduler.py) — kan
+# skiftes uden deploy via miljøvariablen HAIKU_MODEL.
+HAIKU_MODEL = os.environ.get("HAIKU_MODEL", "claude-haiku-4-5")
+
 # ── Misbrugsbeskyttelse på de endpoints der bruger serverens API-nøgle ──
 _RATE = collections.defaultdict(list)
 RATE_LIMIT = int(os.environ.get("DNNK_RATE_LIMIT", "20"))   # kald pr. vindue pr. IP
@@ -173,7 +177,13 @@ def normalize_date(raw: str) -> str:
         pass
     m2 = re.search(r'(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})', raw)
     if m2:
-        return f"{m2.group(3)}-{m2.group(2).zfill(2)}-{m2.group(1).zfill(2)}"
+        day, month, year = int(m2.group(1)), int(m2.group(2)), m2.group(3)
+        # Validér måneden: "06/17/2026" er MM/DD/YYYY — hvis "måneden" er
+        # ugyldig (>12) men et bytte giver en gyldig dato, så byt.
+        if not 1 <= month <= 12 and 1 <= day <= 12:
+            day, month = month, day
+        if 1 <= month <= 12 and 1 <= day <= 31:
+            return f"{year}-{month:02d}-{day:02d}"
     return ""
 
 def real_url(url: str) -> str:
@@ -411,18 +421,12 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
     params = {"q": f"{q} Denmark", "pageSize": size,
               "fields": "title,organisations,publicationDate,contractValue,cpvCodes,noticeType,tedPublicationUrl",
               "country": "DNK"}
-    resp = await app.state.client.get(url, params=params, timeout=15)
-    return resp.json()
-
-@app.get("/news")
-async def get_news(q: str = Query("klimatilpasning")):
-    from sources import RSS_NEWS
-    async with httpx.AsyncClient() as client:
-        tasks = [fetch_rss(client, src, url, q) for src, url in RSS_NEWS.items()]
-        nested = await asyncio.gather(*tasks)
-    articles = [a for sub in nested for a in sub]
-    articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
-    return {"articles": articles, "total": len(articles), "query": q}
+    try:
+        resp = await app.state.client.get(url, params=params, timeout=15)
+        return resp.json()
+    except Exception as e:
+        # Frontenden forventer altid en notices-liste — fejl må ikke give 500
+        return {"notices": [], "error": str(e)[:200]}
 
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
@@ -536,7 +540,7 @@ async def chat(payload: dict, request: Request):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "claude-haiku-4-5-20251001",
+                "model": HAIKU_MODEL,
                 "max_tokens": min(max(max_tokens, 1), 4096),
                 "system": system,
                 "messages": messages
@@ -579,7 +583,7 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
                 "Content-Type": "application/json",
             },
             json={
-                "model": "claude-haiku-4-5-20251001",
+                "model": HAIKU_MODEL,
                 "max_tokens": 200,
                 "messages": [{
                     "role": "user",
@@ -615,7 +619,7 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "DNNK Klimamonitor Proxy",
-            "endpoints": ["/ted", "/news", "/news/full", "/news/kilder", "/test-feeds"]}
+            "endpoints": ["/ted", "/news/full", "/news/scrape", "/news/kilder", "/test-feeds"]}
 
 
 # ─────────────────────────────────────────────────────────────
@@ -685,23 +689,18 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                 href = link_el["href"]
                 article_url = urljoin(base_url, href)
 
-            # Find dato — søg i <time>, datetime-attribut, eller dato-klasser
+            # Find dato — søg i <time>, datetime-attribut, eller dato-klasser.
+            # Altid via normalize_date: ren [:10]-afkortning genindførte
+            # dato-truncation-buggen for ikke-ISO-datoer ("Tue, 17 J").
             pub_date = ""
             time_el = el.find("time")
             if time_el:
-                pub_date = (time_el.get("datetime") or time_el.get_text(strip=True))[:10]
+                pub_date = normalize_date(time_el.get("datetime") or time_el.get_text(strip=True))
             if not pub_date:
                 date_el = el.find(class_=re.compile(r"date|dato|time|published|created", re.I))
                 if date_el:
                     raw = date_el.get("datetime") or date_el.get("content") or date_el.get_text(strip=True)
-                    # Forsøg at udtrække dato i format YYYY-MM-DD eller DD.MM.YYYY
-                    m = re.search(r'(\d{4}-\d{2}-\d{2})', raw or "")
-                    if m:
-                        pub_date = m.group(1)
-                    else:
-                        m2 = re.search(r'(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})', raw or "")
-                        if m2:
-                            pub_date = f"{m2.group(3)}-{m2.group(2).zfill(2)}-{m2.group(1).zfill(2)}"
+                    pub_date = normalize_date(raw or "")
 
             # Find beskrivelse
             desc_el = el.find("p")
