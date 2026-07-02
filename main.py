@@ -50,9 +50,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Model-id ét sted (bruges i /chat, /expand-query og scheduler.py) — kan
+# Model-id ét sted (bruges i /expand-query og scheduler.py) — kan
 # skiftes uden deploy via miljøvariablen HAIKU_MODEL.
 HAIKU_MODEL = os.environ.get("HAIKU_MODEL", "claude-haiku-4-5")
+# Chatten (vidensassistenten) kører på en større model: præcision og
+# kildetro svar vejer tungere end pris her. Kan skiftes via CHAT_MODEL.
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "claude-sonnet-5")
 
 # ── Misbrugsbeskyttelse på de endpoints der bruger serverens API-nøgle ──
 _RATE = collections.defaultdict(list)
@@ -533,14 +536,14 @@ async def chat(payload: dict, request: Request):
     try:
         resp = await app.state.client.post(
             "https://api.anthropic.com/v1/messages",
-            timeout=30,
+            timeout=90,  # stor model + lang RAG-kontekst; frontenden venter op til 90s
             headers={
                 "x-api-key": api_key,
                 "anthropic-version": "2023-06-01",
                 "Content-Type": "application/json"
             },
             json={
-                "model": HAIKU_MODEL,
+                "model": CHAT_MODEL,
                 "max_tokens": min(max(max_tokens, 1), 4096),
                 "system": system,
                 "messages": messages
