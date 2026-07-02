@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 from datetime import datetime
 import asyncio
+import hmac
 import re
 import os
 import time
@@ -35,12 +36,20 @@ RATE_WINDOW = 60                                            # sekunder
 def _client_ip(request: Request) -> str:
     fwd = request.headers.get("x-forwarded-for", "")
     if fwd:
-        return fwd.split(",")[0].strip()
+        # SIDSTE element: Render appender den ægte klient-IP sidst i XFF —
+        # det første element kan klienten selv sætte og dermed spoofe sig
+        # uden om rate-limiteren.
+        return fwd.split(",")[-1].strip()
     return request.client.host if request.client else "ukendt"
 
 def is_rate_limited(request: Request) -> bool:
     ip = _client_ip(request)
     now = time.time()
+    # Ryd IP-nøgler hvor alle timestamps er forældede, så _RATE ikke vokser
+    # ubegrænset med gamle klient-IP'er.
+    stale = [k for k, v in _RATE.items() if not v or now - v[-1] >= RATE_WINDOW]
+    for k in stale:
+        del _RATE[k]
     hits = [t for t in _RATE[ip] if now - t < RATE_WINDOW]
     hits.append(now)
     _RATE[ip] = hits
@@ -53,7 +62,7 @@ def access_ok(request: Request) -> bool:
     code = os.environ.get("DNNK_ACCESS_CODE", "")
     if not code:
         return True
-    return request.headers.get("x-dnnk-code", "") == code
+    return hmac.compare_digest(request.headers.get("x-dnnk-code", ""), code)
 
 def trigger_ok(request: Request) -> bool:
     """Beskytter de trigger-endpoints der koster API/e-mail. Token kan gives
@@ -63,7 +72,7 @@ def trigger_ok(request: Request) -> bool:
     if not code:
         return True
     token = request.query_params.get("token", "") or request.headers.get("x-dnnk-code", "")
-    return token == code
+    return hmac.compare_digest(token, code)
 
 KEYWORDS = [
     # ── Klimatilpasning – kerneord ──
@@ -311,8 +320,10 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
         return []
 
 @app.get("/test-feeds")
-async def test_feeds():
+async def test_feeds(request: Request):
     """Test alle RSS feeds og returner status for hver"""
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
     from sources import ALL_FEEDS_FLAT
 
     async def check_feed(navn, meta):
@@ -382,7 +393,9 @@ async def get_news(q: str = Query("klimatilpasning")):
     return {"articles": articles, "total": len(articles), "query": q}
 
 @app.get("/news/full")
-async def get_news_full(q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
+async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
     from sources import ALL_FEEDS_FLAT, ALLE_FEEDS
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
@@ -481,6 +494,9 @@ async def chat(payload: dict, request: Request):
 
     if not isinstance(messages, list) or not messages:
         return {"error": "Ingen beskeder"}
+    # Afvis absurd store payloads før de sendes videre (og koster tokens)
+    if len(str(messages)) > 100_000:
+        return JSONResponse(status_code=413, content={"error": "Payload for stor"})
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -502,13 +518,17 @@ async def chat(payload: dict, request: Request):
                     "messages": messages
                 }
             )
-            return resp.json()
+            # Videregiv Anthropics egen statuskode, så klienten kan skelne
+            # fx 429/529 fra et succesfuldt svar i stedet for altid at få 200.
+            return JSONResponse(status_code=resp.status_code, content=resp.json())
     except Exception as e:
         return {"error": str(e)[:200]}
 
 
-# In-memory cache for query expansions (resets on restart)
+# In-memory cache for query expansions (resets on restart).
+# Cappet til 500 entries (FIFO) så den ikke kan vokse ubegrænset på 512MB RAM.
 _expand_cache = {}
+_EXPAND_CACHE_MAX = 500
 
 @app.get("/expand-query")
 async def expand_query(request: Request, q: str = Query(..., min_length=2)):
@@ -559,6 +579,8 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
             terms = _json.loads(raw)
             if isinstance(terms, list):
                 terms = [str(t) for t in terms if t][:15]
+                if len(_expand_cache) >= _EXPAND_CACHE_MAX:
+                    _expand_cache.pop(next(iter(_expand_cache)))  # FIFO
                 _expand_cache[q_key] = terms
                 return {"query": q, "terms": terms}
     except Exception as e:
@@ -689,8 +711,10 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
 
 
 @app.get("/news/scrape")
-async def get_scraped_news(q: str = Query("klimatilpasning"), limit: int = Query(8)):
+async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), limit: int = Query(8)):
     """Hent nyheder via direkte scraping fra sider uden RSS"""
+    if is_rate_limited(request):
+        return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
     async with httpx.AsyncClient() as client:
         tasks = [
             scrape_news(client, navn, meta["url"], meta["gruppe"], q, limit)
