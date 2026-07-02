@@ -681,8 +681,7 @@ function sortArticles(articles) {
 }
 
 // ─── Relevance voting ───────────────────────────────────────
-function voteRelevance(encodedId, direction) {
-  const id = decodeURIComponent(encodedId);
+function voteRelevance(id, direction) {
   if (relevanceVotes[id] === direction) {
     delete relevanceVotes[id];
   } else {
@@ -737,7 +736,7 @@ function renderArticles(articles) {
       <div class="article-card ${isRead ? 'is-read' : ''} ${isNew && !isRead ? 'is-new' : ''}">
         <div>
           <div class="article-title">
-            <a href="${safeUrl(a.url || '#')}" target="_blank" rel="noopener noreferrer" onclick="markAsRead('${encodeURIComponent(id)}')">${escapeHtml(a.title || 'Uden titel')}</a>
+            <a href="${safeUrl(a.url || '#')}" target="_blank" rel="noopener noreferrer" data-action="mark-read" data-id="${escapeHtml(id)}">${escapeHtml(a.title || 'Uden titel')}</a>
             ${a.gruppe ? `<span class="gruppe-badge">${escapeHtml(a.gruppe)}</span>` : ''}
             ${isNew && !isRead ? '<span class="new-badge">Ny</span>' : ''}
           </div>
@@ -746,9 +745,9 @@ function renderArticles(articles) {
           <div class="tags">
             ${(a.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
             <div class="article-actions">
-              <button class="relevance-btn up ${vote==='up'?'active':''}" onclick="voteRelevance('${encodeURIComponent(id)}','up')" title="Relevant" aria-label="Markér som relevant"><span aria-hidden="true">👍</span></button>
-              <button class="relevance-btn down ${vote==='down'?'active':''}" onclick="voteRelevance('${encodeURIComponent(id)}','down')" title="Ikke relevant" aria-label="Markér som ikke relevant"><span aria-hidden="true">👎</span></button>
-              <button class="mark-read-btn" onclick="toggleRead('${encodeURIComponent(id)}')">${isRead ? '✓ Læst' : 'Markér læst'}</button>
+              <button class="relevance-btn up ${vote==='up'?'active':''}" data-action="vote-up" data-id="${escapeHtml(id)}" title="Relevant" aria-label="Markér som relevant"><span aria-hidden="true">👍</span></button>
+              <button class="relevance-btn down ${vote==='down'?'active':''}" data-action="vote-down" data-id="${escapeHtml(id)}" title="Ikke relevant" aria-label="Markér som ikke relevant"><span aria-hidden="true">👎</span></button>
+              <button class="mark-read-btn" data-action="toggle-read" data-id="${escapeHtml(id)}">${isRead ? '✓ Læst' : 'Markér læst'}</button>
             </div>
           </div>
         </div>
@@ -759,18 +758,33 @@ function renderArticles(articles) {
   }).join('');
 }
 
-function markAsRead(encodedId) {
-  readArticles.add(decodeURIComponent(encodedId));
+function markAsRead(id) {
+  readArticles.add(id);
   saveRead();
   renderArticles(allArticles);
 }
 
-function toggleRead(encodedId) {
-  const id = decodeURIComponent(encodedId);
+function toggleRead(id) {
   if (readArticles.has(id)) { readArticles.delete(id); } else { readArticles.add(id); }
   saveRead();
   renderArticles(allArticles);
 }
+
+// XSS-sikring: ét delegeret click-listener i stedet for inline onclick-handlers.
+// Inline handlers med encodeURIComponent(id) kunne brydes op af ' ( ) i en
+// fjendtlig artikel-URL — data-attributter escapes derimod korrekt af
+// escapeHtml og læses sikkert via dataset uden JS-streng-fortolkning.
+document.getElementById('articles-container').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const id = el.dataset.id || '';
+  switch (el.dataset.action) {
+    case 'mark-read':   markAsRead(id); break; // link: navigationen fortsætter selv
+    case 'vote-up':     voteRelevance(id, 'up'); break;
+    case 'vote-down':   voteRelevance(id, 'down'); break;
+    case 'toggle-read': toggleRead(id); break;
+  }
+});
 
 function renderTed(notices) {
   const container = document.getElementById('ted-container');
@@ -858,7 +872,15 @@ async function search() {
   const tedData = tedR.status === 'fulfilled' ? tedR.value : {};
   const scrapeData = scrapeR.status === 'fulfilled' ? scrapeR.value : {};
 
-  allArticles = [...(newsData.articles||[]), ...(scrapeData.articles||[])];
+  // Dedup på artikel-ID på tværs af /news/full og /news/scrape — samme
+  // artikel kan fanges af både et RSS-feed og en scrapet kilde.
+  const seenIds = new Set();
+  allArticles = [...(newsData.articles||[]), ...(scrapeData.articles||[])].filter(a => {
+    const id = getArticleId(a);
+    if (seenIds.has(id)) return false;
+    seenIds.add(id);
+    return true;
+  });
   const notices = tedData.notices || tedData.results || [];
   const failed = [newsR, tedR, scrapeR].filter(r => r.status === 'rejected').length;
 
@@ -910,7 +932,9 @@ async function autoScan() {
   for (const r of newsResults) {
     if (r.status === 'fulfilled') {
       all.push(...(r.value.articles||[]));
-      feedsChecked += Number(r.value.feeds_checked) || 0;
+      // Samme feeds scannes for hver query — vis antal feeds (max),
+      // ikke summen over de 5 kald (der viste ~5× for mange).
+      feedsChecked = Math.max(feedsChecked, Number(r.value.feeds_checked) || 0);
     } else { errors++; }
   }
 
