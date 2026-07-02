@@ -2,8 +2,12 @@ import asyncio
 import httpx
 import os
 import json
-from datetime import datetime, timezone, timedelta
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+from main import HAIKU_MODEL
 
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 DIGEST_EMAIL_TO = os.environ.get("DIGEST_EMAIL_TO", "kp@dnnk.dk")
@@ -54,34 +58,37 @@ QUERIES = [
     "kustskydd kusterosion stigande hav",
 ]
 
-def load_sent_articles() -> set:
-    """Hent liste over tidligere sendte artikel-titler"""
+def load_sent_articles() -> list:
+    """Hent tidligere sendte artikel-titler i indsættelsesrækkefølge"""
     try:
         if SENT_ARTICLES_FILE.exists():
             data = json.loads(SENT_ARTICLES_FILE.read_text())
-            return set(data.get("titles", []))
+            return list(data.get("titles", []))
     except Exception:
         pass
-    return set()
+    return []
 
 DNNK_INDEX_URL = "https://raw.githubusercontent.com/klimatilpasning/dnnk-vidensassistent/main/search-index.json"
-_dnnk_index_cache = None
+_dnnk_index_cache = None   # (timestamp, liste)
+DNNK_INDEX_TTL = 12 * 3600  # 12 timer — processen kan leve længe på Render
 
 async def fetch_dnnk_index() -> list:
-    """Hent DNNK's webinar-indeks (cached i hukommelsen for denne koersel)."""
+    """Hent DNNK's webinar-indeks (cached i hukommelsen med 12 timers TTL,
+    så en langlivet proces ikke serverer et evigt forældet indeks)."""
     global _dnnk_index_cache
-    if _dnnk_index_cache is not None:
-        return _dnnk_index_cache
+    if _dnnk_index_cache is not None and time.time() - _dnnk_index_cache[0] < DNNK_INDEX_TTL:
+        return _dnnk_index_cache[1]
     try:
         async with httpx.AsyncClient(timeout=20) as client:
             r = await client.get(DNNK_INDEX_URL)
             if r.status_code == 200:
-                _dnnk_index_cache = r.json()
-                print(f"Hentet DNNK-indeks: {len(_dnnk_index_cache)} webinarer")
-                return _dnnk_index_cache
+                index = r.json()
+                _dnnk_index_cache = (time.time(), index)
+                print(f"Hentet DNNK-indeks: {len(index)} webinarer")
+                return index
     except Exception as e:
         print(f"Kunne ikke hente DNNK-indeks: {e}")
-    _dnnk_index_cache = []
+    _dnnk_index_cache = (time.time(), [])
     return []
 
 def find_relevant_webinars(article: dict, dnnk_index: list, top_n: int = 2) -> list:
@@ -104,18 +111,14 @@ def find_relevant_webinars(article: dict, dnnk_index: list, top_n: int = 2) -> l
     scored.sort(key=lambda x: -x[0])
     return [e for _, e in scored[:top_n]]
 
-def save_sent_articles(titles: set):
-    """Gem sendte artikel-titler — behold kun de seneste 500"""
+def save_sent_articles(titles: list):
+    """Gem sendte artikel-titler — behold de seneste 500 i
+    indsættelsesrækkefølge (list(set)[-500:] beskar vilkårlige titler,
+    da set-rækkefølgen er udefineret)."""
     try:
-        titles_list = list(titles)[-500:]
-        SENT_ARTICLES_FILE.write_text(json.dumps({"titles": titles_list}))
+        SENT_ARTICLES_FILE.write_text(json.dumps({"titles": titles[-500:]}))
     except Exception as e:
         print(f"Kunne ikke gemme sendte artikler: {e}")
-
-def get_yesterday_str() -> str:
-    """Returner gårsdagens dato som YYYY-MM-DD"""
-    from datetime import timedelta
-    return (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 def is_recent(article: dict) -> bool:
     """Returner True hvis artiklen er fra de seneste 2 dage"""
@@ -131,6 +134,10 @@ def is_recent(article: dict) -> bool:
         return True
 
 async def fetch_articles(query: str, limit: int = 5) -> list:
+    # Kaldes sekventielt for hver af de 26 QUERIES mod /news/full. Det er
+    # kun acceptabelt fordi main.py har en TTL-feed-cache (10 min): første
+    # kald henter alle feeds over nettet, kald 2-26 rammer cachen og koster
+    # kun scoring. Fjernes cachen, skal dette laves om til færre/parallelle kald.
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.get(
@@ -247,7 +254,7 @@ def build_html_email(articles: list, scrape_articles: list, ted_notices: list, s
     </table>
     <p style="color:#aaa;font-size:11px;margin-top:32px;border-top:1px solid #eee;padding-top:12px;">
       Sendt automatisk af DNNK Klimamonitor · 
-      <a href="https://kornelius-stack.github.io/dnnk-klimamonitor-proxy/" style="color:#2d6a4f;">Åbn klimamonitor</a>
+      <a href="https://klimatilpasning.github.io/dnnk-klimamonitor-proxy/" style="color:#2d6a4f;">Åbn klimamonitor</a>
     </p>
   </div>
 </body>
@@ -299,7 +306,7 @@ async def claude_analysis(prompt: str, max_tokens: int = 700) -> str:
                     "Content-Type": "application/json",
                 },
                 json={
-                    "model": "claude-haiku-4-5-20251001",
+                    "model": HAIKU_MODEL,
                     "max_tokens": max_tokens,
                     "messages": [{"role": "user", "content": prompt}],
                 },
@@ -414,8 +421,9 @@ async def run_daily_digest():
     print(f"[{datetime.now().strftime('%H:%M')}] Starter daglig scanning...")
     dnnk_index = await fetch_dnnk_index()
 
-    # Hent tidligere sendte artikler
-    sent_titles = load_sent_articles()
+    # Hent tidligere sendte artikler (liste i indsættelsesrækkefølge + set til opslag)
+    sent_list = load_sent_articles()
+    sent_titles = set(sent_list)
     print(f"Kendte artikler fra tidligere: {len(sent_titles)}")
 
     # Hent RSS artikler
@@ -469,13 +477,20 @@ async def run_daily_digest():
         subject = f"DNNK Klimamonitor · {scan_date} · {total_new} nye artikler"
     await send_brevo_email(subject, html)
 
-    # Gem alle sendte titler
-    all_sent = sent_titles | {a.get("title", "") for a in unique_articles + unique_scrape}
-    save_sent_articles(all_sent)
+    # Gem alle sendte titler — nye appendes bagerst, så beskæringen til 500
+    # altid fjerner de ÆLDSTE titler i stedet for vilkårlige (set-rækkefølge)
+    for art in unique_articles + unique_scrape:
+        t = art.get("title", "")
+        if t and t not in sent_titles:
+            sent_list.append(t)
+            sent_titles.add(t)
+    save_sent_articles(sent_list)
     print("run_daily_digest afsluttet")
 
 async def scheduler_loop():
-    cph = timezone(timedelta(hours=1))
+    # Rigtig dansk tidszone med sommertid — fast UTC+1 ramte en time forkert
+    # om sommeren.
+    cph = ZoneInfo("Europe/Copenhagen")
     print("Scheduler startet – venter på kl. 08:00...")
     while True:
         now = datetime.now(cph)
@@ -485,7 +500,15 @@ async def scheduler_loop():
         wait_seconds = (next_run - now).total_seconds()
         print(f"Næste scanning: {next_run.strftime('%d/%m %H:%M')} (om {int(wait_seconds // 3600)}t {int((wait_seconds % 3600) // 60)}m)")
         await asyncio.sleep(wait_seconds)
-        await run_daily_digest()
+        # try/except INDE i løkken: en enkelt fejlet kørsel må ikke dræbe
+        # scheduleren for altid.
+        try:
+            await run_daily_digest()
+        except Exception as e:
+            print(f"Fejl i daglig digest: {e}")
         # Ugentlig dyb indholdsanalyse om mandagen (efter den daglige digest)
         if datetime.now(cph).weekday() == 0:
-            await run_weekly_analysis()
+            try:
+                await run_weekly_analysis()
+            except Exception as e:
+                print(f"Fejl i ugentlig analyse: {e}")
