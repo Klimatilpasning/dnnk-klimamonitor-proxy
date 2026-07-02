@@ -2,9 +2,9 @@ from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import httpx
-import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
-from datetime import datetime
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 import asyncio
 import hmac
 import re
@@ -12,7 +12,29 @@ import os
 import time
 import collections
 
-app = FastAPI(title="DNNK Klimamonitor Proxy")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ÉN delt httpx-client for hele app'en i stedet for en ny client pr.
+    # request (og pr. feed i /test-feeds) — sparer connection-setup og holder
+    # antallet af samtidige forbindelser nede på Render free tier.
+    app.state.client = httpx.AsyncClient(
+        limits=httpx.Limits(max_connections=20),
+        timeout=httpx.Timeout(30),
+        follow_redirects=True,
+    )
+    # Intern scheduler er som standard slået FRA (digest-mails stoppet på
+    # brugerens anmodning). Sæt SCHEDULER_ENABLED=true på Render for at
+    # aktivere igen.
+    if os.environ.get("SCHEDULER_ENABLED", "").lower() in ("1", "true", "yes"):
+        asyncio.create_task(_scheduler_loop())
+    else:
+        print("Scheduler deaktiveret (SCHEDULER_ENABLED ikke sat) – sender ingen digest-mails.")
+    yield
+    await app.state.client.aclose()
+
+
+app = FastAPI(title="DNNK Klimamonitor Proxy", lifespan=lifespan)
 
 # CORS låst til DNNK's GitHub Pages-domæne (begge frontends ligger her).
 # Sæt evt. ekstra domæner via miljøvariablen DNNK_ALLOWED_ORIGINS (komma-sep).
@@ -195,16 +217,51 @@ BROAD_KEYWORDS = {
     "climate", "urban", "infrastructure",
 }
 
+# ── Kompilerede nøgleords-regexes (bygget én gang ved modul-load) ──
+# Tidligere kørte score_article ~124 separate regex-søgninger pr. artikel
+# (op til 2.800 artikler pr. request) og blokerede event-loopen. Nu samles
+# alle nøgleord i to alternations-regexes (kerneord/brede ord), og hits
+# tælles i ét gennemløb med findall. Akronym-logikken fra kw_match bevares:
+# ord der er helt uppercase (LAR, BNBO, DHI, DK2020) kræver word-boundary
+# EFTER ordet, almindelige ord matcher stadig sammensætninger (klima →
+# klimaforandring). Længste ord først, så alternationen foretrækker det
+# mest specifikke match.
+def _kw_pattern(kw: str) -> str:
+    p = re.escape(kw)
+    if kw.upper() == kw and any(c.isalpha() for c in kw):
+        p += r'(?!\w)'
+    return p
+
+_CORE_KEYWORDS = [kw for kw in KEYWORDS if kw not in BROAD_KEYWORDS]
+CORE_RE = re.compile(
+    r'(?<!\w)(?:' + '|'.join(_kw_pattern(k) for k in sorted(_CORE_KEYWORDS, key=len, reverse=True)) + r')',
+    re.IGNORECASE | re.UNICODE)
+BROAD_RE = re.compile(
+    r'(?<!\w)(?:' + '|'.join(_kw_pattern(k) for k in sorted(BROAD_KEYWORDS, key=len, reverse=True)) + r')',
+    re.IGNORECASE | re.UNICODE)
+
+def find_tags(combined: str, top_n: int = 3) -> list:
+    """Tags = de kerneord der FAKTISK matcher artiklen (top 3, i tekst-orden).
+    Tidligere kunne kun de første 6 nøgleord i KEYWORDS blive tags."""
+    tags = []
+    for m in CORE_RE.findall(combined):
+        t = m.lower()
+        if t not in tags:
+            tags.append(t)
+        if len(tags) >= top_n:
+            break
+    return tags
+
 def score_article(combined: str, q_match: bool):
     """Returnér (relevance 0-1, keep).
 
     Kerneord vejer 3, brede ord 1, et søge-match giver 3. En artikel beholdes
     kun hvis den rammer mindst ét kerneord, matcher søgningen, eller rammer
     mindst to brede ord — så artikler der blot strejfer 'klima'/'miljø' (fx
-    ministerrokade eller elpriser) sorteres fra i stedet for at score 1."""
-    core_hits = sum(1 for kw in KEYWORDS
-                    if kw not in BROAD_KEYWORDS and kw_match(kw, combined))
-    broad_hits = sum(1 for kw in BROAD_KEYWORDS if kw_match(kw, combined))
+    ministerrokade eller elpriser) sorteres fra i stedet for at score 1.
+    Der tælles DISTINKTE matchende nøgleord (som før), ikke antal forekomster."""
+    core_hits = len({m.lower() for m in CORE_RE.findall(combined)})
+    broad_hits = len({m.lower() for m in BROAD_RE.findall(combined)})
     keep = core_hits >= 1 or q_match or broad_hits >= 2
     raw = core_hits * 3 + broad_hits + (3 if q_match else 0)
     return min(round(raw / 12, 2), 1.0), keep
@@ -230,76 +287,68 @@ def parse_item_bs(item):
 
     return title, description, url, pub_date
 
-def parse_item_et(item):
-    """Parse et RSS/Atom item med ElementTree"""
-    title = ""
-    description = ""
-    link = ""
-    pub_date = ""
-    for child in item:
-        tag = child.tag.split("}")[-1] if "}" in child.tag else child.tag
-        text = (child.text or "").strip()
-        if tag == "title" and not title:
-            title = text
-        elif tag in ("description", "summary", "content") and not description:
-            description = re.sub(r"<[^>]+>", "", text)[:400]
-        elif tag == "link" and not link:
-            href = child.get("href", "")
-            link = href if href else text
-        elif tag == "id" and not link:
-            link = text
-        elif tag in ("pubDate", "published", "updated", "date") and not pub_date:
-            pub_date = normalize_date(text) if text else ""
-    return title, description, link, pub_date
+# ── TTL-cache af rå feed-/sidetekst pr. URL (K2 — største gevinst) ──
+# Frontendens auto-scan kalder /news/full 5× med forskellig q, men q påvirker
+# kun scoringen — de samme ~70 feeds blev hentet 5 gange. Med cachen hentes
+# hvert feed højst én gang pr. 10 minutter. Cachen er naturligt bounded af
+# antallet af kilde-URL'er (feeds + scrape-mål), så den kan ikke vokse frit.
+_FEED_CACHE: dict[str, tuple[float, str]] = {}
+FEED_TTL = 600          # sekunder
+MAX_FEED_BYTES = 2 * 1024 * 1024   # afvis svar > 2MB (512MB RAM på free tier)
+
+# Begræns samtidige eksterne fetches ved cache-miss (scrape rammer ~100 mål)
+_FETCH_SEM = asyncio.Semaphore(15)
+
+async def get_feed_text(client, url: str, headers=None) -> str:
+    """Hent rå tekst for en URL med 10 min TTL-cache og 2MB byte-cap.
+    Bemærk: der filtreres ikke på statuskode her — flere danske CMS/SPA-sider
+    svarer 404 men leverer alligevel indholdet i body (se scrape_news).
+    Fejlsider giver naturligt 0 items/artikler i parsing-laget."""
+    now = time.time()
+    cached = _FEED_CACHE.get(url)
+    if cached and now - cached[0] < FEED_TTL:
+        return cached[1]
+    async with _FETCH_SEM:
+        resp = await client.get(url, timeout=15, follow_redirects=True,
+                                headers=headers or RSS_HEADERS)
+    if len(resp.content) > MAX_FEED_BYTES:
+        raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
+    text = resp.text
+    _FEED_CACHE[url] = (now, text)
+    return text
+
+def parse_feed_items(content: str) -> list:
+    """Find alle item/entry-elementer i et RSS/Atom-feed.
+    ElementTree-vejen er droppet: den fejlede på namespace-prefixede tags
+    (content:encoded m.fl.), så alt blev alligevel dobbelt-parset med
+    BeautifulSoup. lxml's xml-parser håndterer namespaces korrekt."""
+    try:
+        soup = BeautifulSoup(content, "xml")
+        items = soup.find_all("item") + soup.find_all("entry")
+        if items:
+            return items
+    except Exception:
+        pass
+    try:
+        soup = BeautifulSoup(content, "lxml")
+        return soup.find_all("item") + soup.find_all("entry")
+    except Exception:
+        return []
 
 async def fetch_rss(client, source, url, query, limit: int = 8):
+    """Returnerer en liste af artikler, eller None hvis feedet fejlede
+    (så /news/full kan tælle feeds_failed)."""
     try:
-        resp = await client.get(url, timeout=15, follow_redirects=True, headers=RSS_HEADERS)
-        if resp.status_code != 200:
-            return []
-        
-        content = resp.text
-        items = []
-        
-        # Prøv først ElementTree
-        try:
-            clean = re.sub(r' xmlns[^=]*="[^"]*"', '', content)
-            clean = re.sub(r'<\?xml[^>]*\?>', '', clean)
-            root_el = ET.fromstring(clean)
-            et_items = root_el.findall(".//item") + root_el.findall(".//entry")
-            if et_items:
-                items = [("et", i) for i in et_items]
-        except ET.ParseError:
-            pass
-        
-        # Fallback: BeautifulSoup
-        if not items:
-            try:
-                soup = BeautifulSoup(content, "xml")
-                bs_items = soup.find_all("item") + soup.find_all("entry")
-                if bs_items:
-                    items = [("bs", i) for i in bs_items]
-            except Exception:
-                try:
-                    soup = BeautifulSoup(content, "lxml")
-                    bs_items = soup.find_all("item") + soup.find_all("entry")
-                    if bs_items:
-                        items = [("bs", i) for i in bs_items]
-                except Exception:
-                    pass
-        
+        content = await get_feed_text(client, url)
+        items = parse_feed_items(content)
         if not items:
             return []
-        
+
         results = []
         q_lower = query.lower()
 
-        for parser, item in items[:40]:
-            if parser == "et":
-                title, description, link, pub_date = parse_item_et(item)
-            else:
-                title, description, link, pub_date = parse_item_bs(item)
-
+        for item in items[:40]:
+            title, description, link, pub_date = parse_item_bs(item)
             if not title:
                 continue
             combined = title + " " + description
@@ -311,13 +360,14 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
             results.append({
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
-                "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
+                "tags": find_tags(combined),
                 "relevance": relevance, "url": real_url(link), "value": None
             })
         results.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return results[:limit]
-    except Exception:
-        return []
+    except Exception as e:
+        print(f"[feed-fejl] {url}: {e}")
+        return None
 
 @app.get("/test-feeds")
 async def test_feeds(request: Request):
@@ -330,33 +380,16 @@ async def test_feeds(request: Request):
         url = meta["url"]
         gruppe = meta["gruppe"]
         try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                resp = await client.get(url, follow_redirects=True, headers=RSS_HEADERS)
-                if resp.status_code != 200:
-                    return {"navn": navn, "gruppe": gruppe, "url": url,
-                            "status": "fejl", "info": f"HTTP {resp.status_code}"}
-                content = resp.text
-                # Prøv ET
-                try:
-                    clean = re.sub(r' xmlns[^=]*="[^"]*"', '', content)
-                    root = ET.fromstring(clean)
-                    items = root.findall(".//item") + root.findall(".//entry")
-                    if items:
-                        return {"navn": navn, "gruppe": gruppe, "url": url,
-                                "status": "ok", "info": f"{len(items)} items (ET)"}
-                except ET.ParseError:
-                    pass
-                # Prøv BS
-                try:
-                    soup = BeautifulSoup(content, "xml")
-                    items = soup.find_all("item") + soup.find_all("entry")
-                    if items:
-                        return {"navn": navn, "gruppe": gruppe, "url": url,
-                                "status": "ok", "info": f"{len(items)} items (BS)"}
-                except Exception:
-                    pass
+            # Delt client + samme cache/parse-logik som /news/full — tidligere
+            # oprettede endpointet én ny httpx-client PR. FEED og havde sin
+            # egen kopi af parse-koden.
+            content = await get_feed_text(app.state.client, url)
+            items = parse_feed_items(content)
+            if items:
                 return {"navn": navn, "gruppe": gruppe, "url": url,
-                        "status": "fejl", "info": "Ingen items fundet"}
+                        "status": "ok", "info": f"{len(items)} items"}
+            return {"navn": navn, "gruppe": gruppe, "url": url,
+                    "status": "fejl", "info": "Ingen items fundet"}
         except Exception as e:
             return {"navn": navn, "gruppe": gruppe, "url": url,
                     "status": "fejl", "info": str(e)[:80]}
@@ -369,7 +402,7 @@ async def test_feeds(request: Request):
         "total": len(results), "ok": len(ok), "fejl": len(fejl),
         "virker": sorted(ok, key=lambda x: x["gruppe"]),
         "virker_ikke": sorted(fejl, key=lambda x: x["gruppe"]),
-        "testet": datetime.utcnow().isoformat()
+        "testet": datetime.now(timezone.utc).isoformat()
     }
 
 @app.get("/ted")
@@ -378,9 +411,8 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
     params = {"q": f"{q} Denmark", "pageSize": size,
               "fields": "title,organisations,publicationDate,contractValue,cpvCodes,noticeType,tedPublicationUrl",
               "country": "DNK"}
-    async with httpx.AsyncClient(timeout=15) as client:
-        resp = await client.get(url, params=params)
-        return resp.json()
+    resp = await app.state.client.get(url, params=params, timeout=15)
+    return resp.json()
 
 @app.get("/news")
 async def get_news(q: str = Query("klimatilpasning")):
@@ -400,12 +432,12 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
         feeds = {k: {"url": v, "gruppe": gruppe} for k, v in ALLE_FEEDS[gruppe].items()}
-    async with httpx.AsyncClient() as client:
-        tasks = [fetch_rss(client, navn, meta["url"], q, limit) for navn, meta in feeds.items()]
-        nested = await asyncio.gather(*tasks)
+    tasks = [fetch_rss(app.state.client, navn, meta["url"], q, limit) for navn, meta in feeds.items()]
+    nested = await asyncio.gather(*tasks)
+    feeds_failed = sum(1 for sub in nested if sub is None)
     articles = []
     for i, (navn, meta) in enumerate(feeds.items()):
-        for art in nested[i][:limit]:
+        for art in (nested[i] or [])[:limit]:
             art["gruppe"] = meta["gruppe"]
             articles.append(art)
 
@@ -426,8 +458,9 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
 
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
-            "feeds_checked": len(feeds), "query": q,
-            "scanned_at": datetime.utcnow().isoformat()}
+            "feeds_checked": len(feeds), "feeds_failed": feeds_failed,
+            "query": q,
+            "scanned_at": datetime.now(timezone.utc).isoformat()}
 
 @app.get("/news/kilder")
 async def get_kilder():
@@ -462,15 +495,6 @@ async def _run_digest():
     except Exception as e:
         print(f"Digest fejl: {e}")
 
-@app.on_event("startup")
-async def start_scheduler():
-    # Intern scheduler er som standard slået FRA (digest-mails stoppet på brugerens anmodning).
-    # Sæt miljøvariablen SCHEDULER_ENABLED=true på Render for at aktivere igen.
-    if os.environ.get("SCHEDULER_ENABLED", "").lower() not in ("1", "true", "yes"):
-        print("Scheduler deaktiveret (SCHEDULER_ENABLED ikke sat) – sender ingen digest-mails.")
-        return
-    asyncio.create_task(_scheduler_loop())
-
 async def _scheduler_loop():
     try:
         from scheduler import scheduler_loop
@@ -503,24 +527,24 @@ async def chat(payload: dict, request: Request):
         return {"error": "Ingen server-API-nøgle konfigureret"}
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": min(max(max_tokens, 1), 4096),
-                    "system": system,
-                    "messages": messages
-                }
-            )
-            # Videregiv Anthropics egen statuskode, så klienten kan skelne
-            # fx 429/529 fra et succesfuldt svar i stedet for altid at få 200.
-            return JSONResponse(status_code=resp.status_code, content=resp.json())
+        resp = await app.state.client.post(
+            "https://api.anthropic.com/v1/messages",
+            timeout=30,
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": min(max(max_tokens, 1), 4096),
+                "system": system,
+                "messages": messages
+            }
+        )
+        # Videregiv Anthropics egen statuskode, så klienten kan skelne
+        # fx 429/529 fra et succesfuldt svar i stedet for altid at få 200.
+        return JSONResponse(status_code=resp.status_code, content=resp.json())
     except Exception as e:
         return {"error": str(e)[:200]}
 
@@ -546,43 +570,43 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
         return {"query": q, "terms": [], "error": "Ingen server-API-nøgle konfigureret"}
 
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={
-                    "x-api-key": api_key,
-                    "anthropic-version": "2023-06-01",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": "claude-haiku-4-5-20251001",
-                    "max_tokens": 200,
-                    "messages": [{
-                        "role": "user",
-                        "content": (
-                            f'Brugeren søger på "{q}" i en vidensbank om klimatilpasning og vandkredsløb. '
-                            f"Giv 8-12 relaterede danske fagudtryk og synonymer der ville matche relevante webinarer. "
-                            f"Inkluder både brede og specifikke termer. Svar KUN med valid JSON-liste, fx: "
-                            f'["term1","term2","term3"]'
-                        )
-                    }]
-                }
-            )
-            data = resp.json()
-            if "content" not in data:
-                return {"query": q, "terms": [], "error": "Ugyldigt svar fra Claude"}
-            raw = data["content"][0]["text"].strip()
-            # Strip code fences
-            import re as _re
-            raw = _re.sub(r"^```(?:json)?\s*", "", raw)
-            raw = _re.sub(r"\s*```$", "", raw)
-            terms = _json.loads(raw)
-            if isinstance(terms, list):
-                terms = [str(t) for t in terms if t][:15]
-                if len(_expand_cache) >= _EXPAND_CACHE_MAX:
-                    _expand_cache.pop(next(iter(_expand_cache)))  # FIFO
-                _expand_cache[q_key] = terms
-                return {"query": q, "terms": terms}
+        resp = await app.state.client.post(
+            "https://api.anthropic.com/v1/messages",
+            timeout=15,
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 200,
+                "messages": [{
+                    "role": "user",
+                    "content": (
+                        f'Brugeren søger på "{q}" i en vidensbank om klimatilpasning og vandkredsløb. '
+                        f"Giv 8-12 relaterede danske fagudtryk og synonymer der ville matche relevante webinarer. "
+                        f"Inkluder både brede og specifikke termer. Svar KUN med valid JSON-liste, fx: "
+                        f'["term1","term2","term3"]'
+                    )
+                }]
+            }
+        )
+        data = resp.json()
+        if "content" not in data:
+            return {"query": q, "terms": [], "error": "Ugyldigt svar fra Claude"}
+        raw = data["content"][0]["text"].strip()
+        # Strip code fences
+        import re as _re
+        raw = _re.sub(r"^```(?:json)?\s*", "", raw)
+        raw = _re.sub(r"\s*```$", "", raw)
+        terms = _json.loads(raw)
+        if isinstance(terms, list):
+            terms = [str(t) for t in terms if t][:15]
+            if len(_expand_cache) >= _EXPAND_CACHE_MAX:
+                _expand_cache.pop(next(iter(_expand_cache)))  # FIFO
+            _expand_cache[q_key] = terms
+            return {"query": q, "terms": terms}
     except Exception as e:
         return {"query": q, "terms": [], "error": str(e)[:200]}
 
@@ -605,16 +629,17 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
     from urllib.parse import urlparse, urljoin
     try:
-        resp = await client.get(url, timeout=15, follow_redirects=True, headers=RSS_HEADERS)
         # Bemærk: flere danske CMS/SPA-sider (DMI, IDA, Klimarådet, SLA, HOFOR)
         # svarer HTTP 404 på serverniveau, men leverer alligevel hele nyhedslisten
         # i body. Vi afviser derfor IKKE på statuskode alene — vi forsøger at parse
         # så længe der er substantielt indhold. Selektorerne + relevans-filteret
         # giver naturligt 0 resultater for ægte (tomme) fejlsider.
-        if not resp.text or len(resp.text) < 2000:
+        # Hentes via TTL-cachen (10 min) med semafor + 2MB byte-cap.
+        text = await get_feed_text(client, url)
+        if not text or len(text) < 2000:
             return []
 
-        soup = BeautifulSoup(resp.text, "lxml")
+        soup = BeautifulSoup(text, "lxml")
         base_url = f"{urlparse(url).scheme}://{urlparse(url).netloc}"
 
         for tag in soup(["nav", "footer", "script", "style", "header"]):
@@ -696,7 +721,7 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                 "org": source,
                 "date": pub_date,
                 "summary": description,
-                "tags": [kw for kw in KEYWORDS[:6] if kw_match(kw, combined)][:3],
+                "tags": find_tags(combined),
                 "relevance": relevance,
                 "url": article_url,
                 "value": None,
@@ -706,7 +731,8 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
         articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return articles[:limit]
 
-    except Exception:
+    except Exception as e:
+        print(f"[feed-fejl] {url}: {e}")
         return []
 
 
@@ -715,12 +741,11 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     """Hent nyheder via direkte scraping fra sider uden RSS"""
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
-    async with httpx.AsyncClient() as client:
-        tasks = [
-            scrape_news(client, navn, meta["url"], meta["gruppe"], q, limit)
-            for navn, meta in SCRAPE_SOURCES.items()
-        ]
-        nested = await asyncio.gather(*tasks)
+    tasks = [
+        scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit)
+        for navn, meta in SCRAPE_SOURCES.items()
+    ]
+    nested = await asyncio.gather(*tasks)
 
     articles = [a for sub in nested for a in sub]
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
@@ -729,5 +754,5 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
         "total": len(articles),
         "sources_checked": len(SCRAPE_SOURCES),
         "query": q,
-        "scanned_at": datetime.utcnow().isoformat()
+        "scanned_at": datetime.now(timezone.utc).isoformat()
     }

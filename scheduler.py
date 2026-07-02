@@ -131,6 +131,10 @@ def is_recent(article: dict) -> bool:
         return True
 
 async def fetch_articles(query: str, limit: int = 5) -> list:
+    # Kaldes sekventielt for hver af de 26 QUERIES mod /news/full. Det er
+    # kun acceptabelt fordi main.py har en TTL-feed-cache (10 min): første
+    # kald henter alle feeds over nettet, kald 2-26 rammer cachen og koster
+    # kun scoring. Fjernes cachen, skal dette laves om til færre/parallelle kald.
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.get(
