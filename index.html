@@ -350,6 +350,15 @@
     line-height: 1.6;
   }
 
+  /* Diskret linje med relaterede DNNK-webinarer på artikelkortet */
+  .webinar-line {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+  }
+  .webinar-line a { color: var(--dnnk-blue); text-decoration: none; }
+  .webinar-line a:hover { text-decoration: underline; }
+
   .tags {
     display: flex;
     gap: 0.35rem;
@@ -732,6 +741,14 @@ function renderArticles(articles) {
       ? `<div class="laest-separator">Allerede læst</div>` : '';
 
     const summary = (a.summary || '').slice(0, 220) + ((a.summary||'').length > 220 ? '...' : '');
+    // Relaterede DNNK-webinarer (beriget af /news/full) — titler og URL'er
+    // escapes/valideres som al anden ekstern data, ingen inline handlers.
+    const webinarLinks = (a.webinarer || [])
+      .filter(w => w && w.youtube_url && w.title)
+      .map(w => `<a href="${safeUrl(w.youtube_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(w.title)}</a>`)
+      .join(' · ');
+    const webinarLine = webinarLinks
+      ? `<div class="webinar-line">🎓 DNNK har dækket emnet: ${webinarLinks}</div>` : '';
     return separator + `
       <div class="article-card ${isRead ? 'is-read' : ''} ${isNew && !isRead ? 'is-new' : ''}">
         <div>
@@ -742,6 +759,7 @@ function renderArticles(articles) {
           </div>
           <div class="article-meta">${escapeHtml(a.feedSource || '')} · ${escapeHtml(a.date || '')}</div>
           <div class="article-summary">${escapeHtml(summary)}</div>
+          ${webinarLine}
           <div class="tags">
             ${(a.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
             <div class="article-actions">

@@ -330,6 +330,79 @@ async def get_feed_text(client, url: str, headers=None) -> str:
     _FEED_CACHE[url] = (now, text)
     return text
 
+# ── DNNK webinar-indeks (search-index.json) med 12t TTL-cache ──
+# Indekset ligger offentligt i vidensassistent-repoet og ændrer sig sjældent,
+# så 12 timer er rigeligt friskt. Ved indlæsning forberedes pr. webinar to
+# ord-sæt (tokens fra titel+keywords hhv. alt tekst), så al efterfølgende
+# matching er billige set-snit — ingen regex pr. webinar pr. artikel.
+WEBINAR_INDEX_URL = "https://raw.githubusercontent.com/Klimatilpasning/dnnk-vidensassistent/main/search-index.json"
+WEBINAR_INDEX_TTL = 12 * 3600
+_WEBINAR_INDEX_CACHE: tuple[float, list] | None = None   # (timestamp, forberedt liste)
+
+_TOKEN_RE = re.compile(r"[a-z0-9æøåäöéü]+")
+
+def _tokens(text: str, min_len: int = 4) -> set:
+    """Tokenisér tekst: lowercase, kun bogstaver/tal, ord ≥ min_len tegn."""
+    return {t for t in _TOKEN_RE.findall((text or "").lower()) if len(t) >= min_len}
+
+async def get_webinar_index() -> list:
+    """Hent og forbered DNNK's webinar-indeks (cached 12 timer).
+    Returnerer liste af {"entry": rå indeks-entry, "words": titel+keyword-tokens,
+    "words_full": tokens fra titel+keywords+summary+speakers+kategori}.
+    Ved netværksfejl serveres et evt. forældet indeks frem for ingenting."""
+    global _WEBINAR_INDEX_CACHE
+    now = time.time()
+    if _WEBINAR_INDEX_CACHE and now - _WEBINAR_INDEX_CACHE[0] < WEBINAR_INDEX_TTL:
+        return _WEBINAR_INDEX_CACHE[1]
+    try:
+        resp = await app.state.client.get(WEBINAR_INDEX_URL, timeout=20)
+        resp.raise_for_status()
+        raw = resp.json()
+    except Exception as e:
+        print(f"[webinar-indeks] kunne ikke hentes: {e}")
+        return _WEBINAR_INDEX_CACHE[1] if _WEBINAR_INDEX_CACHE else []
+    prepared = []
+    for entry in raw if isinstance(raw, list) else []:
+        words = _tokens(entry.get("title", ""))
+        for kw in entry.get("keywords") or []:
+            words |= _tokens(kw)
+        words_full = set(words)
+        words_full |= _tokens(entry.get("summary", ""))
+        words_full |= _tokens(entry.get("category", ""))
+        for sp in entry.get("speakers") or []:
+            if isinstance(sp, dict):
+                words_full |= _tokens(sp.get("name", "")) | _tokens(sp.get("org", ""))
+        if words:
+            prepared.append({"entry": entry, "words": words, "words_full": words_full})
+    _WEBINAR_INDEX_CACHE = (now, prepared)
+    print(f"[webinar-indeks] {len(prepared)} webinarer indlæst")
+    return prepared
+
+def find_relaterede_webinarer(text: str, max_n: int = 2) -> list:
+    """Find op til max_n DNNK-webinarer der matcher en artikel-tekst.
+    Matcher artikel-tokens (ord ≥4 tegn) mod webinarets titel+keyword-ord og
+    kræver mindst 2 fælles ord, så et enkelt bredt ord ('klimatilpasning')
+    ikke klistrer webinarer på alt. Læser den allerede hentede cache — kald
+    get_webinar_index() først i async-kontekst. Returnerer
+    [{"title", "youtube_url", "date"}] sorteret efter flest fælles ord."""
+    prepared = _WEBINAR_INDEX_CACHE[1] if _WEBINAR_INDEX_CACHE else []
+    art_words = _tokens(text)
+    if not prepared or not art_words:
+        return []
+    scored = []
+    for item in prepared:
+        entry = item["entry"]
+        if not entry.get("youtube_url"):
+            continue
+        hits = len(art_words & item["words"])
+        if hits >= 2:
+            scored.append((hits, entry))
+    scored.sort(key=lambda x: -x[0])
+    return [{"title": e.get("title", ""),
+             "youtube_url": e.get("youtube_url", ""),
+             "date": e.get("date", "")}
+            for _, e in scored[:max_n]]
+
 def parse_feed_items(content: str) -> list:
     """Find alle item/entry-elementer i et RSS/Atom-feed.
     ElementTree-vejen er droppet: den fejlede på namespace-prefixede tags
@@ -462,6 +535,14 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
         if key not in bedste or _pref(a) < _pref(bedste[key]):
             bedste[key] = a
     articles = list(bedste.values())
+
+    # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
+    # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
+    # matchingen er rene set-snit — koster nærmest intet pr. artikel.
+    await get_webinar_index()
+    for a in articles:
+        a["webinarer"] = find_relaterede_webinarer(
+            (a.get("title") or "") + " " + (a.get("summary") or ""))
 
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
