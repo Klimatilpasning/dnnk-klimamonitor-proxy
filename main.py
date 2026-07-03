@@ -852,6 +852,7 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
 # (offentlige GitHub-repos), så der er ingen auth på endpointet.
 # ─────────────────────────────────────────────────────────────
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 TRANSCRIPTOR_RAW_BASE = "https://raw.githubusercontent.com/klimatilpasning/dnnk-transcriptor/main/"
 
@@ -866,6 +867,16 @@ mcp_server = FastMCP(
     ),
     stateless_http=True,
     json_response=True,
+    # SDK'ens DNS-rebinding-beskyttelse tillader kun localhost som standard
+    # og svarede 421 Misdirected Request på Render-domænet. Tillad de værter
+    # tjenesten faktisk serveres på (+ localhost til lokale tests).
+    transport_security=TransportSecuritySettings(
+        allowed_hosts=[
+            "dnnk-klimamonitor-proxy.onrender.com",
+            "localhost", "localhost:*", "127.0.0.1", "127.0.0.1:*",
+        ],
+        allowed_origins=["*"],
+    ),
 )
 
 # Tidsstempel på egen linje ("HH:MM:SS") adskiller transskriptionens segmenter
