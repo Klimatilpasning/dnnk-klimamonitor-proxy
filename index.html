@@ -998,6 +998,12 @@ async function autoScan() {
 // Init: opdater tæller OG hent data automatisk, så siden ikke fremstår tom.
 // Scriptet ligger nederst i <body>, så DOM'en er klar her.
 updateReadCount();
+// Deeplink: åbnes siden med ?q=… (fx fra dashboardet), forudfyld søgefeltet.
+// Uden parameteren opfører siden sig præcis som før (søger på standard).
+try {
+  const _q = new URLSearchParams(location.search).get('q');
+  if (_q) document.getElementById('search-input').value = _q;
+} catch { /* ignorér */ }
 search();
 </script>
 </body>
