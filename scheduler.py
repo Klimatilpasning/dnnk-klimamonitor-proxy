@@ -203,8 +203,14 @@ def build_html_email(articles: list, scrape_articles: list, ted_notices: list, s
           </td>
         </tr>"""
 
-    article_rows = "".join([article_row(a, "ny", find_relevant_webinars(a, dnnk_index or [])) for a in articles])
-    scrape_rows = "".join([article_row(a, "ny", find_relevant_webinars(a, dnnk_index or [])) for a in scrape_articles[:10]])
+    # /news/full beriger nu selv artiklerne med "webinarer" (samme linje som
+    # frontenden viser). Brug feltet når det findes; fald tilbage til den
+    # lokale matcher for artikler uden feltet (fx scrape-artikler).
+    def _related(art):
+        return art.get("webinarer") or find_relevant_webinars(art, dnnk_index or [])
+
+    article_rows = "".join([article_row(a, "ny", _related(a)) for a in articles])
+    scrape_rows = "".join([article_row(a, "ny", _related(a)) for a in scrape_articles[:10]])
 
     ted_rows = ""
     for notice in ted_notices[:5]:

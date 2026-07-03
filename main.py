@@ -30,7 +30,11 @@ async def lifespan(app: FastAPI):
         asyncio.create_task(_scheduler_loop())
     else:
         print("Scheduler deaktiveret (SCHEDULER_ENABLED ikke sat) – sender ingen digest-mails.")
-    yield
+    # MCP-serverens session-manager skal køre så længe appen lever — uden
+    # den afviser streamable-HTTP-transporten alle kald til /mcp.
+    # (mcp_server/mcp-app'en er oprettet på modulniveau nederst i filen.)
+    async with mcp_server.session_manager.run():
+        yield
     await app.state.client.aclose()
 
 
@@ -330,6 +334,79 @@ async def get_feed_text(client, url: str, headers=None) -> str:
     _FEED_CACHE[url] = (now, text)
     return text
 
+# ── DNNK webinar-indeks (search-index.json) med 12t TTL-cache ──
+# Indekset ligger offentligt i vidensassistent-repoet og ændrer sig sjældent,
+# så 12 timer er rigeligt friskt. Ved indlæsning forberedes pr. webinar to
+# ord-sæt (tokens fra titel+keywords hhv. alt tekst), så al efterfølgende
+# matching er billige set-snit — ingen regex pr. webinar pr. artikel.
+WEBINAR_INDEX_URL = "https://raw.githubusercontent.com/Klimatilpasning/dnnk-vidensassistent/main/search-index.json"
+WEBINAR_INDEX_TTL = 12 * 3600
+_WEBINAR_INDEX_CACHE: tuple[float, list] | None = None   # (timestamp, forberedt liste)
+
+_TOKEN_RE = re.compile(r"[a-z0-9æøåäöéü]+")
+
+def _tokens(text: str, min_len: int = 4) -> set:
+    """Tokenisér tekst: lowercase, kun bogstaver/tal, ord ≥ min_len tegn."""
+    return {t for t in _TOKEN_RE.findall((text or "").lower()) if len(t) >= min_len}
+
+async def get_webinar_index() -> list:
+    """Hent og forbered DNNK's webinar-indeks (cached 12 timer).
+    Returnerer liste af {"entry": rå indeks-entry, "words": titel+keyword-tokens,
+    "words_full": tokens fra titel+keywords+summary+speakers+kategori}.
+    Ved netværksfejl serveres et evt. forældet indeks frem for ingenting."""
+    global _WEBINAR_INDEX_CACHE
+    now = time.time()
+    if _WEBINAR_INDEX_CACHE and now - _WEBINAR_INDEX_CACHE[0] < WEBINAR_INDEX_TTL:
+        return _WEBINAR_INDEX_CACHE[1]
+    try:
+        resp = await app.state.client.get(WEBINAR_INDEX_URL, timeout=20)
+        resp.raise_for_status()
+        raw = resp.json()
+    except Exception as e:
+        print(f"[webinar-indeks] kunne ikke hentes: {e}")
+        return _WEBINAR_INDEX_CACHE[1] if _WEBINAR_INDEX_CACHE else []
+    prepared = []
+    for entry in raw if isinstance(raw, list) else []:
+        words = _tokens(entry.get("title", ""))
+        for kw in entry.get("keywords") or []:
+            words |= _tokens(kw)
+        words_full = set(words)
+        words_full |= _tokens(entry.get("summary", ""))
+        words_full |= _tokens(entry.get("category", ""))
+        for sp in entry.get("speakers") or []:
+            if isinstance(sp, dict):
+                words_full |= _tokens(sp.get("name", "")) | _tokens(sp.get("org", ""))
+        if words:
+            prepared.append({"entry": entry, "words": words, "words_full": words_full})
+    _WEBINAR_INDEX_CACHE = (now, prepared)
+    print(f"[webinar-indeks] {len(prepared)} webinarer indlæst")
+    return prepared
+
+def find_relaterede_webinarer(text: str, max_n: int = 2) -> list:
+    """Find op til max_n DNNK-webinarer der matcher en artikel-tekst.
+    Matcher artikel-tokens (ord ≥4 tegn) mod webinarets titel+keyword-ord og
+    kræver mindst 2 fælles ord, så et enkelt bredt ord ('klimatilpasning')
+    ikke klistrer webinarer på alt. Læser den allerede hentede cache — kald
+    get_webinar_index() først i async-kontekst. Returnerer
+    [{"title", "youtube_url", "date"}] sorteret efter flest fælles ord."""
+    prepared = _WEBINAR_INDEX_CACHE[1] if _WEBINAR_INDEX_CACHE else []
+    art_words = _tokens(text)
+    if not prepared or not art_words:
+        return []
+    scored = []
+    for item in prepared:
+        entry = item["entry"]
+        if not entry.get("youtube_url"):
+            continue
+        hits = len(art_words & item["words"])
+        if hits >= 2:
+            scored.append((hits, entry))
+    scored.sort(key=lambda x: -x[0])
+    return [{"title": e.get("title", ""),
+             "youtube_url": e.get("youtube_url", ""),
+             "date": e.get("date", "")}
+            for _, e in scored[:max_n]]
+
 def parse_feed_items(content: str) -> list:
     """Find alle item/entry-elementer i et RSS/Atom-feed.
     ElementTree-vejen er droppet: den fejlede på namespace-prefixede tags
@@ -462,6 +539,14 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
         if key not in bedste or _pref(a) < _pref(bedste[key]):
             bedste[key] = a
     articles = list(bedste.values())
+
+    # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
+    # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
+    # matchingen er rene set-snit — koster nærmest intet pr. artikel.
+    await get_webinar_index()
+    for a in articles:
+        a["webinarer"] = find_relaterede_webinarer(
+            (a.get("title") or "") + " " + (a.get("summary") or ""))
 
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
@@ -622,7 +707,7 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
 @app.get("/")
 def root():
     return {"status": "ok", "service": "DNNK Klimamonitor Proxy",
-            "endpoints": ["/ted", "/news/full", "/news/scrape", "/news/kilder", "/test-feeds"]}
+            "endpoints": ["/ted", "/news/full", "/news/scrape", "/news/kilder", "/test-feeds", "/mcp"]}
 
 
 # ─────────────────────────────────────────────────────────────
@@ -758,3 +843,234 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
         "query": q,
         "scanned_at": datetime.now(timezone.utc).isoformat()
     }
+
+
+# ─────────────────────────────────────────────────────────────
+# MCP-SERVER — /mcp (streamable HTTP, stateless)
+# Lader Claude (og andre MCP-klienter) søge i DNNK's vidensbank:
+# webinar-indekset + transskriptionerne. Alt data er offentligt
+# (offentlige GitHub-repos), så der er ingen auth på endpointet.
+# ─────────────────────────────────────────────────────────────
+from mcp.server.fastmcp import FastMCP
+
+TRANSCRIPTOR_RAW_BASE = "https://raw.githubusercontent.com/klimatilpasning/dnnk-transcriptor/main/"
+
+mcp_server = FastMCP(
+    "dnnk-vidensbank",
+    instructions=(
+        "Søg i DNNK's (Det Nationale Netværk for Klimatilpasning) vidensbank "
+        "med ~227 webinarer om klimatilpasning i Danmark. Brug soeg_vidensbank "
+        "til at finde webinarer, soeg_passager til at finde konkrete passager "
+        "med tidsstempler og YouTube-links, og hent_transskription til at læse "
+        "en hel transskription."
+    ),
+    stateless_http=True,
+    json_response=True,
+)
+
+# Tidsstempel på egen linje ("HH:MM:SS") adskiller transskriptionens segmenter
+_TS_LINE_RE = re.compile(r"(?m)^(\d{2}:\d{2}:\d{2})\s*$")
+
+
+def _ts_til_sekunder(ts: str) -> int:
+    h, m, s = ts.split(":")
+    return int(h) * 3600 + int(m) * 60 + int(s)
+
+
+def _youtube_link_med_tid(youtube_url: str, ts: str) -> str:
+    """YouTube-link der starter afspilningen ved tidsstemplet ts."""
+    if not youtube_url:
+        return ""
+    sep = "&" if "?" in youtube_url else "?"
+    return f"{youtube_url}{sep}t={_ts_til_sekunder(ts)}s"
+
+
+async def _hent_transskription_raa(path: str) -> str:
+    """Hent rå transskription fra transcriptor-repoet via den delte
+    httpx-client. Genbruger feed-TTL-cachen, så gentagne opslag i samme
+    transskription ikke rammer GitHub hver gang."""
+    from urllib.parse import quote
+    url = TRANSCRIPTOR_RAW_BASE + quote(path)
+    now = time.time()
+    cached = _FEED_CACHE.get(url)
+    if cached and now - cached[0] < FEED_TTL:
+        return cached[1]
+    resp = await app.state.client.get(url, timeout=20)
+    resp.raise_for_status()
+    text = resp.text
+    _FEED_CACHE[url] = (now, text)
+    return text
+
+
+def _chunk_transskription(text: str, maks_tegn: int = 1500) -> list:
+    """Del en transskription i blokke på ~maks_tegn, brudt på tidsstempel-
+    grænser. Returnerer [(tidsstempel_for_blokkens_start, tekst), ...]."""
+    matches = list(_TS_LINE_RE.finditer(text))
+    if not matches:
+        t = text.strip()
+        return [("00:00:00", t)] if t else []
+    segments = []
+    for i, m in enumerate(matches):
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        seg = " ".join(text[m.end():end].split())
+        if seg:
+            segments.append((m.group(1), seg))
+    blocks = []
+    cur_ts, cur_parts, cur_len = None, [], 0
+    for ts, seg in segments:
+        if cur_parts and cur_len + len(seg) > maks_tegn:
+            blocks.append((cur_ts, " ".join(cur_parts)))
+            cur_ts, cur_parts, cur_len = None, [], 0
+        if cur_ts is None:
+            cur_ts = ts
+        cur_parts.append(seg)
+        cur_len += len(seg) + 1
+    if cur_parts:
+        blocks.append((cur_ts, " ".join(cur_parts)))
+    return blocks
+
+
+def _score_mod_indeks(q_words: set, item: dict) -> int:
+    """Scor et forberedt indeks-item mod forespørgslens ord: titel/keyword-
+    match vejer dobbelt, match i resumé/oplægsholdere/kategori vejer enkelt."""
+    return len(q_words & item["words"]) * 2 + len(q_words & item["words_full"])
+
+
+@mcp_server.tool()
+async def soeg_vidensbank(forespoergsel: str, max_resultater: int = 5) -> list:
+    """Søg i DNNK's vidensbank over webinarer om klimatilpasning.
+
+    Matcher forespørgslens ord mod webinarernes titel, nøgleord, resumé,
+    kategori og oplægsholdere og returnerer de mest relevante webinarer.
+    Brug danske fagtermer eller stednavne, fx "skybrudstunnel",
+    "grundvandsstigning", "kystbeskyttelse Lolland" eller "LAR Vejle".
+
+    Args:
+        forespoergsel: Søgeord på dansk, fx "skybrudstunnel København".
+        max_resultater: Højst antal webinarer der returneres (1-20, standard 5).
+
+    Returns:
+        Liste af webinarer med felterne titel, dato, kategori, resume,
+        youtube_url, dnnk_url, type og path. Feltet path bruges videre i
+        hent_transskription; tom liste hvis intet matcher.
+    """
+    q_words = _tokens(forespoergsel, min_len=3)
+    if not q_words:
+        return []
+    prepared = await get_webinar_index()
+    scored = []
+    for item in prepared:
+        score = _score_mod_indeks(q_words, item)
+        if score > 0:
+            scored.append((score, item["entry"]))
+    scored.sort(key=lambda x: -x[0])
+    n = max(1, min(int(max_resultater), 20))
+    return [{
+        "titel": e.get("title", ""),
+        "dato": e.get("date", ""),
+        "kategori": e.get("category", ""),
+        "resume": (e.get("summary") or "")[:300],
+        "youtube_url": e.get("youtube_url", ""),
+        "dnnk_url": e.get("dnnk_url", ""),
+        "type": e.get("type"),
+        "path": e.get("path", ""),
+    } for _, e in scored[:n]]
+
+
+@mcp_server.tool()
+async def soeg_passager(forespoergsel: str, max_passager: int = 6) -> list:
+    """Find de mest relevante passager i DNNK's webinar-transskriptioner.
+
+    Finder først de op til 3 mest relevante webinarer, henter deres fulde
+    transskriptioner og returnerer de tekstblokke (~1500 tegn) der bedst
+    matcher forespørgslen — hver med tidsstempel og et YouTube-link der
+    starter afspilningen på det rigtige sted. Brug dette værktøj når du
+    skal citere eller henvise præcist til hvad der blev sagt i et webinar.
+
+    Args:
+        forespoergsel: Søgeord på dansk, fx "medfinansiering af skybrudsprojekter".
+        max_passager: Højst antal passager på tværs af webinarerne (1-20, standard 6).
+
+    Returns:
+        Liste af {webinar_titel, tidsstempel, youtube_link, tekst} sorteret
+        efter relevans; tom liste hvis intet matcher.
+    """
+    q_words = _tokens(forespoergsel, min_len=3)
+    if not q_words:
+        return []
+    prepared = await get_webinar_index()
+    kandidater = []
+    for item in prepared:
+        e = item["entry"]
+        if not e.get("path"):
+            continue
+        score = _score_mod_indeks(q_words, item)
+        if score > 0:
+            kandidater.append((score, e))
+    kandidater.sort(key=lambda x: -x[0])
+
+    passager = []
+    for _, e in kandidater[:3]:
+        try:
+            tekst = await _hent_transskription_raa(e["path"])
+        except Exception as ex:
+            print(f"[mcp] transskription kunne ikke hentes ({e.get('path')}): {ex}")
+            continue
+        for ts, blok in _chunk_transskription(tekst):
+            blok_tokens = _TOKEN_RE.findall(blok.lower())
+            distinkte = len(q_words & set(blok_tokens))
+            if distinkte == 0:
+                continue
+            forekomster = sum(1 for t in blok_tokens if t in q_words)
+            passager.append((distinkte, forekomster, {
+                "webinar_titel": e.get("title", ""),
+                "tidsstempel": ts,
+                "youtube_link": _youtube_link_med_tid(e.get("youtube_url", ""), ts),
+                "tekst": blok,
+            }))
+    passager.sort(key=lambda p: (-p[0], -p[1]))
+    n = max(1, min(int(max_passager), 20))
+    return [p for _, _, p in passager[:n]]
+
+
+@mcp_server.tool()
+async def hent_transskription(path: str, fra_tegn: int = 0, max_tegn: int = 50000) -> dict:
+    """Hent den rå transskription af et DNNK-webinar.
+
+    path fås fra soeg_vidensbank (feltet "path"). Transskriptionen har
+    tidsstempler på formen HH:MM:SS på egen linje for ca. hvert udsagn.
+    Lange transskriptioner kan hentes i bidder med fra_tegn/max_tegn —
+    tjek total_tegn i svaret for at se om der er mere.
+
+    Args:
+        path: Sti i transcriptor-repoet; skal starte med "transcriptions/"
+            og ende på ".txt" (andet afvises).
+        fra_tegn: Startposition (0-indekseret) i teksten, standard 0.
+        max_tegn: Højst antal tegn der returneres (1-100000, standard 50000).
+
+    Returns:
+        {path, total_tegn, fra_tegn, til_tegn, tekst}
+    """
+    path = (path or "").strip().lstrip("/")
+    if not path.startswith("transcriptions/") or not path.endswith(".txt") or ".." in path:
+        raise ValueError('Ugyldig path — skal starte med "transcriptions/" og ende på ".txt".')
+    tekst = await _hent_transskription_raa(path)
+    fra = max(0, int(fra_tegn))
+    maks = max(1, min(int(max_tegn), 100_000))
+    udsnit = tekst[fra:fra + maks]
+    return {
+        "path": path,
+        "total_tegn": len(tekst),
+        "fra_tegn": fra,
+        "til_tegn": fra + len(udsnit),
+        "tekst": udsnit,
+    }
+
+
+# Streamable-HTTP-appen serverer selv på settings.streamable_http_path
+# (default "/mcp"), så den monteres på RODEN — mount på "/mcp" ville give
+# dobbelt sti (/mcp/mcp), og at omdøbe stien til "/" ville give redirects.
+# Mount'en ligger sidst i filen: alle FastAPI-routes ovenfor matcher først,
+# kun umatchede stier (herunder /mcp) når ned til MCP-appen. Kaldet opretter
+# også session_manager, som lifespan øverst i filen holder kørende.
+app.mount("/", mcp_server.streamable_http_app())
