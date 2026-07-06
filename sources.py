@@ -153,6 +153,16 @@ RSS_BREDE_SOEGNINGER = {
     "Bing News – kloakseparering":   _BING.format("kloakseparering"),
     "Bing News – diger":             _BING.format("diger"),
     "Bing News – spildevand":        _BING.format("spildevand"),
+    # ── Kommunalt fokus + smalle fagtermer (tilføjet juli 2026) ──
+    # Lav volumen er forventet: de er fangnet der slår ud, NÅR noget sker.
+    "Bing News – lokalplan klima":       _BING.format("lokalplan%20klima"),
+    "Bing News – spildevandsplan":       _BING.format("spildevandsplan"),
+    "Bing News – skybrudssikring":       _BING.format("skybrudssikring"),
+    "Bing News – stormflodssikring":     _BING.format("stormflodssikring"),
+    "Bing News – terrænnært grundvand":  _BING.format("terr%C3%A6nn%C3%A6rt%20grundvand"),
+    "Bing News – lavbundsjord":          _BING.format("lavbundsjord"),
+    "Bing News – vandløbsrestaurering":  _BING.format("vandl%C3%B8bsrestaurering"),
+    "Bing News – klimatilpasning pulje": _BING.format("klimatilpasning%20pulje"),
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
