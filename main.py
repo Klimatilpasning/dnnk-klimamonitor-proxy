@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 import httpx
 from bs4 import BeautifulSoup
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import asyncio
 import hmac
 import re
@@ -508,6 +508,60 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
         # Frontenden forventer altid en notices-liste — fejl må ikke give 500
         return {"notices": [], "error": str(e)[:200]}
 
+# ── Lovstof fra Retsinformation ──────────────────────────────
+# Deres SPA-API: GET /api/documentsearch?t={term}&o=80 giver dato-sorteret
+# (nyeste først) JSON med title/documentType/ressortName/offentliggoerelses-
+# Dato (DD/MM/YYYY)/retsinfoLink. VIGTIGT: term-parameteren hedder t= (text=
+# ignoreres stille), og o=80 er koden for sortering på offentliggørelsesdato.
+RETSINFO_TERMER = ["klimatilpasning", "kystbeskyttelse", "spildevand",
+                   "oversvømmelse", "vandløb", "vandforsyning", "stormflod"]
+RETSINFO_DAGE = 30   # medtag dokumenter offentliggjort inden for denne periode
+
+async def fetch_retsinformation(client):
+    """Nye love, bekendtgørelser, vejledninger og afgørelser om vand/klima.
+    Bruger feed-cachen (10 min TTL) så gentagne kald er gratis. Dedup på
+    retsinfoLink — samme dokument kan matche flere søgetermer."""
+    import json as _json
+    from urllib.parse import quote
+    graense = datetime.now(timezone.utc) - timedelta(days=RETSINFO_DAGE)
+    fundet = {}
+    for term in RETSINFO_TERMER:
+        url = f"https://www.retsinformation.dk/api/documentsearch?t={quote(term)}&o=80"
+        try:
+            text = await get_feed_text(client, url, headers={"Accept": "application/json"})
+            data = _json.loads(text)
+        except Exception as e:
+            print(f"[retsinfo-fejl] {term}: {e}")
+            continue
+        for doc in (data.get("documents") or []):
+            link = doc.get("retsinfoLink") or ""
+            if not link:
+                continue
+            if link in fundet:
+                if term not in fundet[link]["tags"]:
+                    fundet[link]["tags"].append(term)
+                continue
+            try:
+                dt = datetime.strptime(doc.get("offentliggoerelsesDato") or "",
+                                       "%d/%m/%Y").replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+            if dt < graense:
+                break  # nyeste-først: resten af listen er ældre
+            fundet[link] = {
+                "source": "Retsinformation",
+                "feedSource": "Retsinformation",
+                "org": doc.get("ressortName") or "",
+                "title": doc.get("title") or "",
+                "url": "https://www.retsinformation.dk" + link,
+                "date": dt.strftime("%Y-%m-%d"),
+                "summary": " · ".join(x for x in [doc.get("documentType"), doc.get("shortName")] if x),
+                "tags": [term],
+                "relevance": 4,
+                "value": "",
+            }
+    return list(fundet.values())
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
     if is_rate_limited(request):
@@ -539,6 +593,18 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
         if key not in bedste or _pref(a) < _pref(bedste[key]):
             bedste[key] = a
     articles = list(bedste.values())
+
+    # Lovstof fra Retsinformation (nye love/bekendtgørelser/vejledninger om
+    # vand og klima) — hentes via feed-cachen, så det er gratis efter 1. kald.
+    if not gruppe or gruppe == "Lovstof":
+        try:
+            lovstof = await fetch_retsinformation(app.state.client)
+        except Exception as e:
+            print(f"[retsinfo-fejl] samlet: {e}")
+            lovstof = []
+        for a in lovstof:
+            a["gruppe"] = "Lovstof"
+        articles.extend(lovstof)
 
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
