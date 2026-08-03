@@ -720,6 +720,15 @@ async def expand_query(request: Request, q: str = Query(..., min_length=2)):
     if q_key in _expand_cache:
         return {"query": q, "terms": _expand_cache[q_key], "cached": True}
 
+    # Adgangskode kræves for at UDLØSE et nyt Haiku-kald — samme værn som
+    # /chat har. Checket ligger bevidst EFTER cache-opslaget: et cache-hit
+    # koster ingenting, så offentlige besøgende beholder synonymudvidelse på
+    # de søgeord, der allerede er slået op. Uden dette kunne enhver, der
+    # læste frontendens JavaScript, brænde API-kald på DNNK's nøgle.
+    if not access_ok(request):
+        return JSONResponse(status_code=401,
+                            content={"query": q, "terms": [], "error": "Adgang nægtet"})
+
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"query": q, "terms": [], "error": "For mange forespørgsler"})
 
