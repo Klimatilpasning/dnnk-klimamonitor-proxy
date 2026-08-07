@@ -567,7 +567,11 @@ async def fetch_retsinformation(client):
                 "date": dt.strftime("%Y-%m-%d"),
                 "summary": " · ".join(x for x in [doc.get("documentType"), doc.get("shortName")] if x),
                 "tags": [term],
-                "relevance": 4,
+                # Relevans er en 0-1-skala (score_article). Her stod 4, hvilket
+                # frontenden viste som "400 %" i relevanskolonnen og gjorde
+                # tommel op/ned virkningsløs (stemmer justerer ±0,3-0,5).
+                # 1.0 pinner stadig nyt lovstof i toppen, nu på skalaen.
+                "relevance": 1.0,
                 "value": "",
             }
     return list(fundet.values())
@@ -976,6 +980,63 @@ def root():
 # SCRAPE_SOURCES importeres fra sources.py
 from sources import SCRAPE_SOURCES
 
+# Titel-klasser for lister uden overskrifts-tags: "title", "node-title",
+# "news_title", "card__title" — men IKKE "sub-title", der er en underrubrik.
+TITEL_KLASSE_RE = re.compile(r"^(?!sub)(?:[a-z]+[-_]{1,2})?title$", re.I)
+
+def _titel_element(el):
+    """Overskriften i et listeelement. Faldet til klassenavne er nødvendigt for
+    sider, der bygger nyhedslisten af <div class="title"> uden h-tags (fx Poul
+    Schmith) — uden det udtrækkes intet fra dem overhovedet."""
+    if el.name in ("h1", "h2", "h3", "h4"):
+        return el
+    return el.find(["h1", "h2", "h3", "h4"]) or el.find(class_=TITEL_KLASSE_RE)
+
+def _vaelg_kandidater(soup):
+    """Vælg det selektor-trin, der bedst ligner en nyhedsliste.
+
+    Trinnene står stadig mest specifikke først, men det FØRSTE ikke-tomme trin
+    vinder ikke længere automatisk — det kostede to kilder:
+      • Kromann Reumert pakker hele siden i ét <article>: trin 1 gav 1 kandidat
+        med 1 titel, og de 21 rigtige overskrifter blev aldrig set.
+      • Samme sides facet-filtre (<li class="facet-item">) matcher "item" i
+        trin 3 og ville kortslutte kæden med nul titler.
+    Derfor: første trin med MINDST TO forskellige titler vinder — en nyhedsliste
+    har flere indslag, en wrapper har én. Findes ingen med to, tages det bedste
+    med én, og ellers sidste ikke-tomme trin (uændret adfærd for alt andet)."""
+    trin = [
+        lambda: soup.find_all("article"),
+        lambda: soup.find_all(class_=re.compile(r"news[-_]?item|nyhed|artikel|post[-_]?item|teaser|card[-_]?item", re.I)),
+        lambda: soup.find_all("li", class_=re.compile(r"news|nyhed|post|item|article", re.I)),
+        lambda: soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)),
+        # Fallback: alle h2/h3 med links
+        lambda: [a.parent for a in soup.find_all("a", href=True)
+                 if a.find_parent(["h2", "h3"]) or a.find(["h2", "h3"])][:20],
+    ]
+    med_en_titel = None
+    foerste_ikke_tomme = None
+    for naeste in trin:
+        try:
+            fund = naeste() or []
+        except Exception:
+            continue
+        if not fund:
+            continue
+        if foerste_ikke_tomme is None:
+            foerste_ikke_tomme = fund
+        titler = set()
+        for el in fund[:25]:
+            t = _titel_element(el)
+            if t:
+                s = t.get_text(strip=True)
+                if len(s) >= 8:
+                    titler.add(s)
+        if len(titler) >= 2:
+            return fund
+        if titler and med_en_titel is None:
+            med_en_titel = fund
+    return med_en_titel or foerste_ikke_tomme or []
+
 async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
     from urllib.parse import urlparse, urljoin
@@ -998,31 +1059,15 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
 
         q_lower = query.lower()
 
-        # Find kandidater — prøv progressivt mere generelle selektorer
-        candidates = (
-            soup.find_all("article") or
-            soup.find_all(class_=re.compile(r"news[-_]?item|nyhed|artikel|post[-_]?item|teaser|card[-_]?item", re.I)) or
-            soup.find_all("li", class_=re.compile(r"news|nyhed|post|item|article", re.I)) or
-            soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)) or
-            []
-        )
-
-        # Fallback: alle h2/h3 med links
-        if not candidates:
-            candidates = [a.parent for a in soup.find_all("a", href=True)
-                         if a.find_parent(["h2","h3"]) or a.find(["h2","h3"])][:20]
+        candidates = _vaelg_kandidater(soup)
 
         seen_titles = set()
         articles = []
 
         for el in candidates[:25]:
-            # Find titel
-            title_el = el.find(["h1","h2","h3","h4"])
+            title_el = _titel_element(el)
             if not title_el:
-                if el.name in ["h2","h3","h4"]:
-                    title_el = el
-                else:
-                    continue
+                continue
 
             title = title_el.get_text(strip=True)
             if not title or len(title) < 8 or title in seen_titles:

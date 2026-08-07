@@ -114,6 +114,26 @@ RSS_LOVGIVNING = {
     # Kystdirektoratet, Energistyrelsen.
 }
 
+# ── JURA & ADVOKATER ──
+# Formidlingen af ny miljø- og planretspraksis sker hos advokatkontorerne, ikke
+# i pressen: den eneste offentlige gennemgang af Horsens II (MFKN 23/6-2026) var
+# et LinkedIn-opslag fra Codex. Nævnenes egne afgørelser hentes af gruppen
+# "Nævnsafgørelser" i main.py — det her er kommentarsporet ovenpå dem.
+# Testet 7/8-2026 (kandidater uden fungerende feed står i kommentaren nedenfor):
+RSS_JURA = {
+    "Codex Advokater":          "https://codexlaw.dk/feed/",
+    "Focus Advokater":          "https://focus-advokater.dk/feed/",
+    "Plesner":                  "https://plesner.com/rss.xml",
+    "Bruun & Hjejle":           "https://bruunhjejle.dk/rss.xml",
+    # Uden RSS, men server-renderede nyhedslister → SCRAPE_SOURCES nedenfor:
+    # Kromann Reumert, Poul Schmith (Kammeradvokaten).
+    # Kan IKKE hentes: Horten (TLS-handshake afvises for ikke-browser-klienter —
+    # samme mur som blokerer WebFetch), Bech-Bruun (JS-renderet SPA, 585k tegn
+    # HTML uden en eneste overskrift), Gorrissen Federspiel (HTTP 454 bot-blok),
+    # Njord (rss.xml har ét item, "Forside", fra 2019), Accura (feedet indeholder
+    # kun udnævnelser), Molt Wengel/Bird & Bird/WSCO/Sirius (intet feed).
+}
+
 # ── VIDENSKAB & FORSKNING ──
 RSS_VIDENSKAB = {
     "Nature Climate Change":    "https://www.nature.com/nclimate.rss",
@@ -187,6 +207,7 @@ ALLE_FEEDS = {
     "Int. vandmyndigheder":     RSS_VAND_INT,
     "Kreative vinkler":         RSS_KREATIVT,
     "Lovgivning & politik":     RSS_LOVGIVNING,
+    "Jura & advokater":         RSS_JURA,
     "Videnskab & forskning":    RSS_VIDENSKAB,
     "Podcasts":                 RSS_PODCASTS,
 }
@@ -258,6 +279,14 @@ SCRAPE_SOURCES = {
     "Scalgo":                           {"url": "https://scalgo.com/nyheder/", "gruppe": "Rådgivere"},
     "Nordiq Group":                     {"url": "https://nordiqgroup.dk/nyheder/", "gruppe": "Rådgivere"},
     "Forsikring & Pension":             {"url": "https://www.forsikringogpension.dk/nyheder/", "gruppe": "Rådgivere"},
+
+    # ── JURA & ADVOKATER (uden RSS — resten ligger i RSS_JURA) ──
+    # Begge har server-renderede nyhedslister. De gav 0 artikler indtil
+    # kandidat-udvælgelsen i main.py blev rettet: Kromann Reumert pakker hele
+    # siden i ét <article>, og Poul Schmith bruger <div class="title"> i stedet
+    # for overskrifts-tags. Verificeret 7/8-2026: 19 hhv. 25 titler udtrækkes.
+    "Kromann Reumert":                  {"url": "https://kromannreumert.com/nyheder", "gruppe": "Jura & advokater"},
+    "Poul Schmith":                     {"url": "https://poulschmith.dk/nyheder/", "gruppe": "Jura & advokater"},
 
     # ── MINISTERIER ──
     "Miljøministeriet":                 {"url": "https://www.mim.dk/nyheder/", "gruppe": "Myndigheder"},
