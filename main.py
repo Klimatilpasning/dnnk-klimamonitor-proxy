@@ -316,22 +316,32 @@ MAX_FEED_BYTES = 2 * 1024 * 1024   # afvis svar > 2MB (512MB RAM på free tier)
 # Begræns samtidige eksterne fetches ved cache-miss (scrape rammer ~100 mål)
 _FETCH_SEM = asyncio.Semaphore(15)
 
-async def get_feed_text(client, url: str, headers=None) -> str:
+async def get_feed_text(client, url: str, headers=None, body=None) -> str:
     """Hent rå tekst for en URL med 10 min TTL-cache og 2MB byte-cap.
     Bemærk: der filtreres ikke på statuskode her — flere danske CMS/SPA-sider
     svarer 404 men leverer alligevel indholdet i body (se scrape_news).
-    Fejlsider giver naturligt 0 items/artikler i parsing-laget."""
+    Fejlsider giver naturligt 0 items/artikler i parsing-laget.
+
+    Med `body` sendes en POST med JSON-krop i stedet for en GET — nødvendigt
+    for Nævnenes Hus' søge-API, der svarer 405 på GET. Cache-nøglen indeholder
+    så kroppen, så to søgetermer mod samme URL ikke overskriver hinanden."""
     now = time.time()
-    cached = _FEED_CACHE.get(url)
+    key = url if body is None else url + "|" + repr(sorted(body.items()))
+    cached = _FEED_CACHE.get(key)
     if cached and now - cached[0] < FEED_TTL:
         return cached[1]
     async with _FETCH_SEM:
-        resp = await client.get(url, timeout=15, follow_redirects=True,
-                                headers=headers or RSS_HEADERS)
+        if body is None:
+            resp = await client.get(url, timeout=15, follow_redirects=True,
+                                    headers=headers or RSS_HEADERS)
+        else:
+            resp = await client.post(url, json=body, timeout=20,
+                                     follow_redirects=True,
+                                     headers=headers or RSS_HEADERS)
     if len(resp.content) > MAX_FEED_BYTES:
         raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
     text = resp.text
-    _FEED_CACHE[url] = (now, text)
+    _FEED_CACHE[key] = (now, text)
     return text
 
 # ── DNNK webinar-indeks (search-index.json) med 12t TTL-cache ──
@@ -557,7 +567,162 @@ async def fetch_retsinformation(client):
                 "date": dt.strftime("%Y-%m-%d"),
                 "summary": " · ".join(x for x in [doc.get("documentType"), doc.get("shortName")] if x),
                 "tags": [term],
-                "relevance": 4,
+                # Relevans er en 0-1-skala (score_article). Her stod 4, hvilket
+                # frontenden viste som "400 %" i relevanskolonnen og gjorde
+                # tommel op/ned virkningsløs (stemmer justerer ±0,3-0,5).
+                # 1.0 pinner stadig nyt lovstof i toppen, nu på skalaen.
+                "relevance": 1.0,
+                "value": "",
+            }
+    return list(fundet.values())
+
+# ── Nævnsafgørelser fra Nævnenes Hus ─────────────────────────
+# Retsinformation dækker love og vejledninger, men IKKE nævnspraksis: Miljø- og
+# Fødevareklagenævnets afgørelser ligger alene i Nævnenes Hus' egen portal (fx
+# Horsens II af 23/6-2026, som ingen anden kilde her fangede). Hvert nævn har
+# sit eget subdomæne med samme udokumenterede SPA-API.
+#
+# VIGTIGT — alt herunder er fundet ved probing, der findes ingen dokumentation:
+#   • GET /api/search svarer 405. Kroppen SKAL sendes som POST med JSON.
+#   • Søgeparameteren hedder "query". Ukendte navne ("searchTerm", "text") bliver
+#     ignoreret STILTIENDE og returnerer hele arkivet (totalCount 10000) — det
+#     ser ud som et vellykket kald med masser af hits, så tjek altid totalCount.
+#   • "sort" er et HELTAL: 0 = relevans (default), 2 = nyeste afgørelsesdato
+#     først. Strengværdier som "date" giver 400.
+#   • Sidestørrelsen er fast 10. "pageSize"/"take" ignoreres; "skip" virker og
+#     er den eneste vej til side 2.
+#   • Der er INTET dato-filter i API'et — vinduet skal filtreres her.
+# Svarfelter pr. afgørelse: id (GUID til /afgoerelse/<id>), title, jnr (liste),
+# date (afgørelsesdato), published_date, categories (liste), highlights,
+# is_brought_to_court, body (fuld HTML — bruges ikke her).
+NAEVN_SOEGNING = "https://{}/api/search"
+#
+# SØGETERMERNE ER MÅLT, IKKE GÆTTET. API'et fritekstsøger i HELE afgørelsens
+# tekst, og en miljøafgørelse nævner næsten altid grundvand, spildevand eller
+# vandløb et sted. Målt over de seneste 60 dage gav "grundvand" 17 hits,
+# "vandløb" 19 og "spildevand" 8 — næsten alle husdyrbrug, jordforurening og
+# miljøgodkendelser uden relation til klimatilpasning. De tre er bevidst UDE.
+# Termerne herunder er dem, hvor en ren tekstforekomst i sig selv er et signal.
+# At filtrere på TITLEN i stedet er ikke en løsning: Horsens II hedder "Ophævelse
+# og hjemvisning af § 25-tilladelse til etablering af ny forbindelsesvej" — ikke
+# et vandord i titlen, hele vandsagen ligger i brødteksten.
+NAEVN_KILDER = [
+    # (visningsnavn, værtsnavn, søgetermer)
+    ("Miljø- og Fødevareklagenævnet", "mfkn.naevneneshus.dk",
+     ["regnvandsbassin", "overfladevand", "separatkloakering",
+      "klimatilpasning", "oversvømmelse", "skybrud", "klimasikring",
+      "kystbeskyttelse", "kystbeskyttelsesloven", "stormflod", "lavbund",
+      "vandløbsrestaurering"]),
+    # Planklagenævnet kører samme API og dækker plansporet (lokalplaner,
+    # landzone) — det var her Horsens' plangrundlag blev prøvet. Færre termer,
+    # fordi nævnet ikke behandler spildevand eller udledningstilladelser.
+    ("Planklagenævnet", "pkn.naevneneshus.dk",
+     ["klimatilpasning", "regnvand", "oversvømmelse", "kystbeskyttelse",
+      "skybrud", "lavbund"]),
+]
+NAEVN_DAGE = 60        # afgørelser offentliggøres i ryk og opdages sent — jf.
+                       # Horsens II, der lå en måned før den blev bemærket
+NAEVN_MAX_SIDER = 3    # 30 nyeste pr. søgeterm; stopper før, når vinduet er tomt
+# MFKN er også fødevare- og landbrugsstøttenævn. Rammer en afgørelse KUN disse
+# sagsområder, er den ikke klimatilpasning, uanset hvilket ord der matchede:
+# "dige" i Museumsloven er et beskyttet jorddige (kulturarv), ikke kystsikring —
+# det var 7 af 7 dige-hits i en 60-dages prøve, og derfor er "dige" heller ikke
+# længere søgeterm.
+NAEVN_UDELUK_KATEGORIER = {"Museumsloven", "Husdyrbrugloven", "Fødevarer",
+                           "Arealstøtte", "Projektstøtte"}
+_TAG_RE = re.compile(r"<[^>]+>")
+
+async def _naevn_soeg(client, vaert, term, graense):
+    """Hent de nyeste afgørelser for ÉN søgeterm, kun dem inden for vinduet.
+    Siderne skal hentes i rækkefølge, fordi vi stopper når vinduet er tomt —
+    men den ene term ved intet om de andre, så termerne kan køre parallelt."""
+    import json as _json
+    url = NAEVN_SOEGNING.format(vaert)
+    ud = []
+    for side in range(NAEVN_MAX_SIDER):
+        krop = {"query": term, "sort": 2, "skip": side * 10}
+        try:
+            text = await get_feed_text(client, url, body=krop,
+                                       headers={"Accept": "application/json"})
+            data = _json.loads(text)
+        except Exception as e:
+            print(f"[naevn-fejl] {vaert}/{term}: {e}")
+            break
+        i_vindue = 0
+        for pub in (data.get("publications") or []):
+            # Vinduet måles på den SENESTE af afgørelsesdato og offentliggørelse.
+            # Portalen kan være uger bagud: 25/11509 blev afgjort 24/6 og først
+            # lagt op 31/7. Kun afgørelsesdatoen ville lade den slippe forbi.
+            nyeste = max((pub.get("date") or "")[:10],
+                         (pub.get("published_date") or "")[:10])
+            if not nyeste or nyeste < graense:
+                continue
+            i_vindue += 1   # tælles FØR kategorifiltret, så en side fuld af
+                            # frasorterede sager ikke standser pagingen
+            kat = set(pub.get("categories") or [])
+            if kat and kat <= NAEVN_UDELUK_KATEGORIER:
+                continue
+            ud.append(pub)
+        if not i_vindue:
+            break   # sorteret nyeste-først: næste side er kun ældre
+    return ud
+
+async def fetch_naevnsafgoerelser(client):
+    """Nye afgørelser fra Miljø- og Fødevareklagenævnet og Planklagenævnet.
+    Sorteret nyeste først (sort=2) og filtreret lokalt til NAEVN_DAGE dage.
+    Dedup på (nævn, sagsnummer, titel) — samme afgørelse rammes af flere
+    søgetermer, og portalen har enkelte dubletposter med samme sagsnummer.
+
+    Alle søgetermer hentes parallelt (og deles om det globale _FETCH_SEM med
+    resten af app'en), mens sammenlægningen sker i fast rækkefølge bagefter, så
+    svaret er det samme uanset hvem der kommer først hjem."""
+    graense = (datetime.now(timezone.utc) - timedelta(days=NAEVN_DAGE)).strftime("%Y-%m-%d")
+    opgaver = [(navn, vaert, term, _naevn_soeg(client, vaert, term, graense))
+               for navn, vaert, termer in NAEVN_KILDER for term in termer]
+    resultater = await asyncio.gather(*[o[3] for o in opgaver],
+                                      return_exceptions=True)
+    fundet = {}
+    for (navn, vaert, term, _), pubs in zip(opgaver, resultater):
+        if isinstance(pubs, BaseException):
+            print(f"[naevn-fejl] {vaert}/{term}: {pubs}")
+            continue
+        for pub in pubs:
+            dato = (pub.get("date") or "")[:10]           # afgørelsesdato
+            offentliggjort = (pub.get("published_date") or "")[:10]
+            jnr = ", ".join(pub.get("jnr") or [])
+            key = (vaert, jnr, pub.get("title") or "")
+            if key in fundet:
+                if term not in fundet[key]["tags"]:
+                    fundet[key]["tags"].append(term)
+                continue
+            # highlights er selve det matchende tekststykke fra afgørelsen, med
+            # <span>-markering af søgeordet — langt mere sigende end abstract,
+            # der næsten altid er tomt.
+            hl = pub.get("highlights") or []
+            if isinstance(hl, str):
+                hl = [hl]
+            uddrag = _TAG_RE.sub("", hl[0]).strip() if hl else ""
+            dele = ["Nævnsafgørelse"]
+            if jnr:
+                dele.append("j.nr. " + jnr)
+            dele.extend(pub.get("categories") or [])
+            if dato and offentliggjort and offentliggjort != dato:
+                dele.append(f"afgjort {dato}, offentliggjort {offentliggjort}")
+            if str(pub.get("is_brought_to_court")).lower() == "true":
+                dele.append("INDBRAGT FOR DOMSTOLENE")
+            if uddrag:
+                dele.append(uddrag[:220])
+            fundet[key] = {
+                "source": navn,
+                "feedSource": navn,
+                "org": navn,
+                "title": pub.get("title") or "",
+                "url": f"https://{vaert}/afgoerelse/{pub.get('id')}",
+                # Vis afgørelsesdatoen — det er den, sagen citeres på
+                "date": dato or offentliggjort,
+                "summary": " · ".join(dele),
+                "tags": [term],
+                "relevance": 1.0,
                 "value": "",
             }
     return list(fundet.values())
@@ -570,6 +735,10 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
         feeds = {k: {"url": v, "gruppe": gruppe} for k, v in ALLE_FEEDS[gruppe].items()}
+    elif gruppe in ("Lovstof", "Nævnsafgørelser"):
+        # Grupper uden RSS-feeds: spring hele feed-runden over i stedet for at
+        # hente 78 feeds, som svaret alligevel ikke skal indeholde.
+        feeds = {}
     tasks = [fetch_rss(app.state.client, navn, meta["url"], q, limit) for navn, meta in feeds.items()]
     nested = await asyncio.gather(*tasks)
     feeds_failed = sum(1 for sub in nested if sub is None)
@@ -606,6 +775,19 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Lovstof"
         articles.extend(lovstof)
 
+    # Nævnsafgørelser (MFKN + Planklagenævnet) — praksis, ikke lovtekst. Samme
+    # mønster som Lovstof: egen gruppe, feed-cachet, og en fejl må aldrig tage
+    # nyhedslisten med sig.
+    if not gruppe or gruppe == "Nævnsafgørelser":
+        try:
+            afgoerelser = await fetch_naevnsafgoerelser(app.state.client)
+        except Exception as e:
+            print(f"[naevn-fejl] samlet: {e}")
+            afgoerelser = []
+        for a in afgoerelser:
+            a["gruppe"] = "Nævnsafgørelser"
+        articles.extend(afgoerelser)
+
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
     # matchingen er rene set-snit — koster nærmest intet pr. artikel.
@@ -623,7 +805,13 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
 @app.get("/news/kilder")
 async def get_kilder():
     from sources import ALLE_FEEDS
-    return {gruppe: list(feeds.keys()) for gruppe, feeds in ALLE_FEEDS.items()}
+    kilder = {gruppe: list(feeds.keys()) for gruppe, feeds in ALLE_FEEDS.items()}
+    # De to grupper uden RSS-feeds ligger ikke i ALLE_FEEDS, men skal med her,
+    # ellers ser oversigten ud som om de ikke findes.
+    kilder["Lovstof"] = ["Retsinformation (%d søgetermer)" % len(RETSINFO_TERMER)]
+    kilder["Nævnsafgørelser"] = [
+        "%s (%d søgetermer)" % (navn, len(termer)) for navn, _v, termer in NAEVN_KILDER]
+    return kilder
 
 @app.get("/send-digest")
 async def trigger_digest(request: Request):
@@ -792,6 +980,63 @@ def root():
 # SCRAPE_SOURCES importeres fra sources.py
 from sources import SCRAPE_SOURCES
 
+# Titel-klasser for lister uden overskrifts-tags: "title", "node-title",
+# "news_title", "card__title" — men IKKE "sub-title", der er en underrubrik.
+TITEL_KLASSE_RE = re.compile(r"^(?!sub)(?:[a-z]+[-_]{1,2})?title$", re.I)
+
+def _titel_element(el):
+    """Overskriften i et listeelement. Faldet til klassenavne er nødvendigt for
+    sider, der bygger nyhedslisten af <div class="title"> uden h-tags (fx Poul
+    Schmith) — uden det udtrækkes intet fra dem overhovedet."""
+    if el.name in ("h1", "h2", "h3", "h4"):
+        return el
+    return el.find(["h1", "h2", "h3", "h4"]) or el.find(class_=TITEL_KLASSE_RE)
+
+def _vaelg_kandidater(soup):
+    """Vælg det selektor-trin, der bedst ligner en nyhedsliste.
+
+    Trinnene står stadig mest specifikke først, men det FØRSTE ikke-tomme trin
+    vinder ikke længere automatisk — det kostede to kilder:
+      • Kromann Reumert pakker hele siden i ét <article>: trin 1 gav 1 kandidat
+        med 1 titel, og de 21 rigtige overskrifter blev aldrig set.
+      • Samme sides facet-filtre (<li class="facet-item">) matcher "item" i
+        trin 3 og ville kortslutte kæden med nul titler.
+    Derfor: første trin med MINDST TO forskellige titler vinder — en nyhedsliste
+    har flere indslag, en wrapper har én. Findes ingen med to, tages det bedste
+    med én, og ellers sidste ikke-tomme trin (uændret adfærd for alt andet)."""
+    trin = [
+        lambda: soup.find_all("article"),
+        lambda: soup.find_all(class_=re.compile(r"news[-_]?item|nyhed|artikel|post[-_]?item|teaser|card[-_]?item", re.I)),
+        lambda: soup.find_all("li", class_=re.compile(r"news|nyhed|post|item|article", re.I)),
+        lambda: soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)),
+        # Fallback: alle h2/h3 med links
+        lambda: [a.parent for a in soup.find_all("a", href=True)
+                 if a.find_parent(["h2", "h3"]) or a.find(["h2", "h3"])][:20],
+    ]
+    med_en_titel = None
+    foerste_ikke_tomme = None
+    for naeste in trin:
+        try:
+            fund = naeste() or []
+        except Exception:
+            continue
+        if not fund:
+            continue
+        if foerste_ikke_tomme is None:
+            foerste_ikke_tomme = fund
+        titler = set()
+        for el in fund[:25]:
+            t = _titel_element(el)
+            if t:
+                s = t.get_text(strip=True)
+                if len(s) >= 8:
+                    titler.add(s)
+        if len(titler) >= 2:
+            return fund
+        if titler and med_en_titel is None:
+            med_en_titel = fund
+    return med_en_titel or foerste_ikke_tomme or []
+
 async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
     from urllib.parse import urlparse, urljoin
@@ -814,31 +1059,15 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
 
         q_lower = query.lower()
 
-        # Find kandidater — prøv progressivt mere generelle selektorer
-        candidates = (
-            soup.find_all("article") or
-            soup.find_all(class_=re.compile(r"news[-_]?item|nyhed|artikel|post[-_]?item|teaser|card[-_]?item", re.I)) or
-            soup.find_all("li", class_=re.compile(r"news|nyhed|post|item|article", re.I)) or
-            soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)) or
-            []
-        )
-
-        # Fallback: alle h2/h3 med links
-        if not candidates:
-            candidates = [a.parent for a in soup.find_all("a", href=True)
-                         if a.find_parent(["h2","h3"]) or a.find(["h2","h3"])][:20]
+        candidates = _vaelg_kandidater(soup)
 
         seen_titles = set()
         articles = []
 
         for el in candidates[:25]:
-            # Find titel
-            title_el = el.find(["h1","h2","h3","h4"])
+            title_el = _titel_element(el)
             if not title_el:
-                if el.name in ["h2","h3","h4"]:
-                    title_el = el
-                else:
-                    continue
+                continue
 
             title = title_el.get_text(strip=True)
             if not title or len(title) < 8 or title in seen_titles:
