@@ -127,11 +127,13 @@ RSS_JURA = {
     "Bruun & Hjejle":           "https://bruunhjejle.dk/rss.xml",
     # Uden RSS, men server-renderede nyhedslister → SCRAPE_SOURCES nedenfor:
     # Kromann Reumert, Poul Schmith (Kammeradvokaten).
-    # Kan IKKE hentes: Horten (TLS-handshake afvises for ikke-browser-klienter —
-    # samme mur som blokerer WebFetch), Bech-Bruun (JS-renderet SPA, 585k tegn
-    # HTML uden en eneste overskrift), Gorrissen Federspiel (HTTP 454 bot-blok),
-    # Njord (rss.xml har ét item, "Forside", fra 2019), Accura (feedet indeholder
-    # kun udnævnelser), Molt Wengel/Bird & Bird/WSCO/Sirius (intet feed).
+    # HortenDahl (tidl. Horten) hentes fra deres eget Umbraco-API — se
+    # fetch_hortendahl() i main.py. horten.dk selv er umuligt: Cloudflare
+    # afviser TLS-handshaket for alt der ikke er en browser.
+    # Kan IKKE hentes: Bech-Bruun (JS-renderet SPA, 585k tegn HTML uden en
+    # eneste overskrift), Gorrissen Federspiel (HTTP 454 bot-blok), Njord
+    # (rss.xml har ét item, "Forside", fra 2019), Accura (feedet indeholder kun
+    # udnævnelser), Molt Wengel/Bird & Bird/WSCO/Sirius (intet feed).
 }
 
 # ── VIDENSKAB & FORSKNING ──

@@ -727,6 +727,85 @@ async def fetch_naevnsafgoerelser(client):
             }
     return list(fundet.values())
 
+# ── HortenDahl (tidl. Horten) via Umbraco Content Delivery API ─
+# horten.dk kan IKKE hentes: domænet ligger bag Cloudflare, som afviser selve
+# TLS-handshaket for alt der ikke ligner en browser (curl og httpx får samme
+# alert — det er ikke en User-Agent-blokering, man kan snakke sig uden om).
+# Vejen udenom er, at firmaet ikke længere hedder Horten: pr. 1/1-2026 fusio-
+# nerede Horten og DAHL til HortenDahl, og det nye domæne ligger ikke bag den
+# mur. Det kører Umbraco med Content Delivery API'et slået til og ÅBENT:
+#   GET /umbraco/delivery/api/v2/content?filter=contentType:newsPage
+#       &sort=createDate:desc&take=100&skip=N
+# Ingen nøgle, ingen bot-mur, 154 nyheder i arkivet. Vi læser altså firmaets
+# eget offentlige API i stedet for at skrabe HTML — mere stabilt, og vi rører
+# ikke ved den beskyttelse, de har sat op på det gamle domæne.
+# Felter: name, createDate, route.path, properties.{date,title,manchet,
+# areasOfBusiness[].name}.
+HORTENDAHL_API = "https://www.hortendahl.dk/umbraco/delivery/api/v2/content"
+HORTENDAHL_DAGE = 90
+# Firmaet har selv kategoriseret hver nyhed, og deres mærkning er mere pålidelig
+# end en ordliste: en artikel i dette spor tages med, SELV OM titlen ikke rammer
+# et kerneord. Kun "Plan- & Miljøret" — deres "Energi & Forsyning" er havvind,
+# fjernvarme og overskudsvarme, altså mitigation, som DNNK ikke dækker. Energi-
+# artikler kommer stadig med, hvis de rammer vand-ordene i den normale scoring.
+# (Bemærk: sporet har ligget stille siden marts 2026, formentlig fusionsrelateret
+# — kilden vil derfor ofte give nul, uden at der er noget galt.)
+HORTENDAHL_OMRAADER = {"Plan- & Miljøret"}
+
+async def fetch_hortendahl(client, query: str):
+    """Nyheder fra HortenDahl, filtreret til de seneste HORTENDAHL_DAGE dage."""
+    import json as _json
+    # sort=updateDate:desc, ikke createDate: arkivet er migreret fra to gamle
+    # sites, så createDate er oprettelsen i CMS'et og blander 2022-indhold ind
+    # blandt de nyeste. Der kan ikke sorteres på selve publiceringsdatoen
+    # (sort=date:desc → 400), så vi tager de 100 senest rørte og filtrerer på
+    # properties.date her. 100 rækker dækker langt mere end 90 dage.
+    url = (f"{HORTENDAHL_API}?filter=contentType:newsPage"
+           f"&sort=updateDate:desc&take=100")
+    try:
+        text = await get_feed_text(client, url, headers={"Accept": "application/json"})
+        data = _json.loads(text)
+    except Exception as e:
+        print(f"[hortendahl-fejl] {e}")
+        return []
+    graense = (datetime.now(timezone.utc) - timedelta(days=HORTENDAHL_DAGE)).strftime("%Y-%m-%d")
+    q_lower = query.lower()
+    ud = []
+    for x in (data.get("items") or []):
+        p = x.get("properties") or {}
+        dato = normalize_date(str(p.get("date") or x.get("createDate") or "")[:10])
+        if not dato or dato < graense:
+            continue
+        titel = p.get("title") or x.get("name") or ""
+        manchet = p.get("manchet")
+        if isinstance(manchet, dict):        # rich text kommer som {"markup": …}
+            manchet = manchet.get("markup") or ""
+        manchet = _TAG_RE.sub("", str(manchet or "")).strip()
+        omraader = [a.get("name") for a in (p.get("areasOfBusiness") or [])
+                    if isinstance(a, dict) and a.get("name")]
+        kombi = f"{titel} {manchet}"
+        q_match = any(kw_match(w, kombi) for w in q_lower.split() if len(w) > 3)
+        relevance, keep = score_article(kombi, q_match)
+        fagligt_match = bool(HORTENDAHL_OMRAADER & set(omraader))
+        if not keep and not fagligt_match:
+            continue
+        sti = ((x.get("route") or {}).get("path") or "/")
+        ud.append({
+            "source": "HortenDahl",
+            "feedSource": "HortenDahl",
+            "org": "HortenDahl (tidl. Horten)",
+            "title": titel,
+            "url": "https://www.hortendahl.dk" + sti,
+            "date": dato,
+            "summary": " · ".join(x for x in [", ".join(omraader), manchet[:220]] if x),
+            "tags": find_tags(kombi) or omraader[:2],
+            # Fagligt mærkede artikler uden kerneord får et gulv, så de er
+            # synlige, men ikke pinnes over reelle klimatilpasningsnyheder.
+            "relevance": max(relevance, 0.3) if fagligt_match else relevance,
+            "value": "",
+        })
+    return ud
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
     if is_rate_limited(request):
@@ -788,6 +867,18 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Nævnsafgørelser"
         articles.extend(afgoerelser)
 
+    # HortenDahl har intet RSS og ligger ikke i ALLE_FEEDS — den hentes fra
+    # firmaets eget Umbraco-API og lægges i samme gruppe som de øvrige kontorer.
+    if not gruppe or gruppe == "Jura & advokater":
+        try:
+            hd = await fetch_hortendahl(app.state.client, q)
+        except Exception as e:
+            print(f"[hortendahl-fejl] samlet: {e}")
+            hd = []
+        for a in hd:
+            a["gruppe"] = "Jura & advokater"
+        articles.extend(hd)
+
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
     # matchingen er rene set-snit — koster nærmest intet pr. artikel.
@@ -811,6 +902,8 @@ async def get_kilder():
     kilder["Lovstof"] = ["Retsinformation (%d søgetermer)" % len(RETSINFO_TERMER)]
     kilder["Nævnsafgørelser"] = [
         "%s (%d søgetermer)" % (navn, len(termer)) for navn, _v, termer in NAEVN_KILDER]
+    kilder["Jura & advokater"] = kilder.get("Jura & advokater", []) + [
+        "HortenDahl (Umbraco Content Delivery API)"]
     return kilder
 
 @app.get("/send-digest")
