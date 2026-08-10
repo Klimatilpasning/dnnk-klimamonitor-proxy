@@ -505,17 +505,90 @@ async def test_feeds(request: Request):
         "testet": datetime.now(timezone.utc).isoformat()
     }
 
+# ── EU-udbud fra TED ─────────────────────────────────────────
+# TED's Search API v3 svarer KUN på POST. En GET giver ikke 405, men HTTP 200
+# med {"message":"Request method 'GET' is not supported"} — den slags stille
+# fejl kostede os alle EU-udbud i månedsvis, fordi status var 200 og
+# frontenden derfor troede kaldet lykkedes og viste "0 udbud".
+# Lærepengene: se ALTID efter notices-nøglen, aldrig kun efter statuskoden.
+#
+# Tre faldgruber i forespørgselssproget, alle verificeret mod det rigtige API:
+#   1. Sortering kan IKKE sendes som felt i kroppen (sortField/sortBy/sortOrder
+#      afvises med 400). Den skal stå som "SORT BY ..."-suffiks i query.
+#      Uden den får man 2016-udbud først.
+#   2. Fritekst-OR skal skrives (FT ~ ("a") OR FT ~ ("b")). Formen
+#      FT ~ ("a" OR "b") ACCEPTERES, men rammer 6 dokumenter i stedet for 749
+#      — dvs. den fejler stille og ser bare ud som få udbud.
+#   3. Sidestørrelsen hedder "limit", ikke "pageSize" (v2-navn).
+TED_URL = "https://api.ted.europa.eu/v3/notices/search"
+TED_FIELDS = ["publication-number", "notice-title", "publication-date",
+              "buyer-name", "links", "total-value", "notice-type"]
+# Kun bogstaver/tal/bindestreg i søgeord: fritekstleddet bygges ind i en
+# query-streng, så anførselstegn og parenteser udefra skal ikke kunne slippe ind.
+_TED_ORD_RE = re.compile(r"[^\wæøåÆØÅ-]+", re.UNICODE)
+
+
+def _ted_tekst(v) -> str:
+    """Pluk dansk (ellers engelsk, ellers hvad der er) tekst ud af TED's
+    sprogopslag. Felterne kommer som {"dan": ["tekst"]} eller {"dan": "tekst"}
+    afhængigt af felt, så begge former skal håndteres."""
+    if isinstance(v, dict):
+        for sprog in ("dan", "eng"):
+            if v.get(sprog):
+                return _ted_tekst(v[sprog])
+        for nøgle in v:
+            return _ted_tekst(v[nøgle])
+        return ""
+    if isinstance(v, list):
+        return _ted_tekst(v[0]) if v else ""
+    return str(v or "")
+
+
+def _byg_ted_query(q: str) -> str:
+    """Oversæt en fri søgestreng til TED's expert-query.
+
+    Hvert ord bliver sit eget FT-led (se faldgrube 2 ovenfor), afgrænset til
+    danske udbudssteder og sorteret nyeste først."""
+    ord_ = [o for o in (_TED_ORD_RE.sub(" ", q or "").split()) if len(o) > 2]
+    if not ord_:
+        ord_ = ["klimatilpasning"]
+    fritekst = " OR ".join(f'FT ~ ("{o}")' for o in ord_[:12])
+    return (f"({fritekst}) AND place-of-performance IN (DNK) "
+            f"SORT BY publication-date DESC")
+
+
 @app.get("/ted")
 async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
-    url = "https://api.ted.europa.eu/v3/notices/search"
-    params = {"q": f"{q} Denmark", "pageSize": size,
-              "fields": "title,organisations,publicationDate,contractValue,cpvCodes,noticeType,tedPublicationUrl",
-              "country": "DNK"}
+    body = {"query": _byg_ted_query(q), "fields": TED_FIELDS,
+            "limit": max(1, min(size, 100)), "page": 1,
+            "scope": "ALL", "onlyLatestVersions": True}
     try:
-        resp = await app.state.client.get(url, params=params, timeout=15)
-        return resp.json()
+        resp = await app.state.client.post(TED_URL, json=body, timeout=20)
+        data = resp.json()
+        if not isinstance(data, dict) or "notices" not in data:
+            # Fejlformet svar med status 200 — netop den fælde der skjulte
+            # GET-fejlen. Meld den videre i stedet for at kalde den 0 udbud.
+            besked = (data or {}).get("message") if isinstance(data, dict) else None
+            raise ValueError(f"uventet svar fra TED (HTTP {resp.status_code}): "
+                             f"{besked or str(data)[:120]}")
+        # Normalisér til de feltnavne frontenden allerede læser (title /
+        # publicationDate / tedPublicationUrl), så renderTed kan stå urørt.
+        notices = []
+        for n in (data.get("notices") or []):
+            html_links = ((n.get("links") or {}).get("html") or {})
+            notices.append({
+                "title": _ted_tekst(n.get("notice-title")),
+                "publicationDate": str(n.get("publication-date") or "")[:10],
+                "tedPublicationUrl": html_links.get("DAN") or html_links.get("ENG") or "",
+                "buyer": _ted_tekst(n.get("buyer-name")),
+                "noticeType": n.get("notice-type") or "",
+                "value": _ted_tekst(n.get("total-value")),
+                "publicationNumber": n.get("publication-number") or "",
+            })
+        return {"notices": notices, "total": data.get("totalNoticeCount", len(notices))}
     except Exception as e:
         # Frontenden forventer altid en notices-liste — fejl må ikke give 500
+        print(f"[ted-fejl] {e}")
         return {"notices": [], "error": str(e)[:200]}
 
 # ── Lovstof fra Retsinformation ──────────────────────────────

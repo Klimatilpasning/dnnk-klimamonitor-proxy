@@ -903,7 +903,12 @@ async function search() {
     return true;
   });
   const notices = tedData.notices || tedData.results || [];
-  const failed = [newsR, tedR, scrapeR].filter(r => r.status === 'rejected').length;
+  // Et endpoint tæller også som fejlet når det svarede pænt (HTTP 200) men
+  // lagde en error-nøgle i kroppen. Uden det tjek gik /ted i stykker i
+  // månedsvis uden at nogen kunne se det: TED svarede 200 med en fejlbesked,
+  // fetchJson kaldte det en succes, og siden viste roligt "0 udbud".
+  const failed = [newsR, tedR, scrapeR].filter(r =>
+    r.status === 'rejected' || r.value?.error).length;
 
   document.getElementById('stat-articles').textContent = allArticles.length;
   document.getElementById('stat-ted').textContent = notices.length;
