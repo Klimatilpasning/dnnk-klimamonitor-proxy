@@ -241,6 +241,16 @@ SCRAPE_SOURCES = {
     # soft-404, SLA er 403 bot-blokeret. Kræver headless browser. De dækkes
     # i stedet af de brede Bing-feeds. Kun DMI server-renderer og virker.
 
+    # ── KTC-NETVÆRK (faglige kollegiale netværk, ikke nyhedslister) ──
+    # KTC's egne NYHEDSLISTER er JS-renderede (se ovenfor), men netværks- og
+    # faggruppesiderne er server-renderede med <article>-indslag og offentligt
+    # synligt indhold ("Alle kan se netværkets indhold"). De var aldrig med som
+    # kilde, og de kunne heller ikke scrapes: KTC's tema pakker hele siden i ét
+    # <header>, som scraperen fjernede — derfor fallbacket i scrape_news.
+    # Indholdet er kommunale sagsbehandleres spørgsmål/svar — praksisnær viden
+    # der ikke findes i nogen nyhedsstrøm.
+    "KTC Kystnetværk Sjælland":         {"url": "https://www.ktc.dk/netvaerk/netvaerk-kystbeskyttelse-region-sjaelland", "gruppe": "Platforme & netværk"},
+
     # ── GRUNDVAND & VANDKREDSLØB ──
     "GEUS Grundvand":                   {"url": "https://www.geus.dk/vores-viden/vand/grundvand/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
     "Naturstyrelsen Vand":              {"url": "https://naturstyrelsen.dk/nyheder/?tema=vand", "gruppe": "Vandkredsløb & grundvand"},

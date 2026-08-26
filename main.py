@@ -193,6 +193,36 @@ def normalize_date(raw: str) -> str:
             return f"{year}-{month:02d}-{day:02d}"
     return ""
 
+RELATIV_ENHED_DAGE = [("år", 365), ("måned", 30), ("uge", 7), ("dag", 1),
+                      ("time", 0), ("minut", 0), ("min", 0), ("sekund", 0)]
+RELATIV_LED_RE = re.compile(r"(\d+)\s*(år|måned\w*|uge\w*|dag\w*|time\w*|minut\w*|min|sekund\w*)\b", re.I)
+
+def relativ_dato(tekst: str) -> str:
+    """Oversæt dansk relativ tid ("2 måneder 1 uge siden") til YYYY-MM-DD.
+
+    KTC's netværkssider viser kun relative datoer. Uden denne oversættelse
+    bliver alle indslag datoløse, og den daglige digest kan ikke skelne nye
+    tråde fra gamle. Returnerer "" hvis der ikke står "... siden"."""
+    if not tekst:
+        return ""
+    lav = tekst.lower()
+    slut = lav.find("siden")
+    if slut < 0:
+        return ""
+    dage = 0
+    fundet = False
+    # Kun led FØR "siden" tælles med, så "2 måneder 1 uge siden" bliver 67 dage.
+    for antal, enhed in RELATIV_LED_RE.findall(lav[:slut]):
+        for praefiks, vaegt in RELATIV_ENHED_DAGE:
+            if enhed.startswith(praefiks):
+                dage += int(antal) * vaegt
+                fundet = True
+                break
+    if not fundet:
+        return ""
+    from datetime import timedelta
+    return (datetime.now() - timedelta(days=dage)).strftime("%Y-%m-%d")
+
 def real_url(url: str) -> str:
     """Udtræk den rigtige artikel-URL fra Bing News' apiclick-omdirigering.
     Bing-links ser ud som bing.com/news/apiclick.aspx?...&url=<encoded>&... —
@@ -1227,6 +1257,17 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
 
         candidates = _vaelg_kandidater(soup)
 
+        # KTC's Drupal-tema pakker HELE sidens indhold ind i ét <header>, så
+        # oprydningen ovenfor slettede alle 21 <article>-indslag og gav 0
+        # resultater. Er der intet tilbage at vælge imellem, prøver vi igen på
+        # en soup hvor kun script/style er fjernet. Alle andre kilder rammer
+        # ikke dette fallback, så deres adfærd er uændret.
+        if not candidates:
+            soup = BeautifulSoup(text, "lxml")
+            for tag in soup(["script", "style"]):
+                tag.decompose()
+            candidates = _vaelg_kandidater(soup)
+
         seen_titles = set()
         articles = []
 
@@ -1259,6 +1300,10 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                 if date_el:
                     raw = date_el.get("datetime") or date_el.get("content") or date_el.get_text(strip=True)
                     pub_date = normalize_date(raw or "")
+            if not pub_date:
+                # Sidste udvej: relative datoer ("3 måneder 1 uge siden"), som
+                # KTC's netværkssider bruger i stedet for <time>-tags.
+                pub_date = relativ_dato(el.get_text(" ", strip=True)[:200])
 
             # Find beskrivelse
             desc_el = el.find("p")
