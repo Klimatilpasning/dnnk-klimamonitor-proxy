@@ -1568,23 +1568,105 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
         return []
 
 
+SITEMAP_ANTAL = 12          # hvor mange af de nyeste artikler der hentes
+SITEMAP_DAGE = 120
+
+async def _sitemap_artikel(client, url, dato, source, gruppe, query):
+    """Hent én artikelside og lav den om til en artikel-post."""
+    try:
+        html = await get_feed_text(client, url)
+    except Exception:
+        return None
+    if not html:
+        return None
+    soup = BeautifulSoup(html, "lxml")
+    h1 = soup.find("h1")
+    titel = h1.get_text(strip=True) if h1 else ""
+    if not titel:
+        og = soup.find("meta", attrs={"property": "og:title"})
+        titel = (og.get("content") or "").strip() if og else ""
+    if not titel or len(titel) < 8:
+        return None
+    md = (soup.find("meta", attrs={"name": "description"})
+          or soup.find("meta", attrs={"property": "og:description"}))
+    manchet = (md.get("content") or "").strip() if md else ""
+
+    kombi = f"{titel} {manchet}"
+    q_match = any(kw_match(w, kombi) for w in query.lower().split() if len(w) > 3)
+    relevance, keep = score_article(kombi, q_match)
+    if not keep:
+        return None
+    return {
+        "source": "scrape", "feedSource": source, "org": source,
+        "title": titel, "url": url, "date": dato,
+        "summary": manchet[:300], "tags": find_tags(kombi),
+        "relevance": relevance, "value": None, "gruppe": gruppe,
+    }
+
+async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
+    """Nyheder fra sider hvis liste kræver JavaScript, men hvis artikelsider
+    er server-renderede — via sitemap.xml.
+
+    Helsingør Kommune kører nyhedslisten som en Blazor-app, så rå HTML
+    indeholder kun filtre og årstal, aldrig en eneste artikel. Alternativet
+    ville være en headless browser i stakken; det er undgået her, fordi
+    sitemap'et kender hver artikel med <lastmod>, og artiklerne selv er
+    ganske almindelige sider med <h1> og meta-description.
+
+    Der hentes kun de SITEMAP_ANTAL nyeste, så det koster et begrænset antal
+    ekstra kald — og de rammer feed-cachen ved gentagne forespørgsler.
+    """
+    try:
+        xml = await get_feed_text(client, meta["sitemap"])
+    except Exception as e:
+        print(f"[sitemap-fejl] {source}: {e}")
+        return []
+    if not xml:
+        return []
+
+    moenster = meta["moenster"]
+    fundet = []
+    for blok in re.findall(r"<url>(.*?)</url>", xml, re.S):
+        loc = re.search(r"<loc>([^<]+)</loc>", blok)
+        if not loc or moenster not in loc.group(1):
+            continue
+        lm = re.search(r"<lastmod>([^<]+)</lastmod>", blok)
+        fundet.append((normalize_date(lm.group(1)) if lm else "", loc.group(1)))
+
+    graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
+    fundet = [(d, u) for d, u in fundet if d and d >= graense]
+    fundet.sort(reverse=True)
+
+    resultater = await asyncio.gather(*[
+        _sitemap_artikel(client, u, d, source, meta["gruppe"], query)
+        for d, u in fundet[:SITEMAP_ANTAL]
+    ], return_exceptions=True)
+
+    ud = [r for r in resultater if isinstance(r, dict)]
+    ud.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+    return ud[:limit]
+
 @app.get("/news/scrape")
 async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), limit: int = Query(8)):
     """Hent nyheder via direkte scraping fra sider uden RSS"""
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
+    from sources import SITEMAP_SOURCES
     tasks = [
         scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit)
         for navn, meta in SCRAPE_SOURCES.items()
+    ] + [
+        fetch_sitemap_news(app.state.client, navn, meta, q, limit)
+        for navn, meta in SITEMAP_SOURCES.items()
     ]
-    nested = await asyncio.gather(*tasks)
+    nested = await asyncio.gather(*tasks, return_exceptions=True)
 
-    articles = [a for sub in nested for a in sub]
+    articles = [a for sub in nested if not isinstance(sub, Exception) for a in sub]
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {
         "articles": articles,
         "total": len(articles),
-        "sources_checked": len(SCRAPE_SOURCES),
+        "sources_checked": len(SCRAPE_SOURCES) + len(SITEMAP_SOURCES),
         "query": q,
         "scanned_at": datetime.now(timezone.utc).isoformat()
     }

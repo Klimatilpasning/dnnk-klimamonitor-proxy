@@ -426,10 +426,33 @@ SCRAPE_SOURCES = {
     # Kolding bygger listen af <bui-web-card>, hvor overskrift og dato står i
     # HTML-ATTRIBUTTER (heading/tagline) i stedet for i elementteksten.
     "Kolding Kommune":                  {"url": "https://www.kolding.dk/om-kommunen/nyhedsarkiv", "gruppe": "Kommuner"},
-    # Fjernet 14/9-2026: Helsingør Kommune — ingen server-renderet nyhedsliste
-    # findes overhovedet, hverken som HTML, JSON-LD eller feed.
+    # Helsingør Kommune ligger i SITEMAP_SOURCES nedenfor: selve nyhedslisten
+    # er en Blazor-app, men de enkelte artikelsider er server-renderede, og
+    # sitemap.xml kender dem alle med dato.
 
     # ── NORDISKE NABOER (uden RSS) ──
     "Movium nyheder (SE)":              {"url": "https://movium.slu.se/nyheter/", "gruppe": "Nordiske naboer"},
     "Movium kalendarium (SE)":          {"url": "https://movium.slu.se/kalendarium/", "gruppe": "Nordiske naboer"},
+}
+
+
+# ─────────────────────────────────────────────────────────────
+# SITEMAP-KILDER — sider hvor NYHEDSLISTEN kræver JavaScript,
+# men de enkelte artikelsider er server-renderede
+# ─────────────────────────────────────────────────────────────
+# Nogle CMS'er (Blazor, React-SPA'er) bygger listen i browseren, så der er
+# intet at scrape på oversigtssiden. Men artiklerne selv er almindelige,
+# server-renderede sider, og sitemap.xml kender dem alle — med <lastmod> som
+# dato. Så i stedet for en headless browser læses sitemap'et, de nyeste
+# artikel-URL'er plukkes ud, og deres titel/manchet hentes fra siderne selv.
+# Det koster SITEMAP_ANTAL ekstra sidehentninger pr. kilde (se main.py), som
+# dæmpes af feed-cachen — til gengæld undgås en browser i stakken helt.
+SITEMAP_SOURCES = {
+    "Helsingør Kommune": {
+        "sitemap": "https://www.helsingor.dk/sitemap.xml",
+        # Kun denne sti er nyhedsartikler; /nyheder-og-fakta/ alene rammer også
+        # kontakt- og oplysningssider.
+        "moenster": "/nyheder-og-presse/nyheder/",
+        "gruppe": "Kommuner",
+    },
 }

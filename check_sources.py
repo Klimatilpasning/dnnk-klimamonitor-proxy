@@ -40,7 +40,7 @@ from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
 import main as prod
-from sources import ALL_FEEDS_FLAT, SCRAPE_SOURCES
+from sources import ALL_FEEDS_FLAT, SCRAPE_SOURCES, SITEMAP_SOURCES
 
 TIMEOUT = 20
 ITEM_RE = re.compile(rb"<(?:item|entry)[\s>]", re.IGNORECASE)
@@ -100,6 +100,38 @@ def tael_titler(html):
     return len(fra_tekst)
 
 
+def tjek_sitemap(navn, meta):
+    """Sitemap-kilder: virker sitemap'et, rammer stimønstret noget, og kan der
+    læses en titel ud af den nyeste artikel? Alle tre led skal holde — det er
+    ikke nok at sitemap'et svarer."""
+    status, body = hent(meta["sitemap"])
+    if isinstance(status, str):
+        return navn, meta["gruppe"], meta["sitemap"], "NETVAERK", status
+    if status >= 400 or len(body) < MIN_BODY:
+        return navn, meta["gruppe"], meta["sitemap"], "TOM", f"sitemap HTTP {status}"
+
+    xml = body.decode("utf-8", "ignore")
+    traef = []
+    for blok in re.findall(r"<url>(.*?)</url>", xml, re.S):
+        loc = re.search(r"<loc>([^<]+)</loc>", blok)
+        if loc and meta["moenster"] in loc.group(1):
+            lm = re.search(r"<lastmod>([^<]+)</lastmod>", blok)
+            traef.append(((lm.group(1)[:10] if lm else ""), loc.group(1)))
+    if not traef:
+        return navn, meta["gruppe"], meta["sitemap"], "TOM",             f"0 URL'er matcher {meta['moenster']}"
+
+    traef.sort(reverse=True)
+    _, nyeste = traef[0]
+    s2, b2 = hent(nyeste)
+    if isinstance(s2, str) or s2 >= 400 or len(b2) < MIN_BODY:
+        return navn, meta["gruppe"], meta["sitemap"], "TOM",             f"{len(traef)} URL'er, men artikelsiden svarer {s2}"
+    soup = BeautifulSoup(b2, "lxml")
+    h1 = soup.find("h1")
+    if not (h1 and len(h1.get_text(strip=True)) >= 8):
+        return navn, meta["gruppe"], meta["sitemap"], "TOM",             f"{len(traef)} URL'er, men ingen <h1> paa artikelsiden"
+    return navn, meta["gruppe"], meta["sitemap"], "OK",         f"{len(traef)} artikel-URL'er, nyeste {traef[0][0]}"
+
+
 def tjek(navn, url, gruppe, er_feed):
     status, body = hent(url)
 
@@ -137,6 +169,7 @@ def main():
 
     with ThreadPoolExecutor(max_workers=12) as pool:
         resultater = list(pool.map(lambda a: tjek(*a), opgaver))
+        resultater += list(pool.map(lambda a: tjek_sitemap(*a), SITEMAP_SOURCES.items()))
 
     raekkefoelge = {"TOM": 0, "NETVAERK": 1, "OK": 2}
     resultater.sort(key=lambda r: (raekkefoelge[r[3]], r[1], r[0]))
