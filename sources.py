@@ -406,14 +406,23 @@ SCRAPE_SOURCES = {
     "Vejle Kommune":                    {"url": "https://www.vejle.dk/nyheder", "gruppe": "Kommuner"},
     "Roskilde Kommune":                 {"url": "https://roskilde.dk/nyheder", "gruppe": "Kommuner"},
     "Silkeborg Kommune":                {"url": "https://www.silkeborg.dk/nyheder", "gruppe": "Kommuner"},
-    "Horsens Kommune":                  {"url": "https://www.horsens.dk/nyheder", "gruppe": "Kommuner"},
-    "Esbjerg Kommune":                  {"url": "https://www.esbjerg.dk/nyheder", "gruppe": "Kommuner"},
+    # Esbjerg Kommune udgiver via Ritzau. esbjerg.dk/om-kommunen/presserum er
+    # kun en tom JS-embed, mens selve nyhedsrummet hos Ritzau er server-
+    # renderet med overskrift + tidsstempel. Derfor peger vi paa Ritzau-URL'en,
+    # selv om det er et tredjepartsdomaene — det ER kommunens officielle kanal.
+    "Esbjerg Kommune":                  {"url": "https://via.ritzau.dk/nyhedsrum/esbjerg-kommune/r?publisherId=13560064", "gruppe": "Kommuner"},
     "Viborg Kommune":                   {"url": "https://viborg.dk/nyheder", "gruppe": "Kommuner"},
     "Sønderborg Kommune":               {"url": "https://www.sonderborg.dk/nyheder", "gruppe": "Kommuner"},
     "Ringkøbing-Skjern Kommune":        {"url": "https://www.rksk.dk/nyheder", "gruppe": "Kommuner"},
-    "Helsingør Kommune":                {"url": "https://www.helsingor.dk/nyheder", "gruppe": "Kommuner"},
-    "Kolding Kommune":                  {"url": "https://www.kolding.dk/nyheder", "gruppe": "Kommuner"},
     "Bornholm Kommune":                 {"url": "https://www.brk.dk/nyheder", "gruppe": "Kommuner"},
+    # Fjernet 14/9-2026 — tre kommuner hvis nyhedsliste ikke kan laeses som den
+    # er. De to foerste kan hentes ind igen med lidt parser-arbejde:
+    #   • Horsens: /omhorsenskommune/presse/pressemeddelelser henter listen med
+    #     AJAX, MEN raa HTML har en JSON-LD ItemList med 670 poster (uden datoer).
+    #   • Kolding: /om-kommunen/nyhedsarkiv har 224 <bui-web-card>-elementer,
+    #     hvor overskrift og dato staar i HTML-ATTRIBUTTER (heading/tagline),
+    #     ikke i elementteksten — parseren laeser kun tekst i dag.
+    #   • Helsingoer: ingen server-renderet nyhedsliste fundet overhovedet.
 
     # ── NORDISKE NABOER (uden RSS) ──
     "Movium nyheder (SE)":              {"url": "https://movium.slu.se/nyheter/", "gruppe": "Nordiske naboer"},
