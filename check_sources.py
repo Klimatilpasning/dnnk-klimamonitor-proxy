@@ -79,13 +79,25 @@ def tael_titler(html):
 
     titler = set()
     for el in kandidater[:25]:
-        titel_el = prod._titel_element(el)
-        if not titel_el:
-            continue
-        titel = titel_el.get_text(strip=True)
+        titel = prod._titel_tekst(el)
         if titel and len(titel) >= 8:
             titler.add(titel)
-    return len(titler)
+    if titler:
+        return len(titler)
+
+    # Samme to reserver som scrape_news falder tilbage på. Uden dem ville
+    # kilder som Horsens (JSON-LD) og Vandmiljø Randers (tekstblok) blive
+    # meldt TOM her, selv om produktionen udtrækker fint fra dem — altså en
+    # falsk alarm hver uge. Relevansfiltret springes over: vi måler om der
+    # OVERHOVEDET kan udtrækkes, ikke om ugens indhold er på DNNK's emne.
+    alle = ""                       # tom soegning => intet q-match, kun kerneord taeller
+    fra_jsonld = prod._jsonld_liste(html.decode("utf-8", "ignore") if isinstance(html, bytes)
+                                    else html, "https://x", "tjek", "tjek", alle, set(), kun_udtraek=True)
+    if fra_jsonld:
+        return len(fra_jsonld)
+    fra_tekst = prod._tekstblok_liste(BeautifulSoup(html, "lxml"), "https://x",
+                                      "tjek", "tjek", alle, set(), kun_udtraek=True)
+    return len(fra_tekst)
 
 
 def tjek(navn, url, gruppe, er_feed):

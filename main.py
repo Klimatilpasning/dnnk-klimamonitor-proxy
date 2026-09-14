@@ -161,6 +161,9 @@ RSS_HEADERS = {
     "Accept-Language": "da,en;q=0.9",
 }
 
+DANSKE_MAANEDER = ["januar", "februar", "marts", "april", "maj", "juni",
+                   "juli", "august", "september", "oktober", "november", "december"]
+
 def normalize_date(raw: str) -> str:
     """Normalisér en RSS/Atom-dato til YYYY-MM-DD.
 
@@ -182,6 +185,17 @@ def normalize_date(raw: str) -> str:
             return dt.strftime("%Y-%m-%d")
     except Exception:
         pass
+    # Dansk langform: "14. september 2026". Mange danske CMS'er skriver datoen
+    # sådan i listevisninger, og uden dette bliver hver eneste artikel fra dem
+    # datoløs — hvilket både ødelægger sorteringen og is_recent i digesten.
+    m_dk = re.search(r'(\d{1,2})\.?\s+(' + '|'.join(DANSKE_MAANEDER) + r')\.?\s+(\d{4})',
+                     raw, re.IGNORECASE)
+    if m_dk:
+        dag = int(m_dk.group(1))
+        maaned = DANSKE_MAANEDER.index(m_dk.group(2).lower()) + 1
+        if 1 <= dag <= 31:
+            return f"{m_dk.group(3)}-{maaned:02d}-{dag:02d}"
+
     m2 = re.search(r'(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})', raw)
     if m2:
         day, month, year = int(m2.group(1)), int(m2.group(2)), m2.group(3)
@@ -909,6 +923,68 @@ async def fetch_hortendahl(client, query: str):
         })
     return ud
 
+COWI_API = "https://www.cowi.com/umbraco/delivery/api/v2/content"
+COWI_DAGE = 120
+
+async def fetch_cowi(client, query: str):
+    """Nyheder fra COWI, filtreret til de seneste COWI_DAGE dage.
+
+    COWI's nyhedsliste på /news-and-press/news/ er en tom SPA-skal, men sitet
+    kører Umbraco med åbent Content Delivery API — samme mønster som
+    HortenDahl. Der sorteres på updateDate, fordi publiceringsdatoen ikke kan
+    sorteres på i API'et; den rigtige dato står i properties.newsDate, og den
+    filtreres der lokalt på. Uden det blander redigerede gamle artikler sig
+    ind blandt de nyeste (set live: en 2025-artikel på plads 8).
+
+    COWI er nordisk, så feedet indeholder både danske, norske og engelske
+    versioner af samme historie. Det giver af og til en dublet — det er
+    bevidst accepteret frem for at smide de norske/svenske projekter væk,
+    som ofte er lige så relevante for dansk klimatilpasning.
+    """
+    import json as _json
+    url = f"{COWI_API}?filter=contentType:newsPage&sort=updateDate:desc&take=100"
+    try:
+        text = await get_feed_text(client, url, headers={"Accept": "application/json"})
+        data = _json.loads(text)
+    except Exception as e:
+        print(f"[cowi-fejl] {e}")
+        return []
+
+    graense = (datetime.now(timezone.utc) - timedelta(days=COWI_DAGE)).strftime("%Y-%m-%d")
+    q_lower = query.lower()
+    ud = []
+    for x in (data.get("items") or []):
+        p = x.get("properties") or {}
+        dato = normalize_date(str(p.get("newsDate") or x.get("createDate") or "")[:10])
+        if not dato or dato < graense:
+            continue
+        titel = (p.get("title") or x.get("name") or "").strip()
+        resume = p.get("description")
+        if isinstance(resume, dict):          # rich text kommer som {"markup": …}
+            resume = resume.get("markup") or ""
+        resume = _TAG_RE.sub(" ", str(resume or "")).replace("&nbsp;", " ")
+        resume = re.sub(r"\s+", " ", resume).strip()
+
+        kombi = f"{titel} {resume}"
+        q_match = any(kw_match(w, kombi) for w in q_lower.split() if len(w) > 3)
+        relevance, keep = score_article(kombi, q_match)
+        if not keep:
+            continue
+        sti = ((x.get("route") or {}).get("path") or "/")
+        ud.append({
+            "source": "COWI",
+            "feedSource": "COWI",
+            "org": "COWI",
+            "title": titel,
+            "url": "https://www.cowi.com" + sti,
+            "date": dato,
+            "summary": resume[:300],
+            "tags": find_tags(kombi),
+            "relevance": relevance,
+            "value": "",
+        })
+    return ud
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
     if is_rate_limited(request):
@@ -981,6 +1057,18 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
         for a in hd:
             a["gruppe"] = "Jura & advokater"
         articles.extend(hd)
+
+    # COWI har heller intet RSS og ligger ikke i ALLE_FEEDS — samme Umbraco-
+    # API-mønster som HortenDahl, lagt i gruppen med de øvrige rådgivere.
+    if not gruppe or gruppe == "Rådgivere":
+        try:
+            cw = await fetch_cowi(app.state.client, q)
+        except Exception as e:
+            print(f"[cowi-fejl] samlet: {e}")
+            cw = []
+        for a in cw:
+            a["gruppe"] = "Rådgivere"
+        articles.extend(cw)
 
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
@@ -1188,6 +1276,23 @@ def _titel_element(el):
         return el
     return el.find(["h1", "h2", "h3", "h4"]) or el.find(class_=TITEL_KLASSE_RE)
 
+def _titel_tekst(el):
+    """Titlen som ren tekst.
+
+    Ud over almindelige overskrifts-tags håndteres web components, der bærer
+    titlen i en ATTRIBUT i stedet for i elementteksten — fx Kolding Kommunes
+    <bui-web-card heading="..." tagline="12. maj 2026">. For dem giver
+    get_text() tom streng, så listen så tom ud selv om titlerne lå i rå HTML."""
+    t = _titel_element(el)
+    if t:
+        s = t.get_text(strip=True)
+        if s:
+            return s
+    wc = el if el.has_attr("heading") else el.find(attrs={"heading": True})
+    if wc:
+        return (wc.get("heading") or "").strip()
+    return ""
+
 def _vaelg_kandidater(soup):
     """Vælg det selektor-trin, der bedst ligner en nyhedsliste.
 
@@ -1204,6 +1309,10 @@ def _vaelg_kandidater(soup):
         lambda: soup.find_all("article"),
         lambda: soup.find_all(class_=re.compile(r"news[-_]?item|nyhed|artikel|post[-_]?item|teaser|card[-_]?item", re.I)),
         lambda: soup.find_all("li", class_=re.compile(r"news|nyhed|post|item|article", re.I)),
+        # Lister bygget som "items-list-row"/"list-item" uden nyhedsord i
+        # klassenavnet (fx DIN Forsyning). Står efter de mere specifikke trin,
+        # så det kun slår til når intet andet matcher.
+        lambda: soup.find_all(class_=re.compile(r"items?[-_]list[-_]row|list[-_]items?", re.I)),
         lambda: soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)),
         # Fallback: alle h2/h3 med links
         lambda: [a.parent for a in soup.find_all("a", href=True)
@@ -1222,16 +1331,117 @@ def _vaelg_kandidater(soup):
             foerste_ikke_tomme = fund
         titler = set()
         for el in fund[:25]:
-            t = _titel_element(el)
-            if t:
-                s = t.get_text(strip=True)
-                if len(s) >= 8:
-                    titler.add(s)
+            s = _titel_tekst(el)
+            if len(s) >= 8:
+                titler.add(s)
         if len(titler) >= 2:
             return fund
         if titler and med_en_titel is None:
             med_en_titel = fund
     return med_en_titel or foerste_ikke_tomme or []
+
+def _jsonld_liste(text, base_url, source, gruppe, query, seen_titles, kun_udtraek=False):
+    """Træk artikler ud af en schema.org ItemList i <script type=ld+json>.
+
+    Reserve for sider, hvor selve listen hentes med JavaScript, men hvor det
+    strukturerede mærkat ligger i rå HTML alligevel (Horsens Kommune: 670
+    pressemeddelelser i en ItemList). Det er en standard, så det er mere
+    robust end at gætte klassenavne — men ItemList bærer sjældent datoer,
+    så artiklerne kommer typisk ind uden dato.
+    """
+    import json as _json
+    from urllib.parse import urljoin
+    ud = []
+    soup = BeautifulSoup(text, "lxml")
+    for sc in soup.find_all("script", type="application/ld+json"):
+        try:
+            data = _json.loads(sc.string or sc.get_text() or "")
+        except Exception:
+            continue
+        noder = data.get("@graph", [data]) if isinstance(data, dict) else (
+            data if isinstance(data, list) else [])
+        for node in noder:
+            if not isinstance(node, dict):
+                continue
+            # ItemList kan ligge direkte eller som mainEntity på en CollectionPage
+            liste = node if node.get("@type") == "ItemList" else node.get("mainEntity")
+            if not isinstance(liste, dict) or liste.get("@type") != "ItemList":
+                continue
+            for post in (liste.get("itemListElement") or [])[:25]:
+                if not isinstance(post, dict):
+                    continue
+                titel = (post.get("name") or "").strip()
+                # "item" kan være en streng-URL eller et objekt med @id/url
+                maal = post.get("url") or post.get("item")
+                if isinstance(maal, dict):
+                    maal = maal.get("url") or maal.get("@id")
+                if not titel or len(titel) < 8 or titel in seen_titles:
+                    continue
+                # Brødkrummer er også ItemList — de peger på sektioner, ikke
+                # artikler, og deres titler er korte navigationsord.
+                if not isinstance(maal, str) or not maal:
+                    continue
+                q_match = any(kw_match(w, titel) for w in query.lower().split() if len(w) > 3)
+                relevance, keep = score_article(titel, q_match)
+                # kun_udtraek: sundhedstjekket spørger "kan der overhovedet
+                # udtrækkes noget her", ikke "er ugens indhold relevant". Uden
+                # det ville en kilde med lutter ikke-klimastof blive meldt død.
+                if not keep and not kun_udtraek:
+                    continue
+                seen_titles.add(titel)
+                ud.append({
+                    "source": "scrape", "feedSource": source, "title": titel,
+                    "org": source, "date": "", "summary": "",
+                    "tags": find_tags(titel), "relevance": relevance,
+                    "url": urljoin(base_url, maal), "value": None, "gruppe": gruppe,
+                })
+    return ud
+
+def _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles, kun_udtraek=False):
+    """Nyhedslister skrevet i fri tekst som skiftevis dato og link.
+
+    Nogle sider har ingen artikel-containere overhovedet — listen er tastet ind
+    i en rich text-editor som <p>5. januar 2026</p><p><a>Titel</a></p>
+    (Vandmiljø Randers). Der er intet klassenavn at hænge udtrækket op på, så
+    reglen er strukturel: et afsnit hvis HELE indhold er ét link, og hvis
+    foregående afsnit kan læses som en dato. Dato-kravet er det, der holder
+    tilfældige links i brødtekst ude, og derfor må det ikke lempes.
+
+    Kun en sidste udvej: kaldes først når alt andet gav nul.
+    """
+    from urllib.parse import urljoin
+    ud = []
+    for p in soup.find_all("p"):
+        links = p.find_all("a", href=True)
+        if len(links) != 1:
+            continue
+        a = links[0]
+        titel = a.get_text(strip=True) or (a.get("title") or "").strip()
+        # Afsnittet skal VÆRE linket — ikke bare indeholde det
+        if not titel or len(titel) < 8 or p.get_text(strip=True) != titel:
+            continue
+        forrige = p.find_previous_sibling("p")
+        dato = normalize_date(forrige.get_text(strip=True)) if forrige else ""
+        if not dato or titel in seen_titles:
+            continue
+        # Linkteksterne er hele sætninger, og de nævner næsten altid afsenderen
+        # selv. Hos "Vandmiljø Randers" betød det, at nøgleordet "vand" ramte i
+        # HVER eneste titel, så lukkedage og vinterferieaktiviteter slap
+        # igennem filteret. Afsenderens navn er metadata, ikke indhold, så det
+        # fjernes inden scoringen.
+        til_score = re.sub(re.escape(source), " ", titel, flags=re.IGNORECASE)
+        q_match = any(kw_match(w, til_score) for w in query.lower().split() if len(w) > 3)
+        relevance, keep = score_article(til_score, q_match)
+        if not keep and not kun_udtraek:   # se _jsonld_liste
+            continue
+        seen_titles.add(titel)
+        ud.append({
+            "source": "scrape", "feedSource": source, "title": titel,
+            "org": source, "date": dato, "summary": "",
+            "tags": find_tags(til_score), "relevance": relevance,
+            "url": urljoin(base_url, a["href"]), "value": None, "gruppe": gruppe,
+        })
+    return ud
 
 async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
@@ -1272,21 +1482,26 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
         articles = []
 
         for el in candidates[:25]:
-            title_el = _titel_element(el)
-            if not title_el:
-                continue
-
-            title = title_el.get_text(strip=True)
+            title = _titel_tekst(el)
             if not title or len(title) < 8 or title in seen_titles:
                 continue
             seen_titles.add(title)
 
             # Find link — søg i titel først, derefter hele elementet
-            link_el = title_el.find("a") or el.find("a", href=True)
+            title_el = _titel_element(el)
+            link_el = (title_el.find("a") if title_el else None) or el.find("a", href=True)
             article_url = ""
             if link_el and link_el.get("href"):
                 href = link_el["href"]
                 article_url = urljoin(base_url, href)
+            else:
+                # Nogle lister navigerer med onclick i stedet for et <a>
+                # (DIN Forsyning: onclick="location.href = '/...'"). Uden dette
+                # kommer artiklerne med, men uden noget at klikke på.
+                onclick = el.get("onclick") or ""
+                m_klik = re.search(r"""location\.href\s*=\s*['"]([^'"]+)['"]""", onclick)
+                if m_klik:
+                    article_url = urljoin(base_url, m_klik.group(1))
 
             # Find dato — søg i <time>, datetime-attribut, eller dato-klasser.
             # Altid via normalize_date: ren [:10]-afkortning genindførte
@@ -1301,6 +1516,12 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                     raw = date_el.get("datetime") or date_el.get("content") or date_el.get_text(strip=True)
                     pub_date = normalize_date(raw or "")
             if not pub_date:
+                # Web components kan bære datoen i en attribut ved siden af
+                # titlen (Kolding: tagline="12. maj 2026").
+                wc = el if el.has_attr("tagline") else el.find(attrs={"tagline": True})
+                if wc:
+                    pub_date = normalize_date(wc.get("tagline") or "")
+            if not pub_date:
                 # Sidste udvej: relative datoer ("3 måneder 1 uge siden"), som
                 # KTC's netværkssider bruger i stedet for <time>-tags.
                 pub_date = relativ_dato(el.get_text(" ", strip=True)[:200])
@@ -1308,6 +1529,10 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
             # Find beskrivelse
             desc_el = el.find("p")
             description = desc_el.get_text(strip=True)[:300] if desc_el else ""
+            if not description:
+                wc = el if el.has_attr("teasertext") else el.find(attrs={"teasertext": True})
+                if wc:
+                    description = (wc.get("teasertext") or "")[:300]
 
             combined = title + " " + description
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
@@ -1329,6 +1554,11 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                 "value": None,
                 "gruppe": gruppe,
             })
+
+        if not articles:
+            articles = _jsonld_liste(text, base_url, source, gruppe, query, seen_titles)
+        if not articles:
+            articles = _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles)
 
         articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return articles[:limit]

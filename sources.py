@@ -379,13 +379,17 @@ SCRAPE_SOURCES = {
     "Kolding Spildevand":               {"url": "https://koldingspildevand.dk/nyheder/", "gruppe": "Forsyninger"},
     # Navneskifte: sonderborgforsyning.dk 301'er til sonfor.dk.
     "SONFOR (tidl. Sønderborg Fors.)":  {"url": "https://sonfor.dk/nyheder/", "gruppe": "Forsyninger"},
-    # Fjernet 14/9-2026 — tre navneskifter hvor det nye site ikke kan scrapes
-    # med nuværende selektorer (0 titler udtrukket), og et dødt domæne:
-    #   • Esbjerg Forsyning → DIN Forsyning A/S (dinforsyning.dk/da-dk/nyheder-1)
-    #   • Randers Spildevand → Vandmiljø Randers (vmr.dk/om-os/presse)
-    #   • Hjørring Vandselskab → intet DNS-opslag på hjoerringvand.dk
-    # De to første er reelle, aktive nyhedssider — de kan hentes ind igen, hvis
-    # kandidat-selektorerne i main.py udvides.
+    # Navneskifte: esbjergforsyning.dk 301'er til dinforsyning.dk (Esbjerg+Varde).
+    # Listen navigerer med onclick i stedet for <a href>, så artikel-URL'en
+    # udtrækkes af scrape_news' onclick-fallback.
+    "DIN Forsyning (tidl. Esbjerg Fors.)": {"url": "https://www.dinforsyning.dk/da-dk/nyheder-1", "gruppe": "Forsyninger"},
+    # Navneskifte: randersspildevand.dk 307'er til vmr.dk. Nyhedslisten er tastet
+    # ind i en rich text-editor som skiftevis <p>dato</p><p><a>titel</a></p> og
+    # har ingen artikel-containere — læses af _tekstblok_liste() i main.py.
+    # Peger bevidst på /nyheder og ikke /presse/pressemeddelelsesarkiv: arkivet
+    # er fyldt med 2020-stof, som ville fylde nyhedsstrømmen med gammelt indhold.
+    "Vandmiljø Randers":                {"url": "https://www.vmr.dk/om-os/publikationer-og-nyheder/nyheder", "gruppe": "Forsyninger"},
+    # Fjernet 14/9-2026: Hjørring Vandselskab — intet DNS-opslag på domænet.
     "Holstebro Vand":                   {"url": "https://holstebrovand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Lemvig Vand":                      {"url": "https://lemvigvand.dk/nyheder/", "gruppe": "Forsyninger"},
 
@@ -415,14 +419,15 @@ SCRAPE_SOURCES = {
     "Sønderborg Kommune":               {"url": "https://www.sonderborg.dk/nyheder", "gruppe": "Kommuner"},
     "Ringkøbing-Skjern Kommune":        {"url": "https://www.rksk.dk/nyheder", "gruppe": "Kommuner"},
     "Bornholm Kommune":                 {"url": "https://www.brk.dk/nyheder", "gruppe": "Kommuner"},
-    # Fjernet 14/9-2026 — tre kommuner hvis nyhedsliste ikke kan laeses som den
-    # er. De to foerste kan hentes ind igen med lidt parser-arbejde:
-    #   • Horsens: /omhorsenskommune/presse/pressemeddelelser henter listen med
-    #     AJAX, MEN raa HTML har en JSON-LD ItemList med 670 poster (uden datoer).
-    #   • Kolding: /om-kommunen/nyhedsarkiv har 224 <bui-web-card>-elementer,
-    #     hvor overskrift og dato staar i HTML-ATTRIBUTTER (heading/tagline),
-    #     ikke i elementteksten — parseren laeser kun tekst i dag.
-    #   • Helsingoer: ingen server-renderet nyhedsliste fundet overhovedet.
+    # Horsens henter selve listen med AJAX, men rå HTML har en schema.org
+    # ItemList med 670 pressemeddelelser — den læses af _jsonld_liste() i
+    # main.py. NB: ItemList bærer ingen datoer, så posterne kommer datoløse ind.
+    "Horsens Kommune":                  {"url": "https://horsens.dk/omhorsenskommune/presse/pressemeddelelser", "gruppe": "Kommuner"},
+    # Kolding bygger listen af <bui-web-card>, hvor overskrift og dato står i
+    # HTML-ATTRIBUTTER (heading/tagline) i stedet for i elementteksten.
+    "Kolding Kommune":                  {"url": "https://www.kolding.dk/om-kommunen/nyhedsarkiv", "gruppe": "Kommuner"},
+    # Fjernet 14/9-2026: Helsingør Kommune — ingen server-renderet nyhedsliste
+    # findes overhovedet, hverken som HTML, JSON-LD eller feed.
 
     # ── NORDISKE NABOER (uden RSS) ──
     "Movium nyheder (SE)":              {"url": "https://movium.slu.se/nyheter/", "gruppe": "Nordiske naboer"},
