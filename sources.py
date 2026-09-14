@@ -17,14 +17,22 @@ RSS_NEWS = {
 
 # ── VIDENSINSTITUTIONER ──
 RSS_VIDEN = {
-    "Vand i Byer":              "https://vandibyer.dk/feed/",
     "Klimatorium":              "https://klimatorium.dk/feed/",
     # Fjernet (døde RSS, flyttet til SCRAPE_SOURCES): IDA, DANVA, CONCITO, DMI.
+    # Fjernet 14/9-2026: Vand i Byer. Domænet er IKKE længere innovations-
+    # netværkets site — det er overtaget og drives nu som indholdsfarm
+    # ("V.A.N.D.I. Byer mediet") med SEO-artikler om VVS'ere, printertoner,
+    # ladestandere og elleverandører. Feedet svarer 200 med friske datoer, så
+    # det så sundt ud udefra, og enkelte vand-nære overskrifter slap igennem
+    # relevansfilteret og blev vist som "Vidensinstitutioner".
 }
 
 # ── RÅDGIVERE ──
 RSS_RAADGIVERE = {
     "Sweco":                    "https://www.sweco.dk/rss",
+    # GEO's HTML-nyhedsliste er AngularJS-renderet (0 overskrifter i rå HTML),
+    # men deres RSS virker — derfor flyttet hertil fra SCRAPE_SOURCES 14/9-2026.
+    "GEO":                      "https://www.geo.dk/medie/nyheder/rss",
     # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Rambøll, COWI,
     # Niras, Krüger, Orbicon|WSP.
 }
@@ -108,6 +116,11 @@ RSS_KREATIVT = {
 # ── LOVGIVNING & POLITIK ──
 RSS_LOVGIVNING = {
     "Klimarådet":               "https://klimaraadet.dk/da/rss.xml",
+    # Høringsportalens Atom-feed. Tilføjet 14/9-2026, fordi mim.dk/horinger er
+    # nedlagt (404) og portalens egen HTML-liste er en Angular-SPA uden server-
+    # renderet indhold. NB: ?Authorities=-parameteren ignoreres af portalen, så
+    # feedet dækker ALLE myndigheders høringer — relevansfilteret skiller fra.
+    "Høringsportalen":          "https://hoeringsportalen.dk/Syndication/HearingsFeed",
     # Fjernet: Folketing + Folketing Dagsorden (403 — ft.dk bot-blokerer også
     # Renders server-IP, så feedet returnerer aldrig indhold).
     # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Miljøministeriet,
@@ -230,9 +243,14 @@ SCRAPE_SOURCES = {
     "CONCITO":                          {"url": "https://concito.dk/nyheder", "gruppe": "Vidensinstitutioner"},
     "klimamonitor.dk":                  {"url": "https://klimamonitor.dk/nyheder/klimatilpasning", "gruppe": "Vidensinstitutioner"},
     "DTU Byg":                          {"url": "https://www.byg.dtu.dk/nyheder", "gruppe": "Vidensinstitutioner"},
-    "KU SCIENCE":                       {"url": "https://science.ku.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
-    "GEUS":                             {"url": "https://www.geus.dk/om-geus/nyt-og-presse/nyheder/", "gruppe": "Vidensinstitutioner"},
-    "DCE Aarhus Univ.":                 {"url": "https://dce.au.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
+    "KU SCIENCE":                       {"url": "https://science.ku.dk/presse/nyheder/", "gruppe": "Vidensinstitutioner"},
+    "DCE Aarhus Univ.":                 {"url": "https://dce.au.dk/aktuelt/nyheder", "gruppe": "Vidensinstitutioner"},
+    # Fjernet 14/9-2026: GEUS. Den gamle sti (/om-geus/nyt-og-presse/nyheder/)
+    # er 404 efter en omlægning, og efterfølgeren /om-geus/nyheder er kun en
+    # hub-side — selve nyhedsarkivet er JS-renderet, så rå HTML giver 0
+    # overskrifter. GEUS udgiver klimatilpasningsstof (fx "Klimatilpasning og
+    # naturgenopretning kan flytte forureningsfaner", aug. 2026), så kilden er
+    # værd at genbesøge hvis de får RSS eller server-renderer arkivet igen.
     "DHI":                              {"url": "https://www.dhigroup.com/news", "gruppe": "Vidensinstitutioner"},
     "Teknologisk Institut":             {"url": "https://www.teknologisk.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
     "DMI":                              {"url": "https://www.dmi.dk/nyheder", "gruppe": "Vidensinstitutioner"},
@@ -252,33 +270,51 @@ SCRAPE_SOURCES = {
     "KTC Kystnetværk Sjælland":         {"url": "https://www.ktc.dk/netvaerk/netvaerk-kystbeskyttelse-region-sjaelland", "gruppe": "Platforme & netværk"},
 
     # ── GRUNDVAND & VANDKREDSLØB ──
-    "GEUS Grundvand":                   {"url": "https://www.geus.dk/vores-viden/vand/grundvand/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
+    # Fjernet 14/9-2026: GEUS Grundvand (hele /vores-viden/vand/* er nedlagt;
+    # grundvand ligger nu under /vandressourcer uden nyhedssektion), Vand i Byer
+    # (domænet er nu en SEO-indholdsfarm — se noten i RSS_VIDEN) og Den Danske
+    # Vandklynge (vandklynge.dk har intet DNS-opslag længere).
     "Naturstyrelsen Vand":              {"url": "https://naturstyrelsen.dk/nyheder/?tema=vand", "gruppe": "Vandkredsløb & grundvand"},
-    "Den Danske Vandklynge":            {"url": "https://vandklynge.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
-    "Vand i Byer":                      {"url": "https://vandibyer.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
     "Aarhus Vand Innovation":           {"url": "https://aarhusvand.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
     "VandCenter Syd Innovation":        {"url": "https://vandcenter.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
 
     # ── LOVGIVNING & HØRINGER ──
-    "Miljøministeriet Høringer":        {"url": "https://www.mim.dk/horinger/", "gruppe": "Lovgivning"},
-    "Høringsportalen":                  {"url": "https://hoeringsportalen.dk/Hearing/List", "gruppe": "Lovgivning"},
-    "Klimarådet":                       {"url": "https://klimaraadet.dk/da/nyheder", "gruppe": "Lovgivning"},
+    # Høringer hentes nu via Høringsportalens Atom-feed (se RSS_LOVGIVNING).
+    # Fjernet 14/9-2026: Miljøministeriet Høringer (mim.dk/horinger = 404) og
+    # Høringsportalens HTML-liste (Angular-SPA uden server-renderet indhold).
+    "Klimarådet":                       {"url": "https://klimaraadet.dk/da/foelg-med-i-det-seneste-fra-klimaraadet", "gruppe": "Lovgivning"},
     "Forsyningstilsynet":               {"url": "https://forsyningstilsynet.dk/nyheder/", "gruppe": "Lovgivning"},
-    "Miljøstyrelsen":                   {"url": "https://mst.dk/nyheder/", "gruppe": "Lovgivning"},
-    "Kystdirektoratet":                 {"url": "https://kyst.dk/nyheder/", "gruppe": "Lovgivning"},
+    # Fjernet 14/9-2026: Kystdirektoratet og Miljøstyrelsen. Kystdirektoratet er
+    # fusioneret ind i Miljøstyrelsen, og kyst.dk/nyheder/ redirecter til en
+    # 404. Miljøstyrelsens egen nyhedsside er Next.js og renderes client-side:
+    # 456 kB rå HTML uden et eneste artikel-link. Begge kræver headless browser.
+    # Konsekvens: der er pt. INGEN direkte kilde til Kystdirektoratets nyheder —
+    # kystfagligt stof må komme fra Bing-feedet "kystbeskyttelse" og fra KTC's
+    # kystnetværk. Det er et reelt hul, ikke en bevidst nedprioritering.
 
     # ── KREATIVE VINKLER ──
     "Realdania Projekter":              {"url": "https://realdania.dk/projekter/", "gruppe": "Kreative vinkler"},
     "Tredje Natur Blog":                {"url": "https://tredjenatur.dk/blog/", "gruppe": "Kreative vinkler"},
     "SLA Arkitekter":                   {"url": "https://www.sla.dk/nyheder/", "gruppe": "Kreative vinkler"},
-    "Schønherr Landskab":               {"url": "https://schonherr.dk/nyheder/", "gruppe": "Kreative vinkler"},
-    "GHB Landskab":                     {"url": "https://ghb-landskab.dk/nyheder/", "gruppe": "Kreative vinkler"},
-    "BLOXHUB":                          {"url": "https://bloxhub.org/nyheder/", "gruppe": "Kreative vinkler"},
+    # GHB Landskabsarkitekter hedder nu LYTT Architecture — ghb-landskab.dk
+    # 301'er til lytt.dk. Navnet står med begge former, så gamle artikler stadig
+    # kan genkendes. NB: overskrifterne er i rå HTML, men datoer vises kun
+    # sporadisk, så dato-parsing bliver svag for denne kilde.
+    "LYTT (tidl. GHB Landskab)":        {"url": "https://www.lytt.dk/aktuelt", "gruppe": "Kreative vinkler"},
+    "BLOXHUB":                          {"url": "https://bloxhub.org/news/", "gruppe": "Kreative vinkler"},
+    # Fjernet 14/9-2026: Schønherr Landskab. Sitet er relanceret på Webflow helt
+    # uden nyhedssektion — /aktuelt, /nyheder, /news, /journal, /stories,
+    # /insights og /press giver alle 404, og der findes ingen oversigtsside.
     "Klimatorium":                      {"url": "https://klimatorium.dk/nyheder/", "gruppe": "Kreative vinkler"},
 
     # ── RÅDGIVERE ──
     "Rambøll DK":                       {"url": "https://ramboll.com/da-dk/nyheder", "gruppe": "Rådgivere"},
-    "COWI DK":                          {"url": "https://www.cowi.com/da/nyheder", "gruppe": "Rådgivere"},
+    # Fjernet 14/9-2026: COWI DK. /da/nyheder er 404, og efterfølgeren
+    # /news-and-press/news/ er en tom SPA-skal (<div id="news-app">). COWI har
+    # hverken RSS eller sitemap, men nyhederne ligger i et åbent JSON-API:
+    # /api/news/GetNews?id=d8673f9b-cb9a-43c7-8c19-a81e81b33619
+    #   &region=ae4218c7-4ca9-4081-a4aa-862965bcc6ee&pageNumber=1&pageSize=20
+    # Kan hentes ind igen med samme mønster som fetch_hortendahl() i main.py.
     "Niras DK":                         {"url": "https://www.niras.dk/nyheder/", "gruppe": "Rådgivere"},
     "Sweco DK":                         {"url": "https://www.sweco.dk/nyheder/", "gruppe": "Rådgivere"},
     "Orbicon|WSP":                      {"url": "https://www.wsp.com/da-dk/nyheder", "gruppe": "Rådgivere"},
@@ -286,10 +322,12 @@ SCRAPE_SOURCES = {
     "MOE":                              {"url": "https://moe.dk/nyheder/", "gruppe": "Rådgivere"},
     "Watertech":                        {"url": "https://watertech.dk/nyheder/", "gruppe": "Rådgivere"},
     "EnviDan":                          {"url": "https://envidan.dk/nyheder/", "gruppe": "Rådgivere"},
-    "GEO":                              {"url": "https://www.geo.dk/nyheder/", "gruppe": "Rådgivere"},
-    "SmartBrønd":                       {"url": "https://smartbrond.dk/nyheder/", "gruppe": "Rådgivere"},
-    "Scalgo":                           {"url": "https://scalgo.com/nyheder/", "gruppe": "Rådgivere"},
-    "Nordiq Group":                     {"url": "https://nordiqgroup.dk/nyheder/", "gruppe": "Rådgivere"},
+    # Scalgo blogger kun på engelsk sti; /da-DK/blog giver 404.
+    "Scalgo":                           {"url": "https://scalgo.com/en-US/blog", "gruppe": "Rådgivere"},
+    # Fjernet 14/9-2026: GEO (flyttet til RSS_RAADGIVERE — HTML-listen er
+    # AngularJS-renderet, men RSS virker), SmartBrønd (sitet lever, men har
+    # ingen nyhedssektion overhovedet — kun Løsninger/Cases/Om/Kontakt) og
+    # Nordiq Group (nordiqgroup.dk har intet DNS-opslag længere).
     "Forsikring & Pension":             {"url": "https://www.forsikringogpension.dk/nyheder/", "gruppe": "Rådgivere"},
 
     # ── JURA & ADVOKATER (uden RSS — resten ligger i RSS_JURA) ──
@@ -306,17 +344,20 @@ SCRAPE_SOURCES = {
     "Indenrigsministeriet":             {"url": "https://www.im.dk/nyheder/", "gruppe": "Myndigheder"},
 
     # ── STYRELSER ──
-    "Energistyrelsen":                  {"url": "https://ens.dk/nyheder/", "gruppe": "Myndigheder"},
+    "Energistyrelsen":                  {"url": "https://ens.dk/presse/nyheder-og-pressemeddelelser", "gruppe": "Myndigheder"},
     "KL":                               {"url": "https://www.kl.dk/nyheder/", "gruppe": "Myndigheder"},
     "Naturstyrelsen":                   {"url": "https://naturstyrelsen.dk/nyheder/", "gruppe": "Myndigheder"},
-    "Beredskabsstyrelsen":              {"url": "https://brs.dk/nyheder/", "gruppe": "Myndigheder"},
+    # brs.dk/da/nyheder/ svarer 200, men listen er JS-renderet. Forsiden har
+    # derimod server-renderede teasere, så vi scraper den. Brug IKKE
+    # www.beredskabsstyrelsen.dk — det domæne afviser forbindelsen helt.
+    "Beredskabsstyrelsen":              {"url": "https://brs.dk/", "gruppe": "Myndigheder"},
     "Stormrådet":                       {"url": "https://www.stormraadet.dk/nyheder/", "gruppe": "Myndigheder"},
     "Vejdirektoratet":                  {"url": "https://www.vejdirektoratet.dk/nyheder", "gruppe": "Myndigheder"},
     "Styrelsen for Dataforsyning":      {"url": "https://sdfe.dk/nyheder/", "gruppe": "Myndigheder"},
     "Statens Byggeforskningsinstitut":  {"url": "https://sbi.dk/nyheder/", "gruppe": "Myndigheder"},
 
     # ── FORSYNINGER – Storkøbenhavn ──
-    "HOFOR":                            {"url": "https://www.hofor.dk/nyheder/", "gruppe": "Forsyninger"},
+    "HOFOR":                            {"url": "https://www.hofor.dk/om-hofor/presse-og-talspersoner/nyheder/", "gruppe": "Forsyninger"},
     "Nordvand":                         {"url": "https://nordvand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Novafos":                          {"url": "https://novafos.dk/nyheder/", "gruppe": "Forsyninger"},
     "Frederiksberg Fors.":              {"url": "https://frb-forsyning.dk/nyheder/", "gruppe": "Forsyninger"},
@@ -328,17 +369,23 @@ SCRAPE_SOURCES = {
 
     # ── FORSYNINGER – Jylland ──
     "Aarhus Vand":                      {"url": "https://aarhusvand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Aalborg Forsyning":                {"url": "https://www.aalborgforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Aalborg Forsyning har ikke længere en bred "nyheder"-sektion — kun presse.
+    "Aalborg Forsyning":                {"url": "https://www.aalborgforsyning.dk/pressemeddelelser/", "gruppe": "Forsyninger"},
     "Silkeborg Forsyning":              {"url": "https://silkeborgforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Herning Vand":                     {"url": "https://herningvand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Horsens Vand":                     {"url": "https://horsensvand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Viborg Vand":                      {"url": "https://viborgvand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Esbjerg Forsyning":                {"url": "https://esbjergforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Vejle Spildevand":                 {"url": "https://www.vejlespildevand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Kolding Spildevand":               {"url": "https://koldingspildevand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Sønderborg Forsyning":             {"url": "https://sonderborgforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Hjørring Vandselskab":             {"url": "https://hjoerringvand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Randers Spildevand":               {"url": "https://randersspildevand.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Navneskifte: sonderborgforsyning.dk 301'er til sonfor.dk.
+    "SONFOR (tidl. Sønderborg Fors.)":  {"url": "https://sonfor.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Fjernet 14/9-2026 — tre navneskifter hvor det nye site ikke kan scrapes
+    # med nuværende selektorer (0 titler udtrukket), og et dødt domæne:
+    #   • Esbjerg Forsyning → DIN Forsyning A/S (dinforsyning.dk/da-dk/nyheder-1)
+    #   • Randers Spildevand → Vandmiljø Randers (vmr.dk/om-os/presse)
+    #   • Hjørring Vandselskab → intet DNS-opslag på hjoerringvand.dk
+    # De to første er reelle, aktive nyhedssider — de kan hentes ind igen, hvis
+    # kandidat-selektorerne i main.py udvides.
     "Holstebro Vand":                   {"url": "https://holstebrovand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Lemvig Vand":                      {"url": "https://lemvigvand.dk/nyheder/", "gruppe": "Forsyninger"},
 
