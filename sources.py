@@ -455,4 +455,14 @@ SITEMAP_SOURCES = {
         "moenster": "/nyheder-og-presse/nyheder/",
         "gruppe": "Kommuner",
     },
+    # Kystdirektoratet er fusioneret ind i Miljøstyrelsen, og mst.dk/nyheder er
+    # Next.js renderet client-side — 465 kB rå HTML uden ét artikel-link. Det
+    # var DNNK's største kildehul, fordi kystfagligt stof ellers kun kom fra en
+    # Bing-søgning. Sitemap'et kender 983 nyhedsartikler med dato, og de
+    # enkelte artikelsider er server-renderede.
+    "Miljøstyrelsen (inkl. Kystdirektoratet)": {
+        "sitemap": "https://mst.dk/sitemap.xml",
+        "moenster": "/nyheder/",
+        "gruppe": "Lovgivning",
+    },
 }

@@ -1590,6 +1590,18 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query):
     md = (soup.find("meta", attrs={"name": "description"})
           or soup.find("meta", attrs={"property": "og:description"}))
     manchet = (md.get("content") or "").strip() if md else ""
+    if not manchet:
+        # Miljøstyrelsen udfylder ikke meta-description, så uden dette ville
+        # relevans-scoringen kun have overskriften at gå efter. Første rigtige
+        # afsnit i brødteksten er sidens manchet.
+        krop = soup.find("main") or soup.find("article") or soup
+        for tag in krop(["nav", "footer", "header", "script", "style"]):
+            tag.decompose()
+        for p in krop.find_all("p"):
+            tekst = p.get_text(" ", strip=True)
+            if len(tekst) >= 60:
+                manchet = tekst
+                break
 
     kombi = f"{titel} {manchet}"
     q_match = any(kw_match(w, kombi) for w in query.lower().split() if len(w) > 3)
