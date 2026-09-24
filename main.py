@@ -1699,10 +1699,12 @@ mcp_server = FastMCP(
     "dnnk-vidensbank",
     instructions=(
         "Søg i DNNK's (Det Nationale Netværk for Klimatilpasning) vidensbank "
-        "med ~227 webinarer om klimatilpasning i Danmark. Brug soeg_vidensbank "
-        "til at finde webinarer, soeg_passager til at finde konkrete passager "
-        "med tidsstempler og YouTube-links, og hent_transskription til at læse "
-        "en hel transskription."
+        "med ~300 webinarer og ~70 PDF-rapporter/dokumenter om klimatilpasning "
+        "i Danmark. Brug soeg_vidensbank til at finde webinarer og dokumenter, "
+        "soeg_passager til at finde konkrete tekstpassager (webinarer har "
+        "tidsstempler og YouTube-links, dokumenter ikke), og hent_transskription "
+        "til at læse en hel transskription eller et helt dokument. Feltet "
+        "\"type\" i svarene skelner mellem \"webinar\" og \"pdf\"."
     ),
     stateless_http=True,
     json_response=True,
@@ -1788,21 +1790,23 @@ def _score_mod_indeks(q_words: set, item: dict) -> int:
 
 @mcp_server.tool()
 async def soeg_vidensbank(forespoergsel: str, max_resultater: int = 5) -> list:
-    """Søg i DNNK's vidensbank over webinarer om klimatilpasning.
+    """Søg i DNNK's vidensbank over webinarer OG PDF-rapporter/dokumenter om klimatilpasning.
 
-    Matcher forespørgslens ord mod webinarernes titel, nøgleord, resumé,
-    kategori og oplægsholdere og returnerer de mest relevante webinarer.
-    Brug danske fagtermer eller stednavne, fx "skybrudstunnel",
-    "grundvandsstigning", "kystbeskyttelse Lolland" eller "LAR Vejle".
+    Matcher forespørgslens ord mod titel, nøgleord, resumé, kategori og
+    oplægsholdere/forfattere og returnerer de mest relevante hits — webinarer
+    og dokumenter blandet, sorteret efter relevans. Brug danske fagtermer
+    eller stednavne, fx "skybrudstunnel", "grundvandsstigning",
+    "kystbeskyttelse Lolland" eller "LAR Vejle".
 
     Args:
         forespoergsel: Søgeord på dansk, fx "skybrudstunnel København".
-        max_resultater: Højst antal webinarer der returneres (1-20, standard 5).
+        max_resultater: Højst antal hits der returneres (1-20, standard 5).
 
     Returns:
-        Liste af webinarer med felterne titel, dato, kategori, resume,
-        youtube_url, dnnk_url, type og path. Feltet path bruges videre i
-        hent_transskription; tom liste hvis intet matcher.
+        Liste af webinarer/dokumenter med felterne titel, dato, kategori,
+        resume, youtube_url, dnnk_url, type og path. type er "webinar" eller
+        "pdf" — dokumenter (type="pdf") har intet youtube_url. Feltet path
+        bruges videre i hent_transskription; tom liste hvis intet matcher.
     """
     q_words = _tokens(forespoergsel, min_len=3)
     if not q_words:
@@ -1829,21 +1833,24 @@ async def soeg_vidensbank(forespoergsel: str, max_resultater: int = 5) -> list:
 
 @mcp_server.tool()
 async def soeg_passager(forespoergsel: str, max_passager: int = 6) -> list:
-    """Find de mest relevante passager i DNNK's webinar-transskriptioner.
+    """Find de mest relevante passager i DNNK's webinar-transskriptioner og PDF-dokumenter.
 
-    Finder først de op til 3 mest relevante webinarer, henter deres fulde
-    transskriptioner og returnerer de tekstblokke (~1500 tegn) der bedst
-    matcher forespørgslen — hver med tidsstempel og et YouTube-link der
-    starter afspilningen på det rigtige sted. Brug dette værktøj når du
-    skal citere eller henvise præcist til hvad der blev sagt i et webinar.
+    Finder først de op til 3 mest relevante webinarer/dokumenter, henter deres
+    fulde tekst og returnerer de tekstblokke (~1500 tegn) der bedst matcher
+    forespørgslen. For webinarer følger tidsstempel og et YouTube-link der
+    starter afspilningen på det rigtige sted; PDF-dokumenter har hverken
+    tidsstempel eller youtube_link (begge felter er tomme/null). Brug dette
+    værktøj når du skal citere eller henvise præcist til hvad der blev sagt
+    eller skrevet.
 
     Args:
         forespoergsel: Søgeord på dansk, fx "medfinansiering af skybrudsprojekter".
-        max_passager: Højst antal passager på tværs af webinarerne (1-20, standard 6).
+        max_passager: Højst antal passager på tværs af kilderne (1-20, standard 6).
 
     Returns:
-        Liste af {webinar_titel, tidsstempel, youtube_link, tekst} sorteret
-        efter relevans; tom liste hvis intet matcher.
+        Liste af {titel, type, tidsstempel, youtube_link, tekst} sorteret
+        efter relevans; tom liste hvis intet matcher. type er "webinar"
+        eller "pdf".
     """
     q_words = _tokens(forespoergsel, min_len=3)
     if not q_words:
@@ -1872,10 +1879,12 @@ async def soeg_passager(forespoergsel: str, max_passager: int = 6) -> list:
             if distinkte == 0:
                 continue
             forekomster = sum(1 for t in blok_tokens if t in q_words)
+            is_pdf = e.get("type") == "pdf"
             passager.append((distinkte, forekomster, {
-                "webinar_titel": e.get("title", ""),
-                "tidsstempel": ts,
-                "youtube_link": _youtube_link_med_tid(e.get("youtube_url", ""), ts),
+                "titel": e.get("title", ""),
+                "type": e.get("type") or "webinar",
+                "tidsstempel": None if is_pdf else ts,
+                "youtube_link": None if is_pdf else _youtube_link_med_tid(e.get("youtube_url", ""), ts),
                 "tekst": blok,
             }))
     passager.sort(key=lambda p: (-p[0], -p[1]))
@@ -1885,12 +1894,13 @@ async def soeg_passager(forespoergsel: str, max_passager: int = 6) -> list:
 
 @mcp_server.tool()
 async def hent_transskription(path: str, fra_tegn: int = 0, max_tegn: int = 50000) -> dict:
-    """Hent den rå transskription af et DNNK-webinar.
+    """Hent den rå transskription af et DNNK-webinar, eller teksten af et PDF-dokument.
 
-    path fås fra soeg_vidensbank (feltet "path"). Transskriptionen har
-    tidsstempler på formen HH:MM:SS på egen linje for ca. hvert udsagn.
-    Lange transskriptioner kan hentes i bidder med fra_tegn/max_tegn —
-    tjek total_tegn i svaret for at se om der er mere.
+    path fås fra soeg_vidensbank (feltet "path"). Webinar-transskriptioner har
+    tidsstempler på formen HH:MM:SS på egen linje for ca. hvert udsagn;
+    PDF-dokumenter har ingen tidsstempler, bare løbende tekst (og en kort
+    header med titel/kilde-URL øverst). Lange tekster kan hentes i bidder
+    med fra_tegn/max_tegn — tjek total_tegn i svaret for at se om der er mere.
 
     Args:
         path: Sti i transcriptor-repoet; skal starte med "transcriptions/"
