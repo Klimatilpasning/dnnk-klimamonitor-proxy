@@ -1,0 +1,51 @@
+name: Politiske dagsordener
+
+# Scanner hver mandag kommunernes dagsordener for klimatilpasningsstof og lægger
+# resultatet på branchen dagsorden-data (dagsordener.json), som backenden læser
+# i gruppen "Politiske dagsordener". Egen branch, så main ikke får ugentlige
+# data-commits, og Render ikke skal deployes forfra.
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'   # mandag ca. kl. 6 dansk tid
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Hent forrige uges fil
+        run: |
+          git fetch origin dagsorden-data || true
+          git show origin/dagsorden-data:dagsordener.json > /tmp/forrige.json 2>/dev/null || echo '[]' > /tmp/forrige.json
+
+      - name: Scan dagsordener
+        run: python tools/scan_dagsordener.py --monitor-json /tmp/ud/dagsordener.json --tidligere /tmp/forrige.json
+
+      - name: Gem på dagsorden-data
+        run: |
+          git config user.name "dnnk-dagsordensscanner"
+          git config user.email "actions@users.noreply.github.com"
+          if git rev-parse --verify -q origin/dagsorden-data >/dev/null; then
+            git worktree add /tmp/data origin/dagsorden-data
+            cd /tmp/data && git checkout -B dagsorden-data
+          else
+            git worktree add --detach /tmp/data && cd /tmp/data
+            git checkout --orphan dagsorden-data && git rm -rfq .
+          fi
+          cp /tmp/ud/dagsordener.json .
+          git add dagsordener.json
+          git diff --cached --quiet || git commit -qm "Dagsordensscanning $(date +%F)"
+          git push origin dagsorden-data

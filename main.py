@@ -985,6 +985,30 @@ async def fetch_cowi(client, query: str):
         })
     return ud
 
+# ── Politiske dagsordener ────────────────────────────────────
+# Klimarelevante punkter fra kommunernes dagsordener (79 kommuner med det fælles
+# dagsordenssystem). Scanningen er for tung til at køre pr. forespørgsel, så den
+# kører ugentligt i GitHub Actions (dagsordener.yml, tools/scan_dagsordener.py)
+# og lægger en rullende JSON-fil på branchen dagsorden-data. Her læses blot den
+# fil — via feed-cachen og uden at Render skal deployes forfra hver uge.
+DAGSORDEN_URL = ("https://raw.githubusercontent.com/Klimatilpasning/"
+                 "dnnk-klimamonitor-proxy/dagsorden-data/dagsordener.json")
+
+async def fetch_dagsordener(client):
+    import json as _json
+    try:
+        data = _json.loads(await get_feed_text(client, DAGSORDEN_URL,
+                                               headers={"Accept": "application/json"}))
+    except Exception as e:
+        print(f"[dagsorden-fejl] {e}")
+        return []
+    ud = []
+    for a in data if isinstance(data, list) else []:
+        a = {k: v for k, v in a.items() if k != "nogle"}
+        a["tags"] = find_tags(f"{a.get('title', '')} {a.get('summary', '')}")
+        ud.append(a)
+    return ud
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
     if is_rate_limited(request):
@@ -993,7 +1017,7 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
         feeds = {k: {"url": v, "gruppe": gruppe} for k, v in ALLE_FEEDS[gruppe].items()}
-    elif gruppe in ("Lovstof", "Nævnsafgørelser"):
+    elif gruppe in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener"):
         # Grupper uden RSS-feeds: spring hele feed-runden over i stedet for at
         # hente 78 feeds, som svaret alligevel ikke skal indeholde.
         feeds = {}
@@ -1070,6 +1094,17 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Rådgivere"
         articles.extend(cw)
 
+    # Politiske dagsordener — forhåndsscannet ugentligt, se fetch_dagsordener.
+    if not gruppe or gruppe == "Politiske dagsordener":
+        try:
+            dg = await fetch_dagsordener(app.state.client)
+        except Exception as e:
+            print(f"[dagsorden-fejl] samlet: {e}")
+            dg = []
+        for a in dg:
+            a["gruppe"] = "Politiske dagsordener"
+        articles.extend(dg)
+
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
     # matchingen er rene set-snit — koster nærmest intet pr. artikel.
@@ -1093,6 +1128,8 @@ async def get_kilder():
     kilder["Lovstof"] = ["Retsinformation (%d søgetermer)" % len(RETSINFO_TERMER)]
     kilder["Nævnsafgørelser"] = [
         "%s (%d søgetermer)" % (navn, len(termer)) for navn, _v, termer in NAEVN_KILDER]
+    kilder["Politiske dagsordener"] = [
+        "Kommunale dagsordener (79 kommuner, scannes ugentligt)"]
     kilder["Jura & advokater"] = kilder.get("Jura & advokater", []) + [
         "HortenDahl (Umbraco Content Delivery API)"]
     return kilder
