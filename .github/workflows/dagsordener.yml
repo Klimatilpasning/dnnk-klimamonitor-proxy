@@ -28,7 +28,9 @@ jobs:
 
       - name: Hent forrige uges fil
         run: |
-          git fetch origin dagsorden-data || true
+          # Eksplicit refspec: et bart 'git fetch origin dagsorden-data' opretter kun FETCH_HEAD,
+          # ikke origin/dagsorden-data, som de næste trin bruger (checkout henter kun main).
+          git fetch origin dagsorden-data:refs/remotes/origin/dagsorden-data || true
           git show origin/dagsorden-data:dagsordener.json > /tmp/forrige.json 2>/dev/null || echo '[]' > /tmp/forrige.json
 
       - name: Scan dagsordener
