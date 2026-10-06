@@ -22,8 +22,14 @@ FORTID, FREMTID, PAUSE, BEHOLD_DAGE = 8, 21, 0.4, 45
 STAERK = r'klimatilpasning|skybrud|oversvøm|stormflod|højvande|kystbeskyttelse|kystsikring|klimasikring|sandfodring|' \
          r'terrænnær|havvandsstigning|havstigning|vandstandsstigning|risikostyringsplan|klimarobust|forsinkelsesbassin|' \
          r'regnvandsbassin|vandhåndteringsplan|klimalavbund|\bdige(?:r|t|rne|projekt|lag)?\b'
-SVAG = r'regnvand|grundvandsstand|nedsivning|vandhåndtering|spildevandsplan|lavbund|vådområde|erosion|kystnær|vandløbsprojekt'
-PLAN = r'klimatilpasningsplan|klimaplan|risikostyringsplan|kommuneplan|spildevandsplan|vandhåndteringsplan|strategi|høring'
+# Udvidet 6/10-2026 efter måling på 12.979 dagsordenspunkter fra 77 kommuner: de svage ord
+# gav lav støj i titler, men meget i resuméer ("forsinket", "genopretningsplan", affaldsregulativ).
+# "klima", "vand", "forsyning" og "medfinansiering" alene er bevidst udeladt (for meget støj).
+SVAG = r'regnvand|regnbed|grundvand|nedsivning|vandhåndtering|spildevandsplan|lavbund|vådområde|erosion|kyst|' \
+       r'vandløb|grødeskæring|separatkloak|fælleskloak|overløb|forsinkelsesvolumen|naturgenopret|genslyng|' \
+       r'grøn trepart|klimaplan|klimahandleplan|klimahandlingsplan|skovrejsning'
+PLAN = r'klimatilpasningsplan|klimaplan|klimahandle|klimahandlings|risikostyringsplan|kommuneplan|spildevandsplan|' \
+       r'vandhåndteringsplan|omlægningsplan|regulativ|strategi|høring'
 
 
 def tekst(h):
