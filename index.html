@@ -605,9 +605,17 @@ let allArticles = [];
 let currentFilter = 'alle';
 let currentSort = 'date';
 let hideRead = false;
-let readArticles = new Set(safeParse('dnnk_read', []));
-let seenArticles = new Set(safeParse('dnnk_seen', []));
-let relevanceVotes = safeParse('dnnk_relevance', {});
+// Altinget giver samme artikel en sektions-URL pr. feed (/klima/artikel/ og
+// /miljoe/artikel/) - normaliseret, så krydspostninger kun vises én gang.
+// Gemte markeringer har de gamle sektions-URL'er som nøgle, så de køres
+// gennem samme normalisering ved indlæsning; ellers ville allerede læste
+// Altinget-artikler dukke op som nye og miste deres 👍/👎.
+const normAltinget = s => String(s).replace(/altinget\.dk\/[^/]+\/artikel\//, 'altinget.dk/artikel/');
+const somListe = v => Array.isArray(v) ? v : [];
+let readArticles = new Set(somListe(safeParse('dnnk_read', [])).map(normAltinget));
+let seenArticles = new Set(somListe(safeParse('dnnk_seen', [])).map(normAltinget));
+let relevanceVotes = Object.fromEntries(
+  Object.entries(safeParse('dnnk_relevance', {}) || {}).map(([k, v]) => [normAltinget(k), v]));
 
 // ─── DR-filter ─────────────────────────────────────────────
 // Ordene skal stå i STARTEN af et ord. Før var det rene delstrenge, og
@@ -736,9 +744,7 @@ function syncUrl() {
 }
 
 function getArticleId(a) {
-  // Altinget giver samme artikel en sektions-URL pr. feed (/klima/artikel/ og
-  // /miljoe/artikel/) - normaliseret, så krydspostninger kun vises én gang.
-  const url = (a.url || '').replace(/altinget\.dk\/[^/]+\/artikel\//, 'altinget.dk/artikel/');
+  const url = normAltinget(a.url || '');
   return (url || ((a.title || '') + '|' + (a.feedSource || a.org || '')).trim()) || '';
 }
 
