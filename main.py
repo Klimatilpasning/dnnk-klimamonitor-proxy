@@ -117,6 +117,17 @@ KEYWORDS = [
     "separatkloakering", "renseanlæg", "pumpestation", "vandmiljø",
     "klimarisiko", "klimasårbarhed", "klimatilpasningsplan", "serviceniveau",
     "oversvømmelsesdirektiv", "klimatilpasningsloven",
+    # Tilføjet 7/10-2026 efter gennemgangen: bøjninger og fagtermer, hvis
+    # fravær smed DNNK's egen "Mellem hav og by - når havstigning ...", HOFOR's
+    # tørke-nyhed og hele Bing-feedet "kystbeskyttelse" (0 af 5) væk. Ordene
+    # matcher fra ordstart, så "oversvøm" fanger oversvømmet/-et/-er, og
+    # "højvand" fanger højvande og højvandsdige. Målt på 947 titler: 168 -> 183
+    # beholdt, ingen tabt. "dige" står IKKE her - se DIGE_RE nedenfor.
+    "oversvøm", "klimatilpas", "havstigning", "havniveau", "havspejl",
+    "højvand", "kystsikring", "kysterosion", "klimaatlas", "kystdirektorat",
+    "vandhåndtering", "vandråd", "forsinkelsesbassin", "nedsivning",
+    "risikostyringsplan", "ekstremregn",
+    "havdige", "kystdige", "stormflodsdige", "digelag",
 
     # ── Vandkredsløbet – grundvand & vandløb ──
     "grundvand", "grundvandsstand", "grundvandsforurening", "grundvandssænkning",
@@ -126,6 +137,9 @@ KEYWORDS = [
     "meandering", "vandløbsvedligeholdelse", "okker", "vandkvalitet",
     "sørestaurering", "vådområde", "lavbundsareal", "højmose",
     "drænvand", "dræning", "landbrugsdræn", "nitrat", "fosfor",
+    # "tørke" og "hedebølge" trækker en smule udenlandsk vejr ind fra DR
+    # Vejret. Tager det til, så flyt dem til BROAD_KEYWORDS.
+    "lavbund", "klimalavbund", "tørke", "hedebølge", "varmebølge",
 
     # ── Kreative & innovative vinkler ──
     "svampeby", "sponge city", "naturbaseret løsning", "nature-based solutions",
@@ -140,18 +154,44 @@ KEYWORDS = [
     "klimatanpassning", "översvämning", "dagvatten", "overvannshåndtering",
     "kustplanering", "havsnivå", "kustskydd", "kusterosion",
     "kustzon", "havsplanering", "flexibel markanvändning", "stegvis planering",
-    "robusta städer", "urbana landskap", "Movium", "SGI",
-    "Interreg", "LIFE programme", "Horizon Europe", "Climate-ADAPT",
+    "robusta städer", "urbana landskap", "Climate-ADAPT",
     "flood risk", "coastal adaptation", "water resilience",
-    "DHI", "SCALGO", "Stormrådet", "Realdania", "Deltares",
-    "C40", "ICLEI", "waterboards", "Rijkswaterstaat",
+    "Stormrådet", "waterboards",
+    "climate adaptation", "climate change adaptation", "stormwater",
+    "drought", "heatwave", "heat wave", "skyfall", "torka", "droogte",
+    # Engelske tilpasningstermer til tidsskrifterne (Urban Climate m.fl.).
+    # Før reddede boilerplaten "Source: Urban Climate" alt fra feedet; nu den
+    # fjernes, skal artikler om havstigning, IDF-kurver (skybrudsdimensionering),
+    # afstrømning og varmerisiko bære sig selv. Bevidst ikke "cooling" alene
+    # (datacentre) eller "climate resilien*" (fødevaresystemer, mitigation).
+    "sea level", "sea-level", "storm surge", "coastal flood", "pluvial",
+    "runoff", "heat risk", "heat exposure", "heat stress", "urban heat",
+    "urban cooling", "park cooling", "intensity-duration-frequency",
+    # Svenske skredord som præcise stammer. Det nøgne "skred" ville med
+    # ordstart-matching ramme dansk "skred ind"/"skred til handling", og
+    # "jordskred" rammer det politiske "jordskredssejr" (set i Altinget).
+    # Ikke det nøgne "erosion": det rammer billedlig dansk brug ("erosionen af
+    # tilliden", "erosion i markedet") i Børsen og Altinget.
+    "skredrisk", "skredsäkring", "skredförebygg",
+    "stranderosion", "jorderosion", "erosionsskydd", "erosionsrisk", "coastal erosion",
+    # Fjernet 7/10-2026: rene organisationsnavne (SGI, ICLEI, SCALGO,
+    # Realdania, DHI, Deltares, C40, Movium, Interreg, Horizon Europe, LIFE
+    # programme, Rijkswaterstaat). Afsenderens navn sagde intet om emnet, men
+    # gjorde hele feeds "altid relevante": 32 af 85 RSS-artikler i produktion
+    # kom fra SGI x2, ICLEI og Urban Climate, mange kun tagget "sgi"/"iclei"
+    # (PFAS, "joins ICLEI"). Som brede ord ville de stadig danne par med
+    # "klima"/"urban", så de er taget helt ud.
 
     # ── Brede nøgleord ──
     # Bevidst smal: "natur" og "water" fjernet pga. falsk-positiv-match
     # mod engelske ord ("natural", "watercolor") ved ordstarts-matching.
     # Specifikke termer som "naturbaseret løsning" og "water resilience"
     # dækker stadig de relevante koncepter.
-    "klima", "vand", "miljø", "bæredygtig",
+    # "miljø" og "bæredygtig" fjernet 7/10-2026: to brede træf lukkede
+    # mitigation-stof ind (oksekød, tekstilhandlingsplan), og relevante
+    # miljø-artikler beholdes alligevel via kerneord. De skal stå ude BÅDE her
+    # og i BROAD_KEYWORDS - ellers bliver de automatisk kerneord.
+    "klima", "vand",
     "climate", "flood", "urban", "infrastructure",
 ]
 
@@ -269,12 +309,12 @@ def kw_match(keyword: str, text: str) -> bool:
         pattern += r'(?!\w)'
     return bool(re.search(pattern, text, re.IGNORECASE | re.UNICODE))
 
-# Brede nøgleord vejer let — ét enkelt match (fx kun "klima" eller "miljø")
+# Brede nøgleord vejer let — ét enkelt match (fx kun "klima" eller "vand")
 # er IKKE nok til at en artikel regnes som relevant. Det er disse ord der
 # ellers lukker ministerrokade, elpriser og "klimaaftryk"-historier ind.
 # Alle øvrige KEYWORDS er kerneord og vejer tungt.
 BROAD_KEYWORDS = {
-    "klima", "vand", "miljø", "bæredygtig",
+    "klima", "vand",
     "climate", "urban", "infrastructure",
 }
 
@@ -287,7 +327,20 @@ BROAD_KEYWORDS = {
 # EFTER ordet, almindelige ord matcher stadig sammensætninger (klima →
 # klimaforandring). Længste ord først, så alternationen foretrækker det
 # mest specifikke match.
+# Kerneord der skal afgrænses mere end ordstart-matchet kan:
+# - "tørke" må ikke ramme "tørketumbler".
+# - "drought" må ikke ramme "energy droughts" (elnet, ikke vand).
+# - "skyfall" kun med småt eller i bøjet form, så Bond-filmen "Skyfall" i
+#   generelle feeds ikke tæller - svensk "skyfallet"/"Skyfallen" gør stadig.
+_KW_SPECIAL = {
+    "tørke": r"tørke(?!tumbl)",
+    "drought": r"(?<!energy )drought",
+    "skyfall": r"(?:(?-i:skyfall)|(?-i:Skyfall)(?:et|en|s))",
+}
+
 def _kw_pattern(kw: str) -> str:
+    if kw in _KW_SPECIAL:
+        return _KW_SPECIAL[kw]
     p = re.escape(kw)
     if kw.upper() == kw and any(c.isalpha() for c in kw):
         p += r'(?!\w)'
@@ -301,9 +354,26 @@ BROAD_RE = re.compile(
     r'(?<!\w)(?:' + '|'.join(_kw_pattern(k) for k in sorted(BROAD_KEYWORDS, key=len, reverse=True)) + r')',
     re.IGNORECASE | re.UNICODE)
 
+# "dige" kan ikke stå i KEYWORDS: ordstart-matchet ville ramme "digest"
+# (Water Research), efternavnet Dige ("Jesper Dige Nielsen") og vejnavne som
+# "Ved Gamle Dige". Derfor en separat regex, der skelner mellem store og små
+# bogstaver og kræver helt ord. Prisen er, at en titel der BEGYNDER med
+# "Diget ..." ikke fanges på det ord alene - men den nævner typisk dige,
+# kyst eller stormflod med småt i resten af teksten.
+DIGE_RE = re.compile(r'(?<!\w)dige(?:r|t|ts|ne|rne|lag\w*)?(?!\w)')
+
+# Tekst der står i HVERT item fra en kilde og derfor ikke siger noget om
+# emnet: tidsskrifternes "Source: Urban Climate, Volume 64" (som gav
+# 'climate'+'urban' = to brede træf = keep på alt) og SGAV's/ministeriets
+# lange navne med "Grøn"/"Vandmiljø". Fjernes kun til scoring, ikke i visningen.
+BOILERPLATE_RE = re.compile(
+    r'Source:\s*[^.]*?Volume \d+|Styrelsen for Grøn Arealomlægning og Vandmiljø'
+    r'|Ministeriet for Grøn Trepart', re.IGNORECASE)
+
 def find_tags(combined: str, top_n: int = 3) -> list:
     """Tags = de kerneord der FAKTISK matcher artiklen (top 3, i tekst-orden).
     Tidligere kunne kun de første 6 nøgleord i KEYWORDS blive tags."""
+    combined = BOILERPLATE_RE.sub(" ", combined)
     tags = []
     for m in CORE_RE.findall(combined):
         t = m.lower()
@@ -311,6 +381,8 @@ def find_tags(combined: str, top_n: int = 3) -> list:
             tags.append(t)
         if len(tags) >= top_n:
             break
+    if len(tags) < top_n and "dige" not in tags and DIGE_RE.search(combined):
+        tags.append("dige")
     return tags
 
 def score_article(combined: str, q_match: bool):
@@ -318,10 +390,13 @@ def score_article(combined: str, q_match: bool):
 
     Kerneord vejer 3, brede ord 1, et søge-match giver 3. En artikel beholdes
     kun hvis den rammer mindst ét kerneord, matcher søgningen, eller rammer
-    mindst to brede ord — så artikler der blot strejfer 'klima'/'miljø' (fx
+    mindst to brede ord — så artikler der blot strejfer 'klima'/'vand' (fx
     ministerrokade eller elpriser) sorteres fra i stedet for at score 1.
     Der tælles DISTINKTE matchende nøgleord (som før), ikke antal forekomster."""
+    combined = BOILERPLATE_RE.sub(" ", combined)
     core_hits = len({m.lower() for m in CORE_RE.findall(combined)})
+    if DIGE_RE.search(combined):
+        core_hits += 1
     broad_hits = len({m.lower() for m in BROAD_RE.findall(combined)})
     keep = core_hits >= 1 or q_match or broad_hits >= 2
     raw = core_hits * 3 + broad_hits + (3 if q_match else 0)
@@ -479,9 +554,22 @@ def parse_feed_items(content: str) -> list:
     except Exception:
         return []
 
+# Nyheder ældre end dette vises ikke. Uden grænsen slap fx FloodList 2024,
+# SGI 2024 og "I uge 29 holder vi lukket" (Vandmiljø Randers, 2024) igennem.
+# 365 og ikke 180 dage: kilder med sjældne opslag (KTC-tråde, DNNK's
+# Klimatilpasningsplan II, HOFOR's skybrudsprojekt) ville ellers miste
+# relevant stof. Artikler UDEN dato beholdes - ellers forsvinder JSON-LD-
+# kilder som Horsens, hvis ItemList ingen datoer har.
+NYHED_MAX_DAGE = 365
+
+def for_gammel(dato: str) -> bool:
+    graense = (datetime.now(timezone.utc) - timedelta(days=NYHED_MAX_DAGE)).strftime("%Y-%m-%d")
+    return bool(dato) and dato < graense
+
 async def fetch_rss(client, source, url, query, limit: int = 8):
     """Returnerer en liste af artikler, eller None hvis feedet fejlede
     (så /news/full kan tælle feeds_failed)."""
+    from urllib.parse import urljoin
     try:
         content = await get_feed_text(client, url)
         items = parse_feed_items(content)
@@ -493,7 +581,7 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
 
         for item in items[:40]:
             title, description, link, pub_date = parse_item_bs(item)
-            if not title:
+            if not title or for_gammel(pub_date):
                 continue
             combined = title + " " + description
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
@@ -501,11 +589,18 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
             # Drop artikler der kun strejfer brede ord — ren støj fra brede feeds
             if not keep:
                 continue
+            # HOFOR's RSS giver rod-relative links (/nyhed/...). Uden dette blev
+            # de til døde links på klimatilpasning.github.io og undgik URL-
+            # dedup mod HOFOR-scrapen. Et tomt link forbliver tomt, så link-
+            # løse items ikke får feedets egen URL.
+            link = real_url(link)
+            if link and not link.startswith(("http://", "https://")):
+                link = urljoin(url, link)
             results.append({
                 "source": "news", "feedSource": source, "title": title,
                 "org": source, "date": pub_date, "summary": description,
                 "tags": find_tags(combined),
-                "relevance": relevance, "url": real_url(link), "value": None
+                "relevance": relevance, "url": link, "value": None
             })
         results.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return results[:limit]
@@ -1040,7 +1135,10 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
                 0 if a.get("date") else 1)
     bedste = {}
     for a in articles:
-        key = a.get("url") or (a.get("title", "") + "|" + a.get("feedSource", ""))
+        # Altinget giver samme artikel en sektions-URL pr. feed (/klima/artikel/
+        # og /miljoe/artikel/), så krydspostninger ville ellers vises to gange.
+        key = re.sub(r"altinget\.dk/[^/]+/artikel/", "altinget.dk/artikel/", a.get("url") or "") \
+            or (a.get("title", "") + "|" + a.get("feedSource", ""))
         if key not in bedste or _pref(a) < _pref(bedste[key]):
             bedste[key] = a
     articles = list(bedste.values())
@@ -1575,7 +1673,7 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
             q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
             relevance, keep = score_article(combined, q_match)
             # Drop artikler der kun strejfer brede ord — samme tærskel som RSS
-            if not keep:
+            if not keep or for_gammel(pub_date):
                 continue
 
             articles.append({
@@ -1596,6 +1694,9 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
             articles = _jsonld_liste(text, base_url, source, gruppe, query, seen_titles)
         if not articles:
             articles = _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles)
+        # Reserverne filtreres her og ikke i sig selv, fordi check_sources.py
+        # kalder dem direkte for at spørge "kan der udtrækkes noget".
+        articles = [a for a in articles if not for_gammel(a["date"])]
 
         articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
         return articles[:limit]

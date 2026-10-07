@@ -503,26 +503,20 @@
 </header>
 
 <main>
-  <div class="search-bar">
-    <input type="text" id="search-input" aria-label="Søgeord" placeholder="Søg på klimatilpasning, skybrud, LAR, kommuner..." value="klimatilpasning">
-    <button class="btn btn-primary" onclick="search()">Søg</button>
-    <button class="btn btn-secondary" onclick="autoScan()">Auto-scan</button>
-  </div>
+  <!-- <form>, så Enter i feltet søger. Auto-scan SKAL være type="button",
+       ellers udløser den også submit og dermed en ekstra søgning. -->
+  <form class="search-bar" role="search" onsubmit="event.preventDefault(); search();">
+    <input type="search" id="search-input" aria-label="Søgeord" placeholder="Søg på klimatilpasning, skybrud, LAR, kommuner..." value="klimatilpasning">
+    <button type="submit" class="btn btn-primary">Søg</button>
+    <button type="button" class="btn btn-secondary" onclick="autoScan()">Auto-scan</button>
+  </form>
 
-  <div class="filters" id="filters">
-    <button class="filter-btn active" onclick="setFilter('alle', event)">Alle kategorier</button>
-    <button class="filter-btn" onclick="setFilter('Nyheder & fagblade', event)">Nyheder</button>
-    <button class="filter-btn" onclick="setFilter('Vidensinstitutioner', event)">Vidensinstitutioner</button>
-    <button class="filter-btn" onclick="setFilter('Myndigheder', event)">Myndigheder</button>
-    <button class="filter-btn" onclick="setFilter('Rådgivere', event)">Rådgivere</button>
-    <button class="filter-btn" onclick="setFilter('Forsyninger', event)">Forsyninger</button>
-    <button class="filter-btn" onclick="setFilter('Kommuner', event)">Kommuner</button>
-    <button class="filter-btn" onclick="setFilter('Nordiske naboer', event)">Norden</button>
-    <button class="filter-btn" onclick="setFilter('EU projekter', event)">EU</button>
-    <button class="filter-btn" onclick="setFilter('Lovstof', event)">Lovstof</button>
-    <button class="filter-btn" onclick="setFilter('Nævnsafgørelser', event)">Nævnsafgørelser</button>
-    <button class="filter-btn" onclick="setFilter('Politiske dagsordener', event)">Politiske dagsordener</button>
-    <button class="filter-btn" onclick="setFilter('Jura &amp; advokater', event)">Jura</button>
+  <!-- Knapperne bygges af renderFilters() ud fra de grupper, data faktisk
+       har. Faste knapper ramte ved siden af: 1/5 af artiklerne (Bing-
+       fangnettet, KTC, kystkilden) kunne kun ses under "Alle", mens
+       "Myndigheder" og "EU" viste 0. -->
+  <div class="filters" id="filters" role="group" aria-label="Filtrér på kategori">
+    <button type="button" class="filter-btn active" data-gruppe="alle" aria-pressed="true">Alle kategorier</button>
   </div>
 
   <div class="stats-row">
@@ -547,26 +541,28 @@
   <div class="section-header">
     <div class="section-title">Nyheder &amp; artikler</div>
     <div style="display:flex;align-items:center;gap:0.75rem;">
-      <div class="section-count" id="articles-count"></div>
+      <div class="section-count" id="articles-count" role="status"></div>
     </div>
   </div>
 
   <div class="sort-bar">
     <span>Sortér:</span>
-    <button class="sort-btn active" id="sort-date" onclick="setSort('date')">Nyeste først</button>
-    <button class="sort-btn" id="sort-relevance" onclick="setSort('relevance')">Mest relevant</button>
-    <button class="hide-read-btn" id="hide-read-btn" onclick="toggleHideRead()">Skjul læste</button>
+    <button type="button" class="sort-btn active" id="sort-date" aria-pressed="true" onclick="setSort('date')">Nyeste først</button>
+    <button type="button" class="sort-btn" id="sort-relevance" aria-pressed="false" onclick="setSort('relevance')">Mest relevant</button>
+    <button type="button" class="hide-read-btn" id="hide-read-btn" aria-pressed="false" onclick="toggleHideRead()">Skjul læste</button>
   </div>
 
-  <div class="articles-grid" id="articles-container" aria-live="polite" aria-busy="false">
+  <!-- Intet aria-live her: hele listen blev læst op ved hver gentegning.
+       Tællerne (role="status") annoncerer i stedet ændringerne. -->
+  <div class="articles-grid" id="articles-container" aria-busy="false">
     <div class="loading">Henter nyheder<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
   </div>
 
   <div class="section-header" style="margin-top:2rem;">
     <div class="section-title" style="color:var(--ted-blue)">EU-udbud (TED)</div>
-    <div class="section-count" id="ted-count"></div>
+    <div class="section-count" id="ted-count" role="status"></div>
   </div>
-  <div id="ted-container" aria-live="polite">
+  <div id="ted-container">
     <div class="loading">Henter EU-udbud<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
   </div>
 </main>
@@ -609,33 +605,55 @@ let allArticles = [];
 let currentFilter = 'alle';
 let currentSort = 'date';
 let hideRead = false;
-let readArticles = new Set(safeParse('dnnk_read', []));
-let seenArticles = new Set(safeParse('dnnk_seen', []));
-let relevanceVotes = safeParse('dnnk_relevance', {});
+// Altinget giver samme artikel en sektions-URL pr. feed (/klima/artikel/ og
+// /miljoe/artikel/) - normaliseret, så krydspostninger kun vises én gang.
+// Gemte markeringer har de gamle sektions-URL'er som nøgle, så de køres
+// gennem samme normalisering ved indlæsning; ellers ville allerede læste
+// Altinget-artikler dukke op som nye og miste deres 👍/👎.
+const normAltinget = s => String(s).replace(/altinget\.dk\/[^/]+\/artikel\//, 'altinget.dk/artikel/');
+const somListe = v => Array.isArray(v) ? v : [];
+let readArticles = new Set(somListe(safeParse('dnnk_read', [])).map(normAltinget));
+let seenArticles = new Set(somListe(safeParse('dnnk_seen', [])).map(normAltinget));
+let relevanceVotes = Object.fromEntries(
+  Object.entries(safeParse('dnnk_relevance', {}) || {}).map(([k, v]) => [normAltinget(k), v]));
 
 // ─── DR-filter ─────────────────────────────────────────────
-const DR_IRRELEVANT = [
-  'sport', 'fodbold', 'håndbold', 'tennis', 'ol ', 'vm ', 'em ',
-  'kongehus', 'kriminalitet', 'drab', 'mord', 'terror',
-  'prinsesse', 'kronprins', 'dronning', 'royale',
-  'celebrity', 'kendis', 'stjerne',
-  'underholdning', 'musik', 'film', 'serie',
-  'bitcoin', 'krypto', 'aktier',
-];
+// Ordene skal stå i STARTEN af et ord. Før var det rene delstrenge, og
+// 'em '/'ol '/'vm ' og 'stjerne' fjernede 7 af 40 DR-artikler - alle 7 fejl,
+// fx om gletsjersvind og et skibsvrag efter storm ("problem ", "transport").
+// (?:^|[^\p{L}]) i stedet for \b, fordi \b i JavaScript ikke kender æ, ø og å.
+// IKKE lookbehind (?<!\p{L}): det kaster SyntaxError i Safari/iOS før 16.4,
+// og da regex'en bygges ved indlæsning, ville hele siden gå i stå der.
+// Ingen grænse bagest, så "sportsklub", "dronningen" og "filmen" stadig fanges.
+const DR_IRRELEVANT = new RegExp(
+  '(?:^|[^\\p{L}])(sport|fodbold|håndbold|tennis|kongehus|kriminalitet|drab|mord|terror|' +
+  'prinsesse|kronprins|dronning|royale|celebrity|kendis|underholdning|musik|film|serie|' +
+  'bitcoin|krypto|aktier)', 'iu');
 
 function isRelevantArticle(a) {
-  if (!a.feedSource || !a.feedSource.toLowerCase().includes('dr')) return true;
-  const text = ((a.title || '') + ' ' + (a.summary || '')).toLowerCase();
-  return !DR_IRRELEVANT.some(word => text.includes(word));
+  if (!/^DR /.test(a.feedSource || '')) return true;
+  return !DR_IRRELEVANT.test((a.title || '') + ' ' + (a.summary || ''));
 }
 
 // ─── Storage ────────────────────────────────────────────────
+// setItem kan kaste (fuld kvote, privat vindue). Det må ikke stoppe siden -
+// markeringen gælder så bare til siden lukkes.
+function safeSet(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); }
+  catch (e) { console.warn('localStorage', e); }
+}
+// Uden loft voksede listerne for evigt. Rækkefølgen er "senest set sidst"
+// (se touch), så det er de ældste der skæres væk, ikke artikler der stadig vises.
+const MAX_GEMTE = 5000;
+function touch(set, id) { set.delete(id); set.add(id); }
+function trimmet(set) { return [...set].slice(-MAX_GEMTE); }
+
 function saveRead() {
-  localStorage.setItem('dnnk_read', JSON.stringify([...readArticles]));
+  safeSet('dnnk_read', trimmet(readArticles));
   updateReadCount();
 }
-function saveSeen() { localStorage.setItem('dnnk_seen', JSON.stringify([...seenArticles])); }
-function saveVotes() { localStorage.setItem('dnnk_relevance', JSON.stringify(relevanceVotes)); }
+function saveSeen() { safeSet('dnnk_seen', trimmet(seenArticles)); }
+function saveVotes() { safeSet('dnnk_relevance', relevanceVotes); }
 
 function updateReadCount() {
   document.getElementById('read-count-display').textContent = readArticles.size + ' læst';
@@ -652,26 +670,84 @@ function clearAllRead() {
 // ─── Sorting & filtering ────────────────────────────────────
 function setSort(sort) {
   currentSort = sort;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('sort-' + sort).classList.add('active');
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    const aktiv = b.id === 'sort-' + sort;
+    b.classList.toggle('active', aktiv);
+    b.setAttribute('aria-pressed', String(aktiv));
+  });
   renderArticles(allArticles);
 }
 
 function toggleHideRead() {
   hideRead = !hideRead;
-  document.getElementById('hide-read-btn').classList.toggle('active', hideRead);
+  const btn = document.getElementById('hide-read-btn');
+  btn.classList.toggle('active', hideRead);
+  btn.setAttribute('aria-pressed', String(hideRead));
   renderArticles(allArticles);
 }
 
-function setFilter(gruppe, event) {
+// Foretrukken rækkefølge og korte navne på knapperne. Grupper der ikke står
+// her (fx nye grupper fra backend), kommer bagerst med deres fulde navn.
+const GRUPPE_RAEKKEFOELGE = [
+  'Nyheder & fagblade', 'Brede søgninger', 'Vidensinstitutioner', 'Myndigheder',
+  'Rådgivere', 'Forsyninger', 'Kommuner', 'Politiske dagsordener',
+  'Platforme & netværk', 'Lovstof', 'Nævnsafgørelser', 'Lovgivning & politik',
+  'Jura & advokater', 'Nordiske naboer', 'EU projekter',
+];
+const GRUPPE_LABEL = {
+  'Nyheder & fagblade': 'Nyheder', 'Brede søgninger': 'Bing-fangnet',
+  'Nordiske naboer': 'Norden', 'EU projekter': 'EU', 'Jura & advokater': 'Jura',
+};
+
+function renderFilters() {
+  const antal = {};
+  allArticles.filter(isRelevantArticle).forEach(a => {
+    if (a.gruppe) antal[a.gruppe] = (antal[a.gruppe] || 0) + 1;
+  });
+  const plads = g => { const i = GRUPPE_RAEKKEFOELGE.indexOf(g); return i < 0 ? 999 : i; };
+  const grupper = Object.keys(antal).sort((a, b) => plads(a) - plads(b) || a.localeCompare(b, 'da'));
+  // Findes den valgte gruppe ikke længere i data, vises alt i stedet for 0.
+  if (currentFilter !== 'alle' && !antal[currentFilter]) currentFilter = 'alle';
+  const knap = (g, tekst) => {
+    const aktiv = g === currentFilter;
+    return `<button type="button" class="filter-btn${aktiv ? ' active' : ''}" data-gruppe="${escapeHtml(g)}" aria-pressed="${aktiv}">${escapeHtml(tekst)}</button>`;
+  };
+  document.getElementById('filters').innerHTML =
+    knap('alle', 'Alle kategorier') +
+    grupper.map(g => knap(g, `${GRUPPE_LABEL[g] || g} (${antal[g]})`)).join('');
+}
+
+document.getElementById('filters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (btn) setFilter(btn.dataset.gruppe);
+});
+
+function setFilter(gruppe) {
   currentFilter = gruppe;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (event) event.target.classList.add('active');
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    const aktiv = b.dataset.gruppe === gruppe;
+    b.classList.toggle('active', aktiv);
+    b.setAttribute('aria-pressed', String(aktiv));
+  });
+  syncUrl();
   renderArticles(allArticles);
+}
+
+// Skriver ?q= og ?gruppe= i adresselinjen, så en søgning kan deles som link.
+// Standardsøgningen og "Alle" giver en ren URL.
+function syncUrl() {
+  try {
+    const u = new URL(location.href);
+    const q = document.getElementById('search-input').value.trim();
+    if (q && q !== 'klimatilpasning') u.searchParams.set('q', q); else u.searchParams.delete('q');
+    if (currentFilter !== 'alle') u.searchParams.set('gruppe', currentFilter); else u.searchParams.delete('gruppe');
+    history.replaceState(null, '', u);
+  } catch { /* ignorér */ }
 }
 
 function getArticleId(a) {
-  return (a.url || ((a.title || '') + '|' + (a.feedSource || a.org || '')).trim()) || '';
+  const url = normAltinget(a.url || '');
+  return (url || ((a.title || '') + '|' + (a.feedSource || a.org || '')).trim()) || '';
 }
 
 function isNewArticle(a) { return !seenArticles.has(getArticleId(a)); }
@@ -699,7 +775,7 @@ function voteRelevance(id, direction) {
     delete relevanceVotes[id];
   } else {
     relevanceVotes[id] = direction;
-    readArticles.add(id);
+    touch(readArticles, id);
     saveRead();
   }
   saveVotes();
@@ -781,7 +857,7 @@ function renderArticles(articles) {
 }
 
 function markAsRead(id) {
-  readArticles.add(id);
+  touch(readArticles, id);
   saveRead();
   renderArticles(allArticles);
 }
@@ -827,7 +903,7 @@ function renderTed(notices) {
 }
 
 function markCurrentAsSeen() {
-  allArticles.forEach(a => seenArticles.add(getArticleId(a)));
+  allArticles.forEach(a => touch(seenArticles, getArticleId(a)));
   saveSeen();
 }
 
@@ -844,10 +920,17 @@ async function fetchJson(url, { timeoutMs = 75000, retries = 2, backoffMs = 3000
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        const fejl = new Error('HTTP ' + res.status);
+        // 429 er serverens rate limit (20 kald/min), ikke en cold start. Et
+        // nyt forsøg tæller selv med i vinduet og gør det kun værre.
+        fejl.ingenRetry = res.status === 429;
+        throw fejl;
+      }
       return await res.json();
     } catch (err) {
       lastErr = err;
+      if (err.ingenRetry) break;
       if (attempt < retries) {
         if (onRetry) onRetry(attempt + 1, retries);
         await new Promise(r => setTimeout(r, backoffMs * (attempt + 1)));
@@ -865,8 +948,25 @@ function setWakingMsg(container) {
   if (container) container.innerHTML = '<div class="loading">Serveren vågner (Render free-tier) – kan tage op til ~1 min første gang, henter automatisk<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
 }
 
-async function search() {
-  const q = document.getElementById('search-input').value || 'klimatilpasning';
+function search() {
+  const q = document.getElementById('search-input').value.trim() || 'klimatilpasning';
+  syncUrl();
+  return hentOgVis({ newsQ: q, andreQ: q, limit: 5 });
+}
+
+// Auto-scan lavede før 5 /news/full-kald med faste søgninger. Målt gav de 201
+// artikler, som alle allerede var med i ét almindeligt Søg (206-207) - 0
+// unikke - og ét klik kostede 7 af serverens 20 kald pr. minut. Ét kald med
+// "klimatilpasning skybrud" og limit=6 dækker det hele (skybrud bevarer
+// søgebonussen, der fangede HOFOR/Valby). Scrape og TED får
+// "klimatilpasning" som før: TED splitter flerordssøgninger med OR.
+function autoScan() {
+  document.getElementById('search-input').value = 'klimatilpasning';
+  syncUrl();
+  return hentOgVis({ newsQ: 'klimatilpasning skybrud', andreQ: 'klimatilpasning', limit: 6 });
+}
+
+async function hentOgVis({ newsQ, andreQ, limit }) {
   const articlesContainer = document.getElementById('articles-container');
   const tedContainer = document.getElementById('ted-container');
   const searchBtn = document.querySelector('.btn-primary');
@@ -884,9 +984,9 @@ async function search() {
 
   // allSettled: ét fejlende endpoint må ikke skjule de andre
   const [newsR, tedR, scrapeR] = await Promise.allSettled([
-    fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(q)}&limit=5`, { onRetry: () => setWakingMsg(articlesContainer) }),
-    fetchJson(`${PROXY}/ted?q=${encodeURIComponent(q)}&size=10`),
-    fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(q)}`)
+    fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(newsQ)}&limit=${limit}`, { onRetry: () => setWakingMsg(articlesContainer) }),
+    fetchJson(`${PROXY}/ted?q=${encodeURIComponent(andreQ)}&size=10`),
+    fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(andreQ)}`)
   ]);
   clearTimeout(wakeTimer);
 
@@ -923,82 +1023,17 @@ async function search() {
     articlesContainer.innerHTML = '<div class="error" role="alert">Kunne ikke nå serveren efter flere forsøg. Den er sandsynligvis i dvale (Render free-tier) — tryk "Søg" igen om et øjeblik.</div>';
     tedContainer.innerHTML = '';
   } else {
+    renderFilters();
+    renderArticles(allArticles);
+    // Efter renderArticles - den overskriver containerens indhold, så en
+    // besked indsat før ville forsvinde med det samme.
     if (failed > 0) {
       articlesContainer.insertAdjacentHTML('afterbegin', '<div class="error" role="alert">Nogle kilder svarede ikke — viser de resultater der kunne hentes.</div>');
     }
-    renderArticles(allArticles);
     renderTed(notices);
     setTimeout(markCurrentAsSeen, 3000);
   }
 
-  articlesContainer.setAttribute('aria-busy', 'false');
-  if (searchBtn) searchBtn.disabled = false;
-  if (scanBtn) scanBtn.disabled = false;
-}
-
-async function autoScan() {
-  const queries = ['klimatilpasning skybrud', 'LAR regnvand', 'spildevand klimasikring', 'kystbeskyttelse', 'vandforsyning'];
-  const articlesContainer = document.getElementById('articles-container');
-  const searchBtn = document.querySelector('.btn-primary');
-  const scanBtn = document.querySelector('.btn-secondary');
-  articlesContainer.setAttribute('aria-busy', 'true');
-  articlesContainer.innerHTML = '<div class="loading">Scanner alle feeds<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
-  if (searchBtn) searchBtn.disabled = true;
-  if (scanBtn) scanBtn.disabled = true;
-
-  const all = [], tedAll = [];
-  let errors = 0, feedsChecked = 0;
-
-  // Skift besked hvis serveren trækker ud (vågner) — som i search()
-  const wakeTimer = setTimeout(() => setWakingMsg(articlesContainer), 6000);
-
-  const newsResults = await Promise.allSettled(
-    queries.map(q => fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(q)}&limit=4`, { onRetry: () => setWakingMsg(articlesContainer) }))
-  );
-  clearTimeout(wakeTimer);
-  for (const r of newsResults) {
-    if (r.status === 'fulfilled') {
-      all.push(...(r.value.articles||[]));
-      // Samme feeds scannes for hver query — vis antal feeds (max),
-      // ikke summen over de 5 kald (der viste ~5× for mange).
-      feedsChecked = Math.max(feedsChecked, Number(r.value.feeds_checked) || 0);
-    } else { errors++; }
-  }
-
-  try {
-    const scrapeData = await fetchJson(`${PROXY}/news/scrape?q=klimatilpasning`);
-    all.push(...(scrapeData.articles||[]));
-  } catch { errors++; }
-
-  try {
-    const tedData = await fetchJson(`${PROXY}/ted?q=klimatilpasning&size=10`);
-    tedAll.push(...(tedData.notices||tedData.results||[]));
-  } catch { errors++; }
-
-  // Dedup på artikel-ID (mere robust end titel; beholder titelløse artikler)
-  const seen = new Set();
-  allArticles = all.filter(a => {
-    const id = getArticleId(a);
-    if (seen.has(id)) return false;
-    seen.add(id);
-    return true;
-  }).sort((a,b) => (b.relevance||0) - (a.relevance||0));
-
-  const now = new Date();
-  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  document.getElementById('stat-articles').textContent = allArticles.length;
-  document.getElementById('stat-ted').textContent = tedAll.length;
-  document.getElementById('stat-feeds').textContent = feedsChecked || '—';
-  document.getElementById('stat-time').textContent = t;
-  document.getElementById('last-scan').textContent = `Scannet ${t}`;
-
-  if (allArticles.length === 0 && errors > 0) {
-    articlesContainer.innerHTML = '<div class="error" role="alert">Kunne ikke nå serveren efter flere forsøg. Den er sandsynligvis i dvale (Render free-tier) — tryk "Søg" igen om et øjeblik.</div>';
-  } else {
-    renderArticles(allArticles);
-    renderTed(tedAll);
-    setTimeout(markCurrentAsSeen, 3000);
-  }
   articlesContainer.setAttribute('aria-busy', 'false');
   if (searchBtn) searchBtn.disabled = false;
   if (scanBtn) scanBtn.disabled = false;
@@ -1009,9 +1044,13 @@ async function autoScan() {
 updateReadCount();
 // Deeplink: åbnes siden med ?q=… (fx fra dashboardet), forudfyld søgefeltet.
 // Uden parameteren opfører siden sig præcis som før (søger på standard).
+// ?gruppe=… vælger filteret; knappen bygges, når data er hentet.
 try {
-  const _q = new URLSearchParams(location.search).get('q');
+  const _p = new URLSearchParams(location.search);
+  const _q = _p.get('q');
   if (_q) document.getElementById('search-input').value = _q;
+  const _g = _p.get('gruppe');
+  if (_g) currentFilter = _g;
 } catch { /* ignorér */ }
 search();
 </script>
