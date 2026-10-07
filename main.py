@@ -446,7 +446,12 @@ MAX_FEED_BYTES = 2 * 1024 * 1024   # afvis svar > 2MB (512MB RAM på free tier)
 # Sitemaps er større: Miljøstyrelsens var 1,63 MB (78 % af loftet) og vokser
 # ca. 270 kB om året. Overskrides loftet, forsvinder kilden stille.
 SITEMAP_MAX_BYTES = 8 * 1024 * 1024
-CACHE_MAX_TEGN = 20_000_000        # ca. 20-40 MB, afhængigt af æøå-andelen
+# Én fuld søgning (/news/full + /news/scrape) lægger ca. 23 mio. tegn her -
+# mest Nævnenes Hus' søgesider (op til 1 MB hver), HortenDahl og COWI. Rå
+# scrape- og artikelsider gemmes ikke (gem=False), fordi deres udtræk caches
+# for sig. Loftet er en sikkerhedsgrænse over det normale forbrug; ved 20 mio.
+# skubbede én søgning selv feedsene ud. Ca. 40-80 MB afhængigt af æøå-andelen.
+CACHE_MAX_TEGN = 40_000_000
 FAIL_TTL = 600
 _FEED_FAIL: dict[str, tuple[float, str]] = {}
 _INFLIGHT: dict[str, asyncio.Future] = {}
@@ -513,7 +518,11 @@ async def get_feed_text(client, url: str, headers=None, body=None,
             raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
         text = resp.text
     except asyncio.CancelledError:
-        fut.cancel()
+        # Ikke fut.cancel(): så fik ventende kald i ANDRE requests en
+        # CancelledError, som slipper forbi deres "except Exception" og vælter
+        # hele /news/full. En almindelig fejl håndteres som enhver anden.
+        fut.set_exception(RuntimeError("hentning afbrudt"))
+        fut.exception()
         raise
     except Exception as e:
         # Netværksfejl og for store svar huskes; alt andet er programfejl.
@@ -1755,6 +1764,10 @@ def _udtraek_side(text, url, source, gruppe) -> dict:
 def _scor_udtraek(ud: dict, source, gruppe, query, limit) -> list:
     """Scor et cachet udtræk mod søgeordet - samme regler som før opdelingen."""
     q_ord = [w for w in query.lower().split() if len(w) > 3]
+    # Cachen er pr. URL, og to kilder kan dele URL (Aarhus Vand og Aarhus Vand
+    # Innovation). Reservernes poster bærer afsenderen fra den kilde, der
+    # fyldte cachen - så den sættes altid på fra det aktuelle kald.
+    afsender = {"feedSource": source, "org": source, "gruppe": gruppe}
 
     def scor(tekst):
         return score_article(tekst, any(kw_match(w, tekst) for w in q_ord))
@@ -1777,14 +1790,14 @@ def _scor_udtraek(ud: dict, source, gruppe, query, limit) -> list:
         for a in ud["jsonld"]:
             relevance, keep = scor(a["title"])
             if keep:
-                articles.append({**a, "relevance": relevance, "tags": find_tags(a["title"])})
+                articles.append({**a, **afsender, "relevance": relevance, "tags": find_tags(a["title"])})
     if not articles:
         for a in ud["tekstblok"]:
             # Afsenderens navn er metadata, ikke indhold - se _tekstblok_liste.
             til_score = re.sub(re.escape(source), " ", a["title"], flags=re.IGNORECASE)
             relevance, keep = scor(til_score)
             if keep:
-                articles.append({**a, "relevance": relevance, "tags": find_tags(til_score)})
+                articles.append({**a, **afsender, "relevance": relevance, "tags": find_tags(til_score)})
     # Reserverne filtreres her og ikke i sig selv, fordi check_sources.py
     # kalder dem direkte for at spørge "kan der udtrækkes noget".
     articles = [a for a in articles if not for_gammel(a["date"])]
@@ -1807,7 +1820,10 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
             # i body. Vi afviser derfor IKKE på statuskode alene — vi forsøger at parse
             # så længe der er substantielt indhold. Selektorerne + relevans-filteret
             # giver naturligt 0 resultater for ægte (tomme) fejlsider.
-            text = await get_feed_text(client, url)
+            # gem=False: udtrækket caches i _UDTRAEK_CACHE, så den rå HTML læses
+            # aldrig igen. Lå den i feed-cachen, fyldte 87 sider (16 mio. tegn)
+            # loftet op og skubbede feedsene ud ved hver søgning.
+            text = await get_feed_text(client, url, gem=False)
             if not text or len(text) < 2000:
                 ud = {"hoved": [], "jsonld": [], "tekstblok": []}
             else:
@@ -1938,7 +1954,7 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query, meta=None):
         side = cached[1]
     else:
         try:
-            html = await get_feed_text(client, url)
+            html = await get_feed_text(client, url, gem=False)   # se scrape_news
         except Exception:
             return None
         side = _laes_artikelside(html, meta) if html else None
