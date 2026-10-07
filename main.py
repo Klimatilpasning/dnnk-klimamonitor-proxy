@@ -159,10 +159,21 @@ KEYWORDS = [
     "Stormrådet", "waterboards",
     "climate adaptation", "climate change adaptation", "stormwater",
     "drought", "heatwave", "heat wave", "skyfall", "torka", "droogte",
+    # Engelske tilpasningstermer til tidsskrifterne (Urban Climate m.fl.).
+    # Før reddede boilerplaten "Source: Urban Climate" alt fra feedet; nu den
+    # fjernes, skal artikler om havstigning, IDF-kurver (skybrudsdimensionering),
+    # afstrømning og varmerisiko bære sig selv. Bevidst ikke "cooling" alene
+    # (datacentre) eller "climate resilien*" (fødevaresystemer, mitigation).
+    "sea level", "sea-level", "storm surge", "coastal flood", "pluvial",
+    "runoff", "heat risk", "heat exposure", "heat stress", "urban heat",
+    "urban cooling", "park cooling", "intensity-duration-frequency",
     # Svenske skredord som præcise stammer. Det nøgne "skred" ville med
     # ordstart-matching ramme dansk "skred ind"/"skred til handling", og
     # "jordskred" rammer det politiske "jordskredssejr" (set i Altinget).
-    "skredrisk", "skredsäkring", "skredförebygg", "erosion",
+    # Ikke det nøgne "erosion": det rammer billedlig dansk brug ("erosionen af
+    # tilliden", "erosion i markedet") i Børsen og Altinget.
+    "skredrisk", "skredsäkring", "skredförebygg",
+    "stranderosion", "jorderosion", "erosionsskydd", "erosionsrisk", "coastal erosion",
     # Fjernet 7/10-2026: rene organisationsnavne (SGI, ICLEI, SCALGO,
     # Realdania, DHI, Deltares, C40, Movium, Interreg, Horizon Europe, LIFE
     # programme, Rijkswaterstaat). Afsenderens navn sagde intet om emnet, men
@@ -316,7 +327,20 @@ BROAD_KEYWORDS = {
 # EFTER ordet, almindelige ord matcher stadig sammensætninger (klima →
 # klimaforandring). Længste ord først, så alternationen foretrækker det
 # mest specifikke match.
+# Kerneord der skal afgrænses mere end ordstart-matchet kan:
+# - "tørke" må ikke ramme "tørketumbler".
+# - "drought" må ikke ramme "energy droughts" (elnet, ikke vand).
+# - "skyfall" kun med småt eller i bøjet form, så Bond-filmen "Skyfall" i
+#   generelle feeds ikke tæller - svensk "skyfallet"/"Skyfallen" gør stadig.
+_KW_SPECIAL = {
+    "tørke": r"tørke(?!tumbl)",
+    "drought": r"(?<!energy )drought",
+    "skyfall": r"(?:(?-i:skyfall)|(?-i:Skyfall)(?:et|en|s))",
+}
+
 def _kw_pattern(kw: str) -> str:
+    if kw in _KW_SPECIAL:
+        return _KW_SPECIAL[kw]
     p = re.escape(kw)
     if kw.upper() == kw and any(c.isalpha() for c in kw):
         p += r'(?!\w)'
