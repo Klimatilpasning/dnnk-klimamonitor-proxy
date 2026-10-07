@@ -621,10 +621,12 @@ let relevanceVotes = Object.fromEntries(
 // Ordene skal stå i STARTEN af et ord. Før var det rene delstrenge, og
 // 'em '/'ol '/'vm ' og 'stjerne' fjernede 7 af 40 DR-artikler - alle 7 fejl,
 // fx om gletsjersvind og et skibsvrag efter storm ("problem ", "transport").
-// (?<!\p{L}) i stedet for \b, fordi \b i JavaScript ikke kender æ, ø og å.
+// (?:^|[^\p{L}]) i stedet for \b, fordi \b i JavaScript ikke kender æ, ø og å.
+// IKKE lookbehind (?<!\p{L}): det kaster SyntaxError i Safari/iOS før 16.4,
+// og da regex'en bygges ved indlæsning, ville hele siden gå i stå der.
 // Ingen grænse bagest, så "sportsklub", "dronningen" og "filmen" stadig fanges.
 const DR_IRRELEVANT = new RegExp(
-  '(?<!\\p{L})(sport|fodbold|håndbold|tennis|kongehus|kriminalitet|drab|mord|terror|' +
+  '(?:^|[^\\p{L}])(sport|fodbold|håndbold|tennis|kongehus|kriminalitet|drab|mord|terror|' +
   'prinsesse|kronprins|dronning|royale|celebrity|kendis|underholdning|musik|film|serie|' +
   'bitcoin|krypto|aktier)', 'iu');
 
