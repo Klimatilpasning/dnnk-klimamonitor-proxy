@@ -1313,6 +1313,19 @@
   "dagsordentype": "plan-status"
  },
  {
+  "source": "Dagsorden: København",
+  "feedSource": "Politiske dagsordener",
+  "org": "København Kommune",
+  "title": "København: Forhøjelse af klimabevilling for skybrudsprojekter i Lersøparken, Bispebjerg",
+  "url": "https://www.kk.dk/dagsordener-og-referater/Klima-%2C%20Milj%C3%B8-%20og%20Teknikudvalget/m%C3%B8de-05102026/referat/punkt-2#punkt-2",
+  "date": "2026-10-05",
+  "summary": "Klima-, Miljø- og Teknikudvalget, møde 2026-10-05, pkt. 2. ",
+  "relevance": 0.9,
+  "value": "",
+  "nogle": "kk.dk|2026-10-05||Forhøjelse af klimabevilling for skybrudsprojekter i Lersøparken, Bispebjerg",
+  "dagsordentype": "webinarlead"
+ },
+ {
   "source": "Dagsorden: Horsens",
   "feedSource": "Politiske dagsordener",
   "org": "Horsens Kommune",
@@ -1766,6 +1779,19 @@
   "value": "",
   "nogle": "dagsordener.randers.dk|2026-09-29|09.08.24-P16-2-25|Delindsatsplan for grundvandsbeskyttelse for Vilstrup Vandværk",
   "dagsordentype": "webinarlead"
+ },
+ {
+  "source": "Dagsorden: København",
+  "feedSource": "Politiske dagsordener",
+  "org": "København Kommune",
+  "title": "København: Høring: VEL44 Lundtoftegade, skybrudsprojekt",
+  "url": "https://www.kk.dk/dagsordener-og-referater/N%C3%B8rrebro%20Lokaludvalg/m%C3%B8de-29092026/referat/punkt-10#punkt-10",
+  "date": "2026-09-29",
+  "summary": "Nørrebro Lokaludvalg, møde 2026-09-29, pkt. 10. ",
+  "relevance": 0.9,
+  "value": "",
+  "nogle": "kk.dk|2026-09-29||Høring: VEL44 Lundtoftegade, skybrudsprojekt",
+  "dagsordentype": "plan-status"
  },
  {
   "source": "Dagsorden: Fanø",
