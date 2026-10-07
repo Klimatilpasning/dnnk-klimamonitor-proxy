@@ -1167,6 +1167,10 @@ async def fetch_dagsordener(client):
     ud = []
     for a in data if isinstance(data, list) else []:
         a = {k: v for k, v in a.items() if k != "nogle"}
+        # FirstAgenda læser et #fragment som møde-id og viser "Der opstod en fejl".
+        # Scanneren skriver nu rigtige punktlinks, men den rullende fil har ældre
+        # fund med '#punkt-N' - de rettes her, så de virker med det samme.
+        a["url"] = re.sub(r"(/vis\?id=[0-9a-fA-F-]+)#punkt-", r"\1&punkt=", a.get("url") or "")
         a["tags"] = find_tags(f"{a.get('title', '')} {a.get('summary', '')}")
         ud.append(a)
     return ud
