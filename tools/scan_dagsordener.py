@@ -63,12 +63,15 @@ def scan_kommune(kommune, host, fra, til):
                     continue
                 time.sleep(PAUSE)
                 try:
-                    d = s.get(f"https://{host}/api/agenda/dagsorden/{m['Id']}", timeout=30).json()
+                    d = s.get(f"https://{host}/api/agenda/dagsorden/{m['Id']}", timeout=60).json()
                 except Exception as e:
                     print(f'  ! {kommune} {u["Navn"]} {dato}: {e}')
                     continue
                 for p in d.get('Dagsordenpunkter') or []:
                     titel = (p.get('Navn') or p.get('Caption') or '').strip()
+                    # Nogle kommuner sætter punktnummeret foran titlen ("11. Orientering ..."); fjernes,
+                    # så samme sag i udvalg og byråd kan slås sammen i skriv_monitor.
+                    titel = re.sub(r'^\d+\.\s*', '', titel)
                     res = resume(p)
                     tl = titel.lower()
                     hit_t = re.findall(STAERK, tl) + re.findall(SVAG, tl)
