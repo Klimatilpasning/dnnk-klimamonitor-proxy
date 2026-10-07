@@ -72,7 +72,10 @@ def scan_kommune(kommune, host, fra, til):
                     continue
                 for p in d.get('Dagsordenpunkter') or []:
                     f = match_punkt(kommune, u['Navn'], dato, p.get('Navn') or p.get('Caption') or '', resume(p),
-                                    f"https://{host}/vis?id={m['Id']}", p.get('SagsNummer') or '',
+                                    # punktid= er platformens eget dybe link ("Kopier link"):
+                                    # det åbner mødet med netop dette punkt foldet ud.
+                                    f"https://{host}/vis?id={m['Id']}" + (f"&punktid={p['Id']}" if p.get('Id') else ''),
+                                    p.get('SagsNummer') or '',
                                     p.get('Punktnummer') or '', host)
                     if f:
                         fund.append(f)
@@ -205,14 +208,32 @@ def scan(kommune, cfg, fra, til):
     return ADAPTERE[cfg['type']](kommune, cfg, fra, til)
 
 
+def punkt_url(f):
+    """Et link pr. punkt. Frontenden kender artikler på URL'en (læst/stemt), så punkter
+    fra samme møde skal have hver sin.
+
+    FirstAgenda-links må IKKE få et #fragment: platformen læser fragmentet som møde-id og
+    viser "Der opstod en fejl" (gjaldt alle links fra ca. 85 kommuner indtil 7/10-2026).
+    Har linket allerede punktid=, er det unikt; ellers bruges en ufarlig &punkt=N."""
+    url, nr = f['url'], f['punkt'] or zlib.crc32(f['titel'].encode())
+    if 'punktid=' in url:
+        return url
+    if '/vis?id=' in url:
+        return f"{url}&punkt={nr}"
+    return f"{url}#punkt-{nr}"
+
+
+def ret_gammelt_link(url):
+    """Ældre fund i den rullende fil har '#punkt-N' på FirstAgenda-links - se punkt_url."""
+    return re.sub(r'(/vis\?id=[0-9a-fA-F-]+)#punkt-', r'\1&punkt=', url or '')
+
+
 def til_monitor(f):
     """Samme felter som de øvrige artikler i /news/full; tags og webinarer lægges på i backenden."""
     return {"source": f"Dagsorden: {f['kommune']}", "feedSource": "Politiske dagsordener",
             "org": f"{f['kommune']} Kommune",
             "title": f"{f['kommune']}: {f['titel']}",
-            # Flere punkter deler mødets link; frontenden kender artikler på URL'en (læst/stemt),
-            # så punktnummeret lægges på som fragment for at holde dem adskilt.
-            "url": f"{f['url']}#punkt-{f['punkt'] or zlib.crc32(f['titel'].encode())}", "date": f['dato'],
+            "url": punkt_url(f), "date": f['dato'],
             "summary": (f"{f['udvalg']}, møde {f['dato']}, pkt. {f['punkt']}. " + f['resume'])[:400],
             # Stærkt ord i titlen > kun svagt ord i titlen (fx rutinetillæg til spildevandsplanen) > kun i resuméet
             "relevance": 0.9 if f.get('staerk_titel') else 0.7 if f['styrke'] == 'titel' else 0.6, "value": "",
@@ -222,7 +243,8 @@ def til_monitor(f):
 def skriv_monitor(alle, sti, tidligere, idag):
     """Rullende fil: ugens fund + tidligere fund fra de sidste BEHOLD_DAGE dage (pr. mødedato)."""
     graense = str(idag - dt.timedelta(BEHOLD_DAGE))
-    samlet = {a['nogle']: a for a in tidligere if a.get('date', '') >= graense}
+    samlet = {a['nogle']: {**a, 'url': ret_gammelt_link(a.get('url'))}
+              for a in tidligere if a.get('date', '') >= graense}
     samlet.update({f['nogle']: til_monitor(f) for f in alle})
     # Samme sag behandles ofte i udvalg og derefter byråd: vis den kun én gang, med det seneste møde.
     pr_sag = {}
