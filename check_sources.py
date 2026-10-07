@@ -17,6 +17,14 @@ Kategorier:
   NETVAERK — DNS-fejl, TLS-fejl, timeout eller afvist forbindelse. Kan skyldes
             bot-filtre eller det netværk tjekket køres fra, snarere end reel
             nedetid — verificér manuelt før en kilde fjernes.
+  STILLESTAAENDE — feedet svarer med items, men det nyeste er over et år
+            gammelt. FloodList stod stille fra 2024 uden at blive opdaget, fordi
+            et feed med items så sundt ud. Vurdér manuelt (nyt feed? nedlagt?).
+
+Sitemaps: der advares, når et sitemap passerer 75 % af produktionens loft
+(SITEMAP_MAX_BYTES). Overskrides loftet, giver kilden 0 artikler uden synlig
+fejl - og tjekket her afkortede før stille ved 2 MB, så det ville stadig
+have meldt OK.
 
 Bing-søgefeeds med 0 items rapporteres som OK: de er fangnet der kun slår ud,
 når der faktisk er nyheder om et smalt fagord, så tomhed er forventet.
@@ -48,21 +56,35 @@ ITEM_RE = re.compile(rb"<(?:item|entry)[\s>]", re.IGNORECASE)
 MIN_BODY = 2000
 
 
-def hent(url):
+def hent(url, max_bytes=prod.MAX_FEED_BYTES):
     """Returnér (status, body). Status er et tal eller en fejlstreng."""
     req = urllib.request.Request(url, headers=prod.RSS_HEADERS)
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-            return r.getcode(), r.read(2_000_000)
+            return r.getcode(), r.read(max_bytes + 1)
     except urllib.error.HTTPError as e:
         # Statuskoden er med vilje ikke diskvalificerende for scrape-kilder —
         # body'en kan sagtens indeholde nyhedslisten alligevel.
         try:
-            return e.code, e.read(2_000_000)
+            return e.code, e.read(max_bytes + 1)
         except Exception:
             return e.code, b""
     except (urllib.error.URLError, socket.timeout, ConnectionError, OSError) as e:
         return f"NETVAERK ({type(getattr(e, 'reason', e)).__name__})", b""
+
+
+STILLE_GRAENSE = (prod.datetime.now(prod.timezone.utc)
+                  - prod.timedelta(days=prod.NYHED_MAX_DAGE)).strftime("%Y-%m-%d")
+
+
+def nyeste_dato(body):
+    """Nyeste dato blandt et feeds items, med produktionens egen parsing."""
+    try:
+        items = prod.parse_feed_items(body.decode("utf-8", "ignore"))
+        datoer = [prod.parse_item_bs(i)[3] for i in items[:40]]
+        return max((d for d in datoer if d), default="")
+    except Exception:
+        return ""
 
 
 def tael_titler(html):
@@ -104,23 +126,22 @@ def tjek_sitemap(navn, meta):
     """Sitemap-kilder: virker sitemap'et, rammer stimønstret noget, og kan der
     læses en titel ud af den nyeste artikel? Alle tre led skal holde — det er
     ikke nok at sitemap'et svarer."""
-    status, body = hent(meta["sitemap"])
+    loft = prod.SITEMAP_MAX_BYTES
+    status, body = hent(meta["sitemap"], loft)
     if isinstance(status, str):
         return navn, meta["gruppe"], meta["sitemap"], "NETVAERK", status
     if status >= 400 or len(body) < MIN_BODY:
         return navn, meta["gruppe"], meta["sitemap"], "TOM", f"sitemap HTTP {status}"
+    if len(body) > loft:
+        return navn, meta["gruppe"], meta["sitemap"], "TOM", f"sitemap over loftet ({loft} bytes)"
+    advarsel = (f", ADVARSEL sitemap {len(body) * 100 // loft} % af loftet"
+                if len(body) > 0.75 * loft else "")
 
-    xml = body.decode("utf-8", "ignore")
-    traef = []
-    for blok in re.findall(r"<url>(.*?)</url>", xml, re.S):
-        loc = re.search(r"<loc>([^<]+)</loc>", blok)
-        if loc and meta["moenster"] in loc.group(1):
-            lm = re.search(r"<lastmod>([^<]+)</lastmod>", blok)
-            traef.append(((lm.group(1)[:10] if lm else ""), loc.group(1)))
+    # Samme udvælgelse som produktionen (indekssider og sektionssiden ude).
+    traef = prod._sitemap_kandidater(body.decode("utf-8", "ignore"), meta, None)
     if not traef:
         return navn, meta["gruppe"], meta["sitemap"], "TOM",             f"0 URL'er matcher {meta['moenster']}"
 
-    traef.sort(reverse=True)
     _, nyeste = traef[0]
     s2, b2 = hent(nyeste)
     if isinstance(s2, str) or s2 >= 400 or len(b2) < MIN_BODY:
@@ -129,7 +150,7 @@ def tjek_sitemap(navn, meta):
     h1 = soup.find("h1")
     if not (h1 and len(h1.get_text(strip=True)) >= 8):
         return navn, meta["gruppe"], meta["sitemap"], "TOM",             f"{len(traef)} URL'er, men ingen <h1> paa artikelsiden"
-    return navn, meta["gruppe"], meta["sitemap"], "OK",         f"{len(traef)} artikel-URL'er, nyeste {traef[0][0]}"
+    return navn, meta["gruppe"], meta["sitemap"], "OK",         f"{len(traef)} artikel-URL'er, nyeste {traef[0][0]}{advarsel}"
 
 
 def tjek(navn, url, gruppe, er_feed):
@@ -141,6 +162,9 @@ def tjek(navn, url, gruppe, er_feed):
     if er_feed:
         antal = len(ITEM_RE.findall(body))
         if antal:
+            nyeste = nyeste_dato(body)
+            if nyeste and nyeste < STILLE_GRAENSE:
+                return navn, gruppe, url, "STILLESTAAENDE", f"{antal} items, nyeste {nyeste}"
             return navn, gruppe, url, "OK", f"{antal} items"
         if "Bing News" in navn:
             return navn, gruppe, url, "OK", "0 items (forventet for soegefeed)"
@@ -171,7 +195,7 @@ def main():
         resultater = list(pool.map(lambda a: tjek(*a), opgaver))
         resultater += list(pool.map(lambda a: tjek_sitemap(*a), SITEMAP_SOURCES.items()))
 
-    raekkefoelge = {"TOM": 0, "NETVAERK": 1, "OK": 2}
+    raekkefoelge = {"TOM": 0, "STILLESTAAENDE": 1, "NETVAERK": 2, "OK": 3}
     resultater.sort(key=lambda r: (raekkefoelge[r[3]], r[1], r[0]))
 
     tael = {}
@@ -184,7 +208,7 @@ def main():
         print(f"{status:9s} {gruppe:26s} {navn:34s} {note:34s} {url}")
 
     print(f"\n{len(resultater)} kilder tjekket: " +
-          ", ".join(f"{tael.get(s, 0)} {s}" for s in ("OK", "TOM", "NETVAERK")))
+          ", ".join(f"{tael.get(s, 0)} {s}" for s in ("OK", "TOM", "STILLESTAAENDE", "NETVAERK")))
 
     if tael.get("TOM"):
         print("\nTOM = kilden svarer, men intet kunne udtrækkes. Den fejler tavst: "

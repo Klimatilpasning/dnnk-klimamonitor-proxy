@@ -426,41 +426,108 @@ def parse_item_bs(item):
 # ── TTL-cache af rå feed-/sidetekst pr. URL (K2 — største gevinst) ──
 # Frontendens auto-scan kalder /news/full 5× med forskellig q, men q påvirker
 # kun scoringen — de samme ~70 feeds blev hentet 5 gange. Med cachen hentes
-# hvert feed højst én gang pr. 10 minutter. Cachen er naturligt bounded af
-# antallet af kilde-URL'er (feeds + scrape-mål), så den kan ikke vokse frit.
-_FEED_CACHE: dict[str, tuple[float, str]] = {}
+# hvert feed højst én gang pr. 10 minutter.
+#
+# Udvidet 7/10-2026 efter målinger:
+# - LOFT: udløbne poster blev aldrig slettet (100 poster / 48 MB i en test), og
+#   peak lå på 210-250 MB lokalt. Nu ryddes udløbne poster ved hver skrivning,
+#   og de ældste smides ud, når cachen passerer CACHE_MAX_TEGN.
+# - NEGATIV CACHE: døde værter (DNS, TLS, timeout, reset) blev prøvet igen ved
+#   HVERT kald og kostede op til 16 s hver gang. Nu huskes en netværksfejl i
+#   FAIL_TTL. Kilden fjernes ikke, den springes kun over et stykke tid. HTTP-
+#   statuskoder caches IKKE negativt: 404-sider kan rumme hele nyhedslisten.
+# - SINGLE-FLIGHT: fem samtidige /news/full med kold cache gav 496 udgående
+#   kald til 83 unikke URL'er (Nævnenes Hus 81 gange). Samtidige cache-miss på
+#   samme nøgle deler nu én hentning (118 kald i samme test).
+_FEED_CACHE: "collections.OrderedDict[str, tuple[float, str]]" = collections.OrderedDict()
+_cache_tegn = 0
 FEED_TTL = 600          # sekunder
 MAX_FEED_BYTES = 2 * 1024 * 1024   # afvis svar > 2MB (512MB RAM på free tier)
+# Sitemaps er større: Miljøstyrelsens var 1,63 MB (78 % af loftet) og vokser
+# ca. 270 kB om året. Overskrides loftet, forsvinder kilden stille.
+SITEMAP_MAX_BYTES = 8 * 1024 * 1024
+CACHE_MAX_TEGN = 20_000_000        # ca. 20-40 MB, afhængigt af æøå-andelen
+FAIL_TTL = 600
+_FEED_FAIL: dict[str, tuple[float, str]] = {}
+_INFLIGHT: dict[str, asyncio.Future] = {}
+# Connect-timeouten er kort, så en død vært ikke holder en semaforplads i 15 s.
+_TIMEOUT_GET = httpx.Timeout(15, connect=5)
+_TIMEOUT_POST = httpx.Timeout(20, connect=5)
 
 # Begræns samtidige eksterne fetches ved cache-miss (scrape rammer ~100 mål)
 _FETCH_SEM = asyncio.Semaphore(15)
 
-async def get_feed_text(client, url: str, headers=None, body=None) -> str:
-    """Hent rå tekst for en URL med 10 min TTL-cache og 2MB byte-cap.
+def _cache_gem(key: str, text: str, now: float) -> None:
+    global _cache_tegn
+    gammel = _FEED_CACHE.pop(key, None)
+    if gammel:
+        _cache_tegn -= len(gammel[1])
+    _FEED_CACHE[key] = (now, text)
+    _cache_tegn += len(text)
+    for k in [k for k, (t, _) in _FEED_CACHE.items() if now - t > FEED_TTL]:
+        _cache_tegn -= len(_FEED_CACHE.pop(k)[1])
+    while _cache_tegn > CACHE_MAX_TEGN and len(_FEED_CACHE) > 1:
+        _, (_, v) = _FEED_CACHE.popitem(last=False)
+        _cache_tegn -= len(v)
+
+async def get_feed_text(client, url: str, headers=None, body=None,
+                        max_bytes: int = MAX_FEED_BYTES, bypass_neg: bool = False,
+                        gem: bool = True) -> str:
+    """Hent rå tekst for en URL med 10 min TTL-cache og byte-loft.
     Bemærk: der filtreres ikke på statuskode her — flere danske CMS/SPA-sider
     svarer 404 men leverer alligevel indholdet i body (se scrape_news).
     Fejlsider giver naturligt 0 items/artikler i parsing-laget.
 
     Med `body` sendes en POST med JSON-krop i stedet for en GET — nødvendigt
     for Nævnenes Hus' søge-API, der svarer 405 på GET. Cache-nøglen indeholder
-    så kroppen, så to søgetermer mod samme URL ikke overskriver hinanden."""
+    så kroppen, så to søgetermer mod samme URL ikke overskriver hinanden.
+
+    bypass_neg: spring den negative cache over (/test-feeds skal se sandheden).
+    gem=False: læg ikke svaret i cachen (sitemaps, hvor kun et filtreret
+    udsnit gemmes - se fetch_sitemap_news)."""
     now = time.time()
     key = url if body is None else url + "|" + repr(sorted(body.items()))
     cached = _FEED_CACHE.get(key)
     if cached and now - cached[0] < FEED_TTL:
         return cached[1]
-    async with _FETCH_SEM:
-        if body is None:
-            resp = await client.get(url, timeout=15, follow_redirects=True,
-                                    headers=headers or RSS_HEADERS)
-        else:
-            resp = await client.post(url, json=body, timeout=20,
-                                     follow_redirects=True,
-                                     headers=headers or RSS_HEADERS)
-    if len(resp.content) > MAX_FEED_BYTES:
-        raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
-    text = resp.text
-    _FEED_CACHE[key] = (now, text)
+    if not bypass_neg:
+        fejl = _FEED_FAIL.get(key)
+        if fejl and now - fejl[0] < FAIL_TTL:
+            raise RuntimeError(f"negativ cache: {fejl[1]} for {int(now - fejl[0])} s siden")
+    igang = _INFLIGHT.get(key)
+    if igang is not None:
+        return await asyncio.shield(igang)
+
+    fut = asyncio.get_running_loop().create_future()
+    _INFLIGHT[key] = fut
+    try:
+        async with _FETCH_SEM:
+            if body is None:
+                resp = await client.get(url, timeout=_TIMEOUT_GET, follow_redirects=True,
+                                        headers=headers or RSS_HEADERS)
+            else:
+                resp = await client.post(url, json=body, timeout=_TIMEOUT_POST,
+                                         follow_redirects=True,
+                                         headers=headers or RSS_HEADERS)
+        if len(resp.content) > max_bytes:
+            raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
+        text = resp.text
+    except asyncio.CancelledError:
+        fut.cancel()
+        raise
+    except Exception as e:
+        # Netværksfejl og for store svar huskes; alt andet er programfejl.
+        if isinstance(e, (httpx.TransportError, ValueError)):
+            _FEED_FAIL[key] = (time.time(), type(e).__name__)
+        fut.set_exception(e)
+        fut.exception()   # ellers logger asyncio "exception was never retrieved"
+        raise
+    finally:
+        _INFLIGHT.pop(key, None)
+    _FEED_FAIL.pop(key, None)
+    if gem:
+        _cache_gem(key, text, now)
+    fut.set_result(text)
     return text
 
 # ── DNNK webinar-indeks (search-index.json) med 12t TTL-cache ──
@@ -622,7 +689,7 @@ async def test_feeds(request: Request):
             # Delt client + samme cache/parse-logik som /news/full — tidligere
             # oprettede endpointet én ny httpx-client PR. FEED og havde sin
             # egen kopi af parse-koden.
-            content = await get_feed_text(app.state.client, url)
+            content = await get_feed_text(app.state.client, url, bypass_neg=True)
             items = parse_feed_items(content)
             if items:
                 return {"navn": navn, "gruppe": gruppe, "url": url,
@@ -1578,145 +1645,325 @@ def _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles, kun_udt
         })
     return ud
 
-async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
-    """Scraper nyhedsartikler direkte fra hjemmeside HTML"""
+# Udtrækket af en nyhedsside afhænger ikke af søgeordet - kun scoringen gør.
+# Før blev alle ~90 sider parset forfra med BeautifulSoup ved HVERT kald, så
+# /news/scrape tog 47-48 s i produktion, også med varm cache, og blokerede
+# event-loopen (og dermed /news/full) i op til 5 s ad gangen. Nu gemmes
+# udtrækket pr. URL, og scoringen bagefter tager få millisekunder. Prototypen
+# gav identisk output ved fire forskellige søgninger. 30 min er længere end
+# FEED_TTL, men nyhedslister ændrer sig sjældent oftere, og det er den kolde
+# vej, der er dyr på Render.
+UDTRAEK_TTL = 1800
+_UDTRAEK_CACHE: dict[str, tuple[float, dict]] = {}
+
+def _udtraek_side(text, url, source, gruppe) -> dict:
+    """Træk kandidater ud af en nyhedsside uden at kende søgeordet.
+
+    hoved: (titel, beskrivelse, dato, url) for de første 25 kandidater.
+    jsonld/tekstblok: reservernes artikler (kun_udtraek=True). De bruges kun,
+    hvis hovedudtrækket ikke giver nogen relevante artikler - som før."""
     from urllib.parse import urlparse, urljoin
-    try:
-        # Bemærk: flere danske CMS/SPA-sider (DMI, IDA, Klimarådet, SLA, HOFOR)
-        # svarer HTTP 404 på serverniveau, men leverer alligevel hele nyhedslisten
-        # i body. Vi afviser derfor IKKE på statuskode alene — vi forsøger at parse
-        # så længe der er substantielt indhold. Selektorerne + relevans-filteret
-        # giver naturligt 0 resultater for ægte (tomme) fejlsider.
-        # Hentes via TTL-cachen (10 min) med semafor + 2MB byte-cap.
-        text = await get_feed_text(client, url)
-        if not text or len(text) < 2000:
-            return []
+    soup = BeautifulSoup(text, "lxml")
+    base_url = f"{urlparse(url).scheme}://{urlparse(url).netloc}"
 
+    for tag in soup(["nav", "footer", "script", "style", "header"]):
+        tag.decompose()
+
+    candidates = _vaelg_kandidater(soup)
+
+    # KTC's Drupal-tema pakker HELE sidens indhold ind i ét <header>, så
+    # oprydningen ovenfor slettede alle 21 <article>-indslag og gav 0
+    # resultater. Er der intet tilbage at vælge imellem, prøver vi igen på
+    # en soup hvor kun script/style er fjernet. Alle andre kilder rammer
+    # ikke dette fallback, så deres adfærd er uændret.
+    if not candidates:
         soup = BeautifulSoup(text, "lxml")
-        base_url = f"{urlparse(url).scheme}://{urlparse(url).netloc}"
-
-        for tag in soup(["nav", "footer", "script", "style", "header"]):
+        for tag in soup(["script", "style"]):
             tag.decompose()
-
-        q_lower = query.lower()
-
         candidates = _vaelg_kandidater(soup)
 
-        # KTC's Drupal-tema pakker HELE sidens indhold ind i ét <header>, så
-        # oprydningen ovenfor slettede alle 21 <article>-indslag og gav 0
-        # resultater. Er der intet tilbage at vælge imellem, prøver vi igen på
-        # en soup hvor kun script/style er fjernet. Alle andre kilder rammer
-        # ikke dette fallback, så deres adfærd er uændret.
-        if not candidates:
-            soup = BeautifulSoup(text, "lxml")
-            for tag in soup(["script", "style"]):
-                tag.decompose()
-            candidates = _vaelg_kandidater(soup)
+    seen_titles = set()
+    hoved = []
 
-        seen_titles = set()
-        articles = []
+    for el in candidates[:25]:
+        title = _titel_tekst(el)
+        if not title or len(title) < 8 or title in seen_titles:
+            continue
+        seen_titles.add(title)
 
-        for el in candidates[:25]:
-            title = _titel_tekst(el)
-            if not title or len(title) < 8 or title in seen_titles:
-                continue
-            seen_titles.add(title)
+        # Find link — søg i titel først, derefter hele elementet
+        title_el = _titel_element(el)
+        link_el = (title_el.find("a") if title_el else None) or el.find("a", href=True)
+        article_url = ""
+        if link_el and link_el.get("href"):
+            href = link_el["href"]
+            article_url = urljoin(base_url, href)
+        else:
+            # Nogle lister navigerer med onclick i stedet for et <a>
+            # (DIN Forsyning: onclick="location.href = '/...'"). Uden dette
+            # kommer artiklerne med, men uden noget at klikke på.
+            onclick = el.get("onclick") or ""
+            m_klik = re.search(r"""location\.href\s*=\s*['"]([^'"]+)['"]""", onclick)
+            if m_klik:
+                article_url = urljoin(base_url, m_klik.group(1))
 
-            # Find link — søg i titel først, derefter hele elementet
-            title_el = _titel_element(el)
-            link_el = (title_el.find("a") if title_el else None) or el.find("a", href=True)
-            article_url = ""
-            if link_el and link_el.get("href"):
-                href = link_el["href"]
-                article_url = urljoin(base_url, href)
+        # Find dato — søg i <time>, datetime-attribut, eller dato-klasser.
+        # Altid via normalize_date: ren [:10]-afkortning genindførte
+        # dato-truncation-buggen for ikke-ISO-datoer ("Tue, 17 J").
+        pub_date = ""
+        time_el = el.find("time")
+        if time_el:
+            pub_date = normalize_date(time_el.get("datetime") or time_el.get_text(strip=True))
+        if not pub_date:
+            date_el = el.find(class_=re.compile(r"date|dato|time|published|created", re.I))
+            if date_el:
+                raw = date_el.get("datetime") or date_el.get("content") or date_el.get_text(strip=True)
+                pub_date = normalize_date(raw or "")
+        if not pub_date:
+            # Web components kan bære datoen i en attribut ved siden af
+            # titlen (Kolding: tagline="12. maj 2026").
+            wc = el if el.has_attr("tagline") else el.find(attrs={"tagline": True})
+            if wc:
+                pub_date = normalize_date(wc.get("tagline") or "")
+        if not pub_date:
+            # Sidste udvej: relative datoer ("3 måneder 1 uge siden"), som
+            # KTC's netværkssider bruger i stedet for <time>-tags.
+            pub_date = relativ_dato(el.get_text(" ", strip=True)[:200])
+
+        # Find beskrivelse
+        desc_el = el.find("p")
+        description = desc_el.get_text(strip=True)[:300] if desc_el else ""
+        if not description:
+            wc = el if el.has_attr("teasertext") else el.find(attrs={"teasertext": True})
+            if wc:
+                description = (wc.get("teasertext") or "")[:300]
+
+        hoved.append((title, description, pub_date, article_url))
+
+    # Reserverne får hver sin kopi af hovedudtrækkets sete titler, som før.
+    # JSON-LD springes helt over, når siden ikke har ld+json (45 af 74 sider) -
+    # det sparer en ekstra BeautifulSoup-parse.
+    jsonld = (_jsonld_liste(text, base_url, source, gruppe, "", set(seen_titles), kun_udtraek=True)
+              if "ld+json" in text else [])
+    tekstblok = _tekstblok_liste(soup, base_url, source, gruppe, "", set(seen_titles), kun_udtraek=True)
+    return {"hoved": hoved, "jsonld": jsonld, "tekstblok": tekstblok}
+
+def _scor_udtraek(ud: dict, source, gruppe, query, limit) -> list:
+    """Scor et cachet udtræk mod søgeordet - samme regler som før opdelingen."""
+    q_ord = [w for w in query.lower().split() if len(w) > 3]
+
+    def scor(tekst):
+        return score_article(tekst, any(kw_match(w, tekst) for w in q_ord))
+
+    articles = []
+    for title, description, pub_date, article_url in ud["hoved"]:
+        combined = title + " " + description
+        relevance, keep = scor(combined)
+        # Drop artikler der kun strejfer brede ord — samme tærskel som RSS
+        if not keep or for_gammel(pub_date):
+            continue
+        articles.append({
+            "source": "scrape", "feedSource": source, "title": title,
+            "org": source, "date": pub_date, "summary": description,
+            "tags": find_tags(combined), "relevance": relevance,
+            "url": article_url, "value": None, "gruppe": gruppe,
+        })
+
+    if not articles:
+        for a in ud["jsonld"]:
+            relevance, keep = scor(a["title"])
+            if keep:
+                articles.append({**a, "relevance": relevance, "tags": find_tags(a["title"])})
+    if not articles:
+        for a in ud["tekstblok"]:
+            # Afsenderens navn er metadata, ikke indhold - se _tekstblok_liste.
+            til_score = re.sub(re.escape(source), " ", a["title"], flags=re.IGNORECASE)
+            relevance, keep = scor(til_score)
+            if keep:
+                articles.append({**a, "relevance": relevance, "tags": find_tags(til_score)})
+    # Reserverne filtreres her og ikke i sig selv, fordi check_sources.py
+    # kalder dem direkte for at spørge "kan der udtrækkes noget".
+    articles = [a for a in articles if not for_gammel(a["date"])]
+
+    articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+    return articles[:limit]
+
+async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
+    """Scraper nyhedsartikler direkte fra hjemmeside HTML.
+    Returnerer None, hvis siden ikke kunne hentes (så /news/scrape kan tælle
+    sources_failed), og en liste - evt. tom - ellers."""
+    try:
+        now = time.time()
+        cached = _UDTRAEK_CACHE.get(url)
+        if cached and now - cached[0] < UDTRAEK_TTL:
+            ud = cached[1]
+        else:
+            # Bemærk: flere danske CMS/SPA-sider (DMI, IDA, Klimarådet, SLA, HOFOR)
+            # svarer HTTP 404 på serverniveau, men leverer alligevel hele nyhedslisten
+            # i body. Vi afviser derfor IKKE på statuskode alene — vi forsøger at parse
+            # så længe der er substantielt indhold. Selektorerne + relevans-filteret
+            # giver naturligt 0 resultater for ægte (tomme) fejlsider.
+            text = await get_feed_text(client, url)
+            if not text or len(text) < 2000:
+                ud = {"hoved": [], "jsonld": [], "tekstblok": []}
             else:
-                # Nogle lister navigerer med onclick i stedet for et <a>
-                # (DIN Forsyning: onclick="location.href = '/...'"). Uden dette
-                # kommer artiklerne med, men uden noget at klikke på.
-                onclick = el.get("onclick") or ""
-                m_klik = re.search(r"""location\.href\s*=\s*['"]([^'"]+)['"]""", onclick)
-                if m_klik:
-                    article_url = urljoin(base_url, m_klik.group(1))
-
-            # Find dato — søg i <time>, datetime-attribut, eller dato-klasser.
-            # Altid via normalize_date: ren [:10]-afkortning genindførte
-            # dato-truncation-buggen for ikke-ISO-datoer ("Tue, 17 J").
-            pub_date = ""
-            time_el = el.find("time")
-            if time_el:
-                pub_date = normalize_date(time_el.get("datetime") or time_el.get_text(strip=True))
-            if not pub_date:
-                date_el = el.find(class_=re.compile(r"date|dato|time|published|created", re.I))
-                if date_el:
-                    raw = date_el.get("datetime") or date_el.get("content") or date_el.get_text(strip=True)
-                    pub_date = normalize_date(raw or "")
-            if not pub_date:
-                # Web components kan bære datoen i en attribut ved siden af
-                # titlen (Kolding: tagline="12. maj 2026").
-                wc = el if el.has_attr("tagline") else el.find(attrs={"tagline": True})
-                if wc:
-                    pub_date = normalize_date(wc.get("tagline") or "")
-            if not pub_date:
-                # Sidste udvej: relative datoer ("3 måneder 1 uge siden"), som
-                # KTC's netværkssider bruger i stedet for <time>-tags.
-                pub_date = relativ_dato(el.get_text(" ", strip=True)[:200])
-
-            # Find beskrivelse
-            desc_el = el.find("p")
-            description = desc_el.get_text(strip=True)[:300] if desc_el else ""
-            if not description:
-                wc = el if el.has_attr("teasertext") else el.find(attrs={"teasertext": True})
-                if wc:
-                    description = (wc.get("teasertext") or "")[:300]
-
-            combined = title + " " + description
-            q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
-            relevance, keep = score_article(combined, q_match)
-            # Drop artikler der kun strejfer brede ord — samme tærskel som RSS
-            if not keep or for_gammel(pub_date):
-                continue
-
-            articles.append({
-                "source": "scrape",
-                "feedSource": source,
-                "title": title,
-                "org": source,
-                "date": pub_date,
-                "summary": description,
-                "tags": find_tags(combined),
-                "relevance": relevance,
-                "url": article_url,
-                "value": None,
-                "gruppe": gruppe,
-            })
-
-        if not articles:
-            articles = _jsonld_liste(text, base_url, source, gruppe, query, seen_titles)
-        if not articles:
-            articles = _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles)
-        # Reserverne filtreres her og ikke i sig selv, fordi check_sources.py
-        # kalder dem direkte for at spørge "kan der udtrækkes noget".
-        articles = [a for a in articles if not for_gammel(a["date"])]
-
-        articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
-        return articles[:limit]
+                ud = _udtraek_side(text, url, source, gruppe)
+                # Giv event-loopen fri mellem parsningerne, så /news/full og
+                # andre kald ikke står stille, mens 90 sider parses.
+                await asyncio.sleep(0)
+            _UDTRAEK_CACHE[url] = (now, ud)
+        return _scor_udtraek(ud, source, gruppe, query, limit)
 
     except Exception as e:
         print(f"[feed-fejl] {url}: {e}")
-        return []
+        return None
 
 
-SITEMAP_ANTAL = 12          # hvor mange af de nyeste artikler der hentes
+SITEMAP_ANTAL = 12          # hvor mange af de nyeste artikler der hentes (meta "antal" overstyrer)
 SITEMAP_DAGE = 120
 
-async def _sitemap_artikel(client, url, dato, source, gruppe, query):
+# <lastmod> er REDIGERINGSdatoen, ikke udgivelsesdatoen - i næsten ingen af de
+# testede CMS'er var de ens. Miljøstyrelsen viste "National handlingsplan for
+# tekstiler" fra juni 2025 som 2026-09-28, Naturskaderådets pressemeddelelser
+# fra 2015-16 står alle med migreringsdatoen 2026-07-10, og Klimadatastyrelsen
+# har 222 nyheder med lastmod fra en migrering i 2022. Derfor bruges lastmod nu
+# kun til at udvælge kandidater; artiklens dato læses fra siden selv.
+#
+# Valgfrie felter pr. kilde i SITEMAP_SOURCES:
+#   antal          - hvor mange kandidater der hentes (standard SITEMAP_ANTAL)
+#   moenster_re    - regex URL'en også skal matche
+#   dato_regex     - regex med én gruppe, der fanger sidens dato i rå HTML
+#   dato_css       - CSS-selektor til elementet med sidens dato
+#   dato_fra_side  - brug <time datetime> på artikelsiden
+#   dato_fra_url   - brug /ÅÅÅÅMMDD- i URL'en (Naturskaderådet)
+#   altid_relevant - kilden er per definition inden for feltet; keep uanset score
+ARTIKEL_TTL = 6 * 3600      # en udgivet artikel ændrer sjældent titel og dato
+_ARTIKEL_CACHE: dict[str, tuple[float, dict | None]] = {}
+_SITEMAP_LISTE_CACHE: dict[str, tuple[float, list]] = {}
+# Månedsoversigter (/nyheder/2026, /nyheder/2026/oktober, /nyhedsarkiv/2026/sep)
+# står i sitemap'et som almindelige sider og optog 2-5 af de 12 hentepladser.
+_INDEKS_RE = re.compile(r"/\d{4}(?:/[a-zæøå]{3,9})?/?$")
+_URL_DATO_RE = re.compile(r"/(\d{4})(\d{2})(\d{2})-")
+_URL_AAR_RE = re.compile(r"/(20\d\d)/")
+
+def _sitemap_kandidater(xml: str, meta: dict, graense: str | None) -> list:
+    """(dato, url) for de URL'er i sitemap'et, der er artikler for kilden.
+
+    graense=None springer datofiltret over (check_sources.py bruger det til at
+    finde den nyeste artikel uanset alder). Delt mellem produktionen og
+    sundhedstjekket, så de ikke kan komme til at udvælge forskelligt."""
+    from urllib.parse import urlparse
+    moenster = meta["moenster"]
+    moenster_re = meta.get("moenster_re")
+    sektion = moenster.rstrip("/")
+    graense_aar = int(graense[:4]) if graense else 0
+    fundet = []
+    for blok in re.findall(r"<url>(.*?)</url>", xml, re.S):
+        loc = re.search(r"<loc>([^<]+)</loc>", blok)
+        if not loc:
+            continue
+        u = loc.group(1).strip()
+        if moenster not in u or (moenster_re and not re.search(moenster_re, u)):
+            continue
+        sti = urlparse(u).path.rstrip("/")
+        # Selve sektionssiden (BlueKolding: /nws/) og månedsoversigter er
+        # ikke artikler.
+        if sti == sektion or _INDEKS_RE.search(sti):
+            continue
+        # En gammel artikel med frisk lastmod er redigeret, ikke ny. Står
+        # årstallet i URL'en, kan den sorteres fra uden at hente siden.
+        aar = _URL_AAR_RE.search(u)
+        if graense and aar and int(aar.group(1)) < graense_aar:
+            continue
+        dato = ""
+        if meta.get("dato_fra_url"):
+            m = _URL_DATO_RE.search(u)
+            if m:
+                dato = f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+        if not dato:
+            lm = re.search(r"<lastmod>([^<]+)</lastmod>", blok)
+            dato = normalize_date(lm.group(1)) if lm else ""
+        if graense and (not dato or dato < graense):
+            continue
+        fundet.append((dato, u))
+    fundet.sort(reverse=True)
+    return fundet
+
+def _side_dato(html: str, soup, meta: dict) -> str:
+    """Artiklens udgivelsesdato som den står på siden, eller ''."""
+    if meta.get("dato_regex"):
+        m = re.search(meta["dato_regex"], html)
+        if m:
+            d = normalize_date(m.group(1))
+            if d:
+                return d
+    if meta.get("dato_css"):
+        # Første KORTE element der er en dato: hos VandCenter Syd har manchet-
+        # afsnittet samme klasse som datoen og står før den.
+        for el in soup.select(meta["dato_css"]):
+            tekst = el.get_text(strip=True)
+            d = normalize_date(tekst) if len(tekst) <= 40 else ""
+            if d:
+                return d
+    # Standardfelter, som mange CMS'er sætter (MST og Naturstyrelsen har
+    # Search.Date; Search.Updated er redigeringsdatoen og bruges ikke).
+    for attrs in ({"name": "Search.Date"}, {"property": "article:published_time"},
+                  {"name": "article:published_time"}, {"itemprop": "datePublished"}):
+        el = soup.find("meta", attrs=attrs)
+        if el and el.get("content"):
+            d = normalize_date(el["content"])
+            if d:
+                return d
+    m = re.search(r'"datePublished"\s*:\s*"([^"]+)"', html)
+    if m:
+        d = normalize_date(m.group(1))
+        if d:
+            return d
+    if meta.get("dato_fra_side"):
+        el = soup.find("time", datetime=True)
+        if el:
+            return normalize_date(el["datetime"])
+    return ""
+
+async def _sitemap_artikel(client, url, dato, source, gruppe, query, meta=None):
     """Hent én artikelside og lav den om til en artikel-post."""
-    try:
-        html = await get_feed_text(client, url)
-    except Exception:
+    meta = meta or {}
+    now = time.time()
+    cached = _ARTIKEL_CACHE.get(url)
+    if cached and now - cached[0] < ARTIKEL_TTL:
+        side = cached[1]
+    else:
+        try:
+            html = await get_feed_text(client, url)
+        except Exception:
+            return None
+        side = _laes_artikelside(html, meta) if html else None
+        await asyncio.sleep(0)   # se scrape_news
+        for k in [k for k, (t, _) in _ARTIKEL_CACHE.items() if now - t > ARTIKEL_TTL]:
+            del _ARTIKEL_CACHE[k]
+        _ARTIKEL_CACHE[url] = (now, side)
+    if not side:
         return None
-    if not html:
+
+    titel, manchet = side["titel"], side["manchet"]
+    dato = side["dato"] or dato
+    graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
+    if dato and dato < graense:
         return None
+    kombi = f"{titel} {manchet}"
+    q_match = any(kw_match(w, kombi) for w in query.lower().split() if len(w) > 3)
+    relevance, keep = score_article(kombi, q_match)
+    if not keep and not meta.get("altid_relevant"):
+        return None
+    return {
+        "source": "scrape", "feedSource": source, "org": source,
+        "title": titel, "url": url, "date": dato,
+        "summary": manchet[:300], "tags": find_tags(kombi),
+        "relevance": relevance, "value": None, "gruppe": gruppe,
+    }
+
+def _laes_artikelside(html: str, meta: dict) -> dict | None:
+    """Titel, manchet og udgivelsesdato fra en artikelside (uafhængigt af q)."""
     soup = BeautifulSoup(html, "lxml")
     h1 = soup.find("h1")
     titel = h1.get_text(strip=True) if h1 else ""
@@ -1725,6 +1972,7 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query):
         titel = (og.get("content") or "").strip() if og else ""
     if not titel or len(titel) < 8:
         return None
+    dato = _side_dato(html, soup, meta)
     md = (soup.find("meta", attrs={"name": "description"})
           or soup.find("meta", attrs={"property": "og:description"}))
     manchet = (md.get("content") or "").strip() if md else ""
@@ -1740,18 +1988,7 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query):
             if len(tekst) >= 60:
                 manchet = tekst
                 break
-
-    kombi = f"{titel} {manchet}"
-    q_match = any(kw_match(w, kombi) for w in query.lower().split() if len(w) > 3)
-    relevance, keep = score_article(kombi, q_match)
-    if not keep:
-        return None
-    return {
-        "source": "scrape", "feedSource": source, "org": source,
-        "title": titel, "url": url, "date": dato,
-        "summary": manchet[:300], "tags": find_tags(kombi),
-        "relevance": relevance, "value": None, "gruppe": gruppe,
-    }
+    return {"titel": titel, "manchet": manchet[:300], "dato": dato}
 
 async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
     """Nyheder fra sider hvis liste kræver JavaScript, men hvis artikelsider
@@ -1764,32 +2001,30 @@ async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
     ganske almindelige sider med <h1> og meta-description.
 
     Der hentes kun de SITEMAP_ANTAL nyeste, så det koster et begrænset antal
-    ekstra kald — og de rammer feed-cachen ved gentagne forespørgsler.
+    ekstra kald — og artiklerne caches i ARTIKEL_TTL.
+
+    Returnerer None, hvis sitemap'et ikke kunne hentes.
     """
-    try:
-        xml = await get_feed_text(client, meta["sitemap"])
-    except Exception as e:
-        print(f"[sitemap-fejl] {source}: {e}")
-        return []
-    if not xml:
-        return []
-
-    moenster = meta["moenster"]
-    fundet = []
-    for blok in re.findall(r"<url>(.*?)</url>", xml, re.S):
-        loc = re.search(r"<loc>([^<]+)</loc>", blok)
-        if not loc or moenster not in loc.group(1):
-            continue
-        lm = re.search(r"<lastmod>([^<]+)</lastmod>", blok)
-        fundet.append((normalize_date(lm.group(1)) if lm else "", loc.group(1)))
-
+    now = time.time()
     graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
-    fundet = [(d, u) for d, u in fundet if d and d >= graense]
-    fundet.sort(reverse=True)
+    cached = _SITEMAP_LISTE_CACHE.get(source)
+    if cached and now - cached[0] < FEED_TTL:
+        fundet = cached[1]
+    else:
+        try:
+            # Den rå XML gemmes ikke i feed-cachen (MST: 1,6 MB); kun det
+            # filtrerede udsnit af (dato, url) gemmes herunder.
+            xml = await get_feed_text(client, meta["sitemap"],
+                                      max_bytes=SITEMAP_MAX_BYTES, gem=False)
+        except Exception as e:
+            print(f"[sitemap-fejl] {source}: {e}")
+            return None
+        fundet = _sitemap_kandidater(xml or "", meta, graense)
+        _SITEMAP_LISTE_CACHE[source] = (now, fundet)
 
     resultater = await asyncio.gather(*[
-        _sitemap_artikel(client, u, d, source, meta["gruppe"], query)
-        for d, u in fundet[:SITEMAP_ANTAL]
+        _sitemap_artikel(client, u, d, source, meta["gruppe"], query, meta)
+        for d, u in fundet[:meta.get("antal", SITEMAP_ANTAL)]
     ], return_exceptions=True)
 
     ud = [r for r in resultater if isinstance(r, dict)]
@@ -1802,6 +2037,7 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
     from sources import SITEMAP_SOURCES
+    navne = list(SCRAPE_SOURCES) + list(SITEMAP_SOURCES)
     tasks = [
         scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit)
         for navn, meta in SCRAPE_SOURCES.items()
@@ -1811,12 +2047,17 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     ]
     nested = await asyncio.gather(*tasks, return_exceptions=True)
 
-    articles = [a for sub in nested if not isinstance(sub, Exception) for a in sub]
+    # None = kilden kunne ikke hentes. Før blev det til en tom liste, så en død
+    # kilde og en uge uden nyheder så ens ud - nu tælles og navngives de.
+    fejlede = [navn for navn, sub in zip(navne, nested) if not isinstance(sub, list)]
+    articles = [a for sub in nested if isinstance(sub, list) for a in sub]
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {
         "articles": articles,
         "total": len(articles),
-        "sources_checked": len(SCRAPE_SOURCES) + len(SITEMAP_SOURCES),
+        "sources_checked": len(navne),
+        "sources_failed": len(fejlede),
+        "fejlede_kilder": fejlede,
         "query": q,
         "scanned_at": datetime.now(timezone.utc).isoformat()
     }
@@ -1888,7 +2129,8 @@ async def _hent_transskription_raa(path: str) -> str:
     resp = await app.state.client.get(url, timeout=20)
     resp.raise_for_status()
     text = resp.text
-    _FEED_CACHE[url] = (now, text)
+    # Via _cache_gem, så transskriptionerne tæller med i cachens loft.
+    _cache_gem(url, text, now)
     return text
 
 
