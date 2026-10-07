@@ -699,7 +699,10 @@ const GRUPPE_LABEL = {
   'Nordiske naboer': 'Norden', 'EU projekter': 'EU', 'Jura & advokater': 'Jura',
 };
 
-function renderFilters() {
+// endelig=false, mens svarene stadig kommer ind: så må et valgt filter ikke
+// nulstilles, bare fordi dets gruppe ikke er kommet endnu ("Kommuner" findes
+// kun i /news/scrape, som svarer sidst).
+function renderFilters({ endelig = true } = {}) {
   const antal = {};
   allArticles.filter(isRelevantArticle).forEach(a => {
     if (a.gruppe) antal[a.gruppe] = (antal[a.gruppe] || 0) + 1;
@@ -707,7 +710,8 @@ function renderFilters() {
   const plads = g => { const i = GRUPPE_RAEKKEFOELGE.indexOf(g); return i < 0 ? 999 : i; };
   const grupper = Object.keys(antal).sort((a, b) => plads(a) - plads(b) || a.localeCompare(b, 'da'));
   // Findes den valgte gruppe ikke længere i data, vises alt i stedet for 0.
-  if (currentFilter !== 'alle' && !antal[currentFilter]) currentFilter = 'alle';
+  if (endelig && currentFilter !== 'alle' && !antal[currentFilter]) currentFilter = 'alle';
+  if (currentFilter !== 'alle' && !antal[currentFilter]) { antal[currentFilter] = 0; grupper.push(currentFilter); }
   const knap = (g, tekst) => {
     const aktiv = g === currentFilter;
     return `<button type="button" class="filter-btn${aktiv ? ' active' : ''}" data-gruppe="${escapeHtml(g)}" aria-pressed="${aktiv}">${escapeHtml(tekst)}</button>`;
@@ -981,9 +985,11 @@ function autoScan() {
 }
 
 let hentNr = 0;   // en ny søgning gør svar fra en ældre søgning forældede
+let setTimer = null;   // markCurrentAsSeen fra en ældre søgning må ikke ramme den nye liste
 
 async function hentOgVis({ newsQ, andreQ, limit }) {
   const mitNr = ++hentNr;
+  clearTimeout(setTimer);
   const articlesContainer = document.getElementById('articles-container');
   const tedContainer = document.getElementById('ted-container');
   const countEl = document.getElementById('articles-count');
@@ -1022,7 +1028,7 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
     document.getElementById('stat-articles').textContent = allArticles.length;
     document.getElementById('stat-feeds').textContent = feedsChecked ?? '—';
     if (allArticles.length || afventer === 0) {
-      renderFilters();
+      renderFilters({ endelig: afventer === 0 });
       renderArticles(allArticles);
       if (afventer > 0) countEl.textContent += ' · henter flere kilder…';
     }
@@ -1061,6 +1067,9 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
 
   if (tedR.status === 'rejected' || tedR.value?.error) {
     tedContainer.innerHTML = '<div class="error" role="alert">EU-udbud kunne ikke hentes lige nu.</div>';
+    // Ellers bliver den forrige søgnings tal stående ved siden af fejlen.
+    document.getElementById('stat-ted').textContent = '—';
+    document.getElementById('ted-count').textContent = '';
   }
   const fejlTekst = rateLimited
     ? 'For mange søgninger på kort tid — vent et minut, og prøv igen.'
@@ -1078,7 +1087,7 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
       articlesContainer.insertAdjacentHTML('afterbegin', `<div class="error" role="alert">${escapeHtml(fejlTekst ||
         'Nogle kilder svarede ikke — viser de resultater der kunne hentes.')}</div>`);
     }
-    setTimeout(markCurrentAsSeen, 3000);
+    setTimer = setTimeout(markCurrentAsSeen, 3000);
   }
 
   articlesContainer.setAttribute('aria-busy', 'false');
