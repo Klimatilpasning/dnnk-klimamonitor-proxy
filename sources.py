@@ -5,8 +5,16 @@
 # ── NYHEDER & FAGBLADE ──
 RSS_NEWS = {
     "Ingeniøren":               "https://ing.dk/rss",
-    "Ingeniøren Energi & Miljø":"https://ing.dk/term/rss/1964",
+    # Ingeniørens emnefeeds (tilføjet 7/10-2026): "Klimatilpasning" (term 393)
+    # og "Kystbeskyttelse" (974) gav 7 af 9 hhv. kyst-/stormflodsartikler, som
+    # ikke er tagget 393. "Energi & Miljø" (term 1964) er fjernet: 0 af 25
+    # relevante på en måned, kun energi og mitigation.
+    "Ingeniøren Klimatilpasning":   "https://ing.dk/term/rss/393",
+    "Ingeniøren Kystbeskyttelse":   "https://ing.dk/term/rss/974",
     "Altinget Miljø":           "https://www.altinget.dk/miljoe/rss.aspx",
+    # Altinget Klima har klimatilpasningsdebat, som Miljø-sektionen ikke har.
+    # Krydspostninger har forskellig sektions-URL - se dedup i get_news_full.
+    "Altinget Klima":           "https://www.altinget.dk/klima/rss.aspx",
     "DR Viden":                 "https://www.dr.dk/nyheder/service/feeds/viden",
     "DR Vejret":                "https://www.dr.dk/nyheder/service/feeds/vejret",
     "Børsen":                   "https://borsen.dk/rss",
@@ -40,6 +48,13 @@ RSS_RAADGIVERE = {
 # ── FORSYNINGER RSS ──
 RSS_FORSYNINGER_RSS = {
     "HOFOR":                    "https://www.hofor.dk/rss",
+    # Herning Vand: HTML-listen gav 0 titler, men WordPress-feedet på
+    # nyhedsstien virker (selve /feed/ er tomt). Lav klimatilpasningsværdi -
+    # mest drift - men det genopretter forsyningsdækningen.
+    "Herning Vand":             "https://herningvand.dk/nyheder/feed/",
+    # viborgvand.dk har intet DNS-opslag længere; forsyningen er en del af
+    # Energi Viborg. Mest el og varme, men bedre end en død kilde.
+    "Energi Viborg (tidl. Viborg Vand)": "https://www.energiviborg.dk/nyheder/feed/",
 }
 
 # ── NORDISKE NABOER ──
@@ -153,13 +168,17 @@ RSS_JURA = {
 RSS_VIDENSKAB = {
     "Nature Climate Change":    "https://www.nature.com/nclimate.rss",
     "Nature Water":             "https://www.nature.com/natwater.rss",
-    "Science Advances":         "https://advances.sciencemag.org/rss/current.xml",
+    # Ny feed-URL 7/10-2026 (den gamle gav 403). Kun kosmetisk: 0 af 83 items
+    # består relevansfilteret, og science.org ligger bag Cloudflare. Får Render
+    # 403 eller en udfordringsside, så fjern kilden frem for at bygge en omvej.
+    "Science Advances":         "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciadv",
     "Climatic Change":          "https://link.springer.com/search.rss?query=climate+adaptation&search-within=Journal&facet-journal-id=10584",
     "Urban Climate":            "https://rss.sciencedirect.com/publication/science/22120955",
     "Journal Water Research":   "https://rss.sciencedirect.com/publication/science/00431354",
-    # Fjernet (døde RSS, dækket af SCRAPE_SOURCES: DTU Byg, KU SCIENCE, DCE
-    # Aarhus): DTU Research, AU Forskning, KU Nyheder. Fjernet: Hydrology &
-    # Earth Sci. (404, intet fungerende feed).
+    # Fjernet (døde RSS, dækket af SCRAPE_SOURCES: KU SCIENCE, DCE Aarhus):
+    # DTU Research, AU Forskning, KU Nyheder. Fjernet: Hydrology & Earth Sci.
+    # (404, intet fungerende feed). KENDT HUL: efter at DTU Byg blev fjernet
+    # 7/10-2026 (se SCRAPE_SOURCES) har monitoren ingen DTU-dækning.
 }
 
 # ── BREDE SØGE-FEEDS (Bing News) ──
@@ -170,34 +189,46 @@ RSS_VIDENSKAB = {
 # Bing respekterer cc=dk&setlang=da&mkt=da-DK pålideligt. Bing News RSS forstår
 # IKKE OR-operatoren, så hvert kernebegreb har sit eget feed. Æøå er %-encodet.
 # Relevans-scoringen i main.py frasorterer støj.
-# VIGTIGT: qft=interval="8" filtrerer til seneste måned. Uden den sorterer Bing
-# på relevans og blander gamle artikler ind (helt tilbage til 2010) — så vi får
-# AKTUELLE nyheder i stedet for et tidløst relevans-mix.
-_BING = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK&qft=interval%3d%228%22"
+# VIGTIGT: qft=interval filtrerer på alder. Uden den sorterer Bing på relevans
+# og blander gamle artikler ind (helt tilbage til 2010). Værdierne er:
+# "7" = 24 timer, "8" = 7 DAGE, "9" = 30 dage. (Her stod tidligere, at "8" var
+# en måned - det var forkert, målt på datoerne 5.-6/10-2026.)
+# Bing giver højst ca. 14 items pr. feed, så de brede termer med mange nyheder
+# bruger 7 dage (ellers fortrænges dagens nyheder), mens de smalle fagtermer,
+# der ofte gav 0, bruger 30 dage. count=50 hæver Bings standardloft lidt.
+_BING_7D = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK&qft=interval%3d%228%22&count=50"
+_BING_30D = "https://www.bing.com/news/search?q={}&format=rss&cc=dk&setlang=da&mkt=da-DK&qft=interval%3d%229%22&count=50"
 RSS_BREDE_SOEGNINGER = {
-    "Bing News – klimatilpasning":   _BING.format("klimatilpasning"),
-    "Bing News – skybrud":           _BING.format("skybrud"),
-    "Bing News – kystbeskyttelse":   _BING.format("kystbeskyttelse"),
-    "Bing News – stormflod":         _BING.format("stormflod"),
-    "Bing News – oversvømmelse":     _BING.format("oversv%C3%B8mmelse"),
-    "Bing News – regnvand":          _BING.format("regnvand"),
-    "Bing News – grundvand":         _BING.format("grundvand"),
-    "Bing News – klimasikring":      _BING.format("klimasikring"),
-    "Bing News – klimatilpasningsplan": _BING.format("klimatilpasningsplan"),
-    "Bing News – regnvandsbassin":   _BING.format("regnvandsbassin"),
-    "Bing News – kloakseparering":   _BING.format("kloakseparering"),
-    "Bing News – diger":             _BING.format("diger"),
-    "Bing News – spildevand":        _BING.format("spildevand"),
+    # ── Brede termer: seneste 7 dage ──
+    "Bing News – klimatilpasning":   _BING_7D.format("klimatilpasning"),
+    "Bing News – skybrud":           _BING_7D.format("skybrud"),
+    "Bing News – stormflod":         _BING_7D.format("stormflod"),
+    "Bing News – oversvømmelse":     _BING_7D.format("oversv%C3%B8mmelse"),
+    "Bing News – regnvand":          _BING_7D.format("regnvand"),
+    "Bing News – grundvand":         _BING_7D.format("grundvand"),
+    "Bing News – spildevand":        _BING_7D.format("spildevand"),
+    # ── Smalle fagtermer: seneste 30 dage ──
+    "Bing News – kystbeskyttelse":   _BING_30D.format("kystbeskyttelse"),
+    "Bing News – kystsikring":       _BING_30D.format("kystsikring"),
+    "Bing News – klimasikring":      _BING_30D.format("klimasikring"),
+    "Bing News – klimatilpasningsplan": _BING_30D.format("klimatilpasningsplan"),
+    "Bing News – regnvandsbassin":   _BING_30D.format("regnvandsbassin"),
+    "Bing News – kloakseparering":   _BING_30D.format("kloakseparering"),
+    # "diger" erstattet af "dige" 7/10-2026: Bing læste "diger" som tyrkisk
+    # "diğer" (= andre) og gav 11-12 items om alt andet, 0 beholdt - også fra
+    # Render. "dige" gav 10 danske items, hvoraf halvdelen nævner termen.
+    "Bing News – dige":              _BING_30D.format("dige"),
     # ── Kommunalt fokus + smalle fagtermer (tilføjet juli 2026) ──
     # Lav volumen er forventet: de er fangnet der slår ud, NÅR noget sker.
-    "Bing News – lokalplan klima":       _BING.format("lokalplan%20klima"),
-    "Bing News – spildevandsplan":       _BING.format("spildevandsplan"),
-    "Bing News – skybrudssikring":       _BING.format("skybrudssikring"),
-    "Bing News – stormflodssikring":     _BING.format("stormflodssikring"),
-    "Bing News – terrænnært grundvand":  _BING.format("terr%C3%A6nn%C3%A6rt%20grundvand"),
-    "Bing News – lavbundsjord":          _BING.format("lavbundsjord"),
-    "Bing News – vandløbsrestaurering":  _BING.format("vandl%C3%B8bsrestaurering"),
-    "Bing News – klimatilpasning pulje": _BING.format("klimatilpasning%20pulje"),
+    # Tomme feeds koster kun ét cachet kald og laver ingen støj.
+    "Bing News – lokalplan klima":       _BING_30D.format("lokalplan%20klima"),
+    "Bing News – spildevandsplan":       _BING_30D.format("spildevandsplan"),
+    "Bing News – skybrudssikring":       _BING_30D.format("skybrudssikring"),
+    "Bing News – stormflodssikring":     _BING_30D.format("stormflodssikring"),
+    "Bing News – terrænnært grundvand":  _BING_30D.format("terr%C3%A6nn%C3%A6rt%20grundvand"),
+    "Bing News – lavbundsjord":          _BING_30D.format("lavbundsjord"),
+    "Bing News – vandløbsrestaurering":  _BING_30D.format("vandl%C3%B8bsrestaurering"),
+    "Bing News – klimatilpasning pulje": _BING_30D.format("klimatilpasning%20pulje"),
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
@@ -242,7 +273,9 @@ SCRAPE_SOURCES = {
     "DNNK":                             {"url": "https://www.dnnk.dk/nyheder/", "gruppe": "Vidensinstitutioner"},
     "CONCITO":                          {"url": "https://concito.dk/nyheder", "gruppe": "Vidensinstitutioner"},
     "klimamonitor.dk":                  {"url": "https://klimamonitor.dk/nyheder/klimatilpasning", "gruppe": "Vidensinstitutioner"},
-    "DTU Byg":                          {"url": "https://www.byg.dtu.dk/nyheder", "gruppe": "Vidensinstitutioner"},
+    # Fjernet 7/10-2026: DTU Byg. Lagt sammen i DTU Construct (engelsk), og
+    # construct.dtu.dk/ og /newslist giver 0 artikler med scrape_news, så der
+    # er ingen erstatning. Værd at lede efter et API eller sitemap bag dtu.dk.
     "KU SCIENCE":                       {"url": "https://science.ku.dk/presse/nyheder/", "gruppe": "Vidensinstitutioner"},
     "DCE Aarhus Univ.":                 {"url": "https://dce.au.dk/aktuelt/nyheder", "gruppe": "Vidensinstitutioner"},
     # Fjernet 14/9-2026: GEUS. Den gamle sti (/om-geus/nyt-og-presse/nyheder/)
@@ -282,8 +315,10 @@ SCRAPE_SOURCES = {
     # Høringer hentes nu via Høringsportalens Atom-feed (se RSS_LOVGIVNING).
     # Fjernet 14/9-2026: Miljøministeriet Høringer (mim.dk/horinger = 404) og
     # Høringsportalens HTML-liste (Angular-SPA uden server-renderet indhold).
-    "Klimarådet":                       {"url": "https://klimaraadet.dk/da/foelg-med-i-det-seneste-fra-klimaraadet", "gruppe": "Lovgivning"},
-    "Forsyningstilsynet":               {"url": "https://forsyningstilsynet.dk/nyheder/", "gruppe": "Lovgivning"},
+    # Gruppen hed før "Lovgivning", som ingen filterknap i frontenden matchede.
+    "Klimarådet":                       {"url": "https://klimaraadet.dk/da/foelg-med-i-det-seneste-fra-klimaraadet", "gruppe": "Lovgivning & politik"},
+    # Fjernet 7/10-2026: Forsyningstilsynet. Ingen vandemner i 571 nyheder
+    # siden 2019 - det er indholdet, ikke HTTP-status, der afgør det.
     # Fjernet 14/9-2026: Kystdirektoratet og Miljøstyrelsen. Kystdirektoratet er
     # fusioneret ind i Miljøstyrelsen, og kyst.dk/nyheder/ redirecter til en
     # 404. Miljøstyrelsens egen nyhedsside er Next.js og renderes client-side:
@@ -294,7 +329,10 @@ SCRAPE_SOURCES = {
 
     # ── KREATIVE VINKLER ──
     "Realdania Projekter":              {"url": "https://realdania.dk/projekter/", "gruppe": "Kreative vinkler"},
-    "Tredje Natur Blog":                {"url": "https://tredjenatur.dk/blog/", "gruppe": "Kreative vinkler"},
+    # Fjernet 7/10-2026: Tredje Natur. Omdøbt til Third Nature Architects
+    # (thirdnaturearchitects.com/news, engelsk). Listen er server-renderet, men
+    # titlerne står i <a class="news-header">, som scraperen ikke læser, og
+    # volumen er 3-5 nyheder om året - det står ikke mål med en særregel.
     "SLA Arkitekter":                   {"url": "https://www.sla.dk/nyheder/", "gruppe": "Kreative vinkler"},
     # GHB Landskabsarkitekter hedder nu LYTT Architecture — ghb-landskab.dk
     # 301'er til lytt.dk. Navnet står med begge former, så gamle artikler stadig
@@ -320,7 +358,8 @@ SCRAPE_SOURCES = {
     "Orbicon|WSP":                      {"url": "https://www.wsp.com/da-dk/nyheder", "gruppe": "Rådgivere"},
     "Krüger":                           {"url": "https://www.kruger.dk/nyheder/", "gruppe": "Rådgivere"},
     "MOE":                              {"url": "https://moe.dk/nyheder/", "gruppe": "Rådgivere"},
-    "Watertech":                        {"url": "https://watertech.dk/nyheder/", "gruppe": "Rådgivere"},
+    # Fjernet 7/10-2026: Watertech. Overtaget af NIRAS; domænet sender 301 til
+    # niras.dk, og certifikatet er udstedt til et fremmed domæne.
     "EnviDan":                          {"url": "https://envidan.dk/nyheder/", "gruppe": "Rådgivere"},
     # Scalgo blogger kun på engelsk sti; /da-DK/blog giver 404.
     "Scalgo":                           {"url": "https://scalgo.com/en-US/blog", "gruppe": "Rådgivere"},
@@ -352,19 +391,24 @@ SCRAPE_SOURCES = {
     # www.beredskabsstyrelsen.dk — det domæne afviser forbindelsen helt.
     "Beredskabsstyrelsen":              {"url": "https://brs.dk/", "gruppe": "Myndigheder"},
     "Stormrådet":                       {"url": "https://www.stormraadet.dk/nyheder/", "gruppe": "Myndigheder"},
-    "Vejdirektoratet":                  {"url": "https://www.vejdirektoratet.dk/nyheder", "gruppe": "Myndigheder"},
+    # Fjernet 7/10-2026: Vejdirektoratet. 0 klimatilpasningstitler. Hvis den
+    # skal tilbage: Next.js-siden har et åbent Drupal JSON:API på
+    # api.vejdirektoratet.dk.
     "Styrelsen for Dataforsyning":      {"url": "https://sdfe.dk/nyheder/", "gruppe": "Myndigheder"},
     "Statens Byggeforskningsinstitut":  {"url": "https://sbi.dk/nyheder/", "gruppe": "Myndigheder"},
 
     # ── FORSYNINGER – Storkøbenhavn ──
     "HOFOR":                            {"url": "https://www.hofor.dk/om-hofor/presse-og-talspersoner/nyheder/", "gruppe": "Forsyninger"},
-    "Nordvand":                         {"url": "https://nordvand.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Fjernet 7/10-2026: Nordvand. Domænet sender videre til Novafos' forside
+    # (0 artikler), og Novafos er allerede kilde.
     "Novafos":                          {"url": "https://novafos.dk/nyheder/", "gruppe": "Forsyninger"},
     "Frederiksberg Fors.":              {"url": "https://frb-forsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Hillerød Forsyning":               {"url": "https://hfors.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Køge Forsyning":                   {"url": "https://koegeforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Roskilde Forsyning":               {"url": "https://roskilde-forsyning.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Greve Forsyning":                  {"url": "https://greveforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Fusioner (7/10-2026): Køge og Greve Forsyning er nu KLAR Forsyning, og
+    # Roskilde og Holbæk Forsyning er nu Fors. De gamle domæner har intet
+    # DNS-opslag eller nulstiller forbindelsen.
+    "KLAR Forsyning (Køge/Greve/Solrød/Stevns)": {"url": "https://klarforsyning.dk/nyheder", "gruppe": "Forsyninger"},
+    "Fors (Holbæk/Roskilde/Lejre)":     {"url": "https://www.fors.dk/nyheder/", "gruppe": "Forsyninger"},
     "BIOFOS":                           {"url": "https://www.biofos.dk/nyheder/", "gruppe": "Forsyninger"},
 
     # ── FORSYNINGER – Jylland ──
@@ -372,9 +416,9 @@ SCRAPE_SOURCES = {
     # Aalborg Forsyning har ikke længere en bred "nyheder"-sektion — kun presse.
     "Aalborg Forsyning":                {"url": "https://www.aalborgforsyning.dk/pressemeddelelser/", "gruppe": "Forsyninger"},
     "Silkeborg Forsyning":              {"url": "https://silkeborgforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Herning Vand":                     {"url": "https://herningvand.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Herning Vand og Energi Viborg (tidl. Viborg Vand) hentes nu via RSS -
+    # se RSS_FORSYNINGER_RSS.
     "Horsens Vand":                     {"url": "https://horsensvand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Viborg Vand":                      {"url": "https://viborgvand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Vejle Spildevand":                 {"url": "https://www.vejlespildevand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Kolding Spildevand":               {"url": "https://koldingspildevand.dk/nyheder/", "gruppe": "Forsyninger"},
     # Navneskifte: sonderborgforsyning.dk 301'er til sonfor.dk.
@@ -390,13 +434,16 @@ SCRAPE_SOURCES = {
     # er fyldt med 2020-stof, som ville fylde nyhedsstrømmen med gammelt indhold.
     "Vandmiljø Randers":                {"url": "https://www.vmr.dk/om-os/publikationer-og-nyheder/nyheder", "gruppe": "Forsyninger"},
     # Fjernet 14/9-2026: Hjørring Vandselskab — intet DNS-opslag på domænet.
-    "Holstebro Vand":                   {"url": "https://holstebrovand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Lemvig Vand":                      {"url": "https://lemvigvand.dk/nyheder/", "gruppe": "Forsyninger"},
+    # holstebrovand.dk har intet DNS-opslag; forsyningen hedder nu Vestforsyning.
+    # Brug HTML-listen, ikke sitemap'et: det koster 13 kald og gav 0 artikler.
+    "Vestforsyning (tidl. Holstebro Vand)": {"url": "https://www.vestforsyning.dk/nyheder/nyheder/", "gruppe": "Forsyninger"},
+    # Fjernet 7/10-2026: Lemvig Vand. lemvigvand.dk er en parkeret Dandomain-
+    # side. Lemvig Vand A/S (CVR 32832296) findes, men hjemmesiden er ukendt -
+    # efterfølgeren skal findes manuelt, fx ved at spørge Lemvig Kommune.
 
     # ── FORSYNINGER – Fyn & Sjælland ──
     "VandCenter Syd":                   {"url": "https://vandcenter.dk/nyheder/", "gruppe": "Forsyninger"},
     "Danva":                            {"url": "https://www.danva.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Holbæk Forsyning":                 {"url": "https://holbaekforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Næstved Forsyning":                {"url": "https://naestvedforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Lolland Forsyning":                {"url": "https://lollandforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Bornholms Forsyning":              {"url": "https://bornholmsforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
@@ -463,6 +510,8 @@ SITEMAP_SOURCES = {
     "Miljøstyrelsen (inkl. Kystdirektoratet)": {
         "sitemap": "https://mst.dk/sitemap.xml",
         "moenster": "/nyheder/",
-        "gruppe": "Lovgivning",
+        # Var "Lovgivning", som ingen filterknap matchede - kystkilden kunne
+        # kun ses under "Alle".
+        "gruppe": "Myndigheder",
     },
 }
