@@ -699,7 +699,10 @@ const GRUPPE_LABEL = {
   'Nordiske naboer': 'Norden', 'EU projekter': 'EU', 'Jura & advokater': 'Jura',
 };
 
-function renderFilters() {
+// endelig=false, mens svarene stadig kommer ind: så må et valgt filter ikke
+// nulstilles, bare fordi dets gruppe ikke er kommet endnu ("Kommuner" findes
+// kun i /news/scrape, som svarer sidst).
+function renderFilters({ endelig = true } = {}) {
   const antal = {};
   allArticles.filter(isRelevantArticle).forEach(a => {
     if (a.gruppe) antal[a.gruppe] = (antal[a.gruppe] || 0) + 1;
@@ -707,7 +710,8 @@ function renderFilters() {
   const plads = g => { const i = GRUPPE_RAEKKEFOELGE.indexOf(g); return i < 0 ? 999 : i; };
   const grupper = Object.keys(antal).sort((a, b) => plads(a) - plads(b) || a.localeCompare(b, 'da'));
   // Findes den valgte gruppe ikke længere i data, vises alt i stedet for 0.
-  if (currentFilter !== 'alle' && !antal[currentFilter]) currentFilter = 'alle';
+  if (endelig && currentFilter !== 'alle' && !antal[currentFilter]) currentFilter = 'alle';
+  if (currentFilter !== 'alle' && !antal[currentFilter]) { antal[currentFilter] = 0; grupper.push(currentFilter); }
   const knap = (g, tekst) => {
     const aktiv = g === currentFilter;
     return `<button type="button" class="filter-btn${aktiv ? ' active' : ''}" data-gruppe="${escapeHtml(g)}" aria-pressed="${aktiv}">${escapeHtml(tekst)}</button>`;
@@ -908,12 +912,14 @@ function markCurrentAsSeen() {
 }
 
 // ─── Fetch ──────────────────────────────────────────────────
-// Henter JSON med timeout og retry. Render free-tier sover efter 15 min,
-// og cold-start holder ofte forbindelsen åben i 30-60 sek og svarer DEREFTER
-// — derfor en lang timeout (75s), så første forsøg rider cold-starten ud i
-// stedet for at afbryde for tidligt. Retries er backup hvis det stadig fejler.
-// onRetry kaldes mellem forsøgene, så UI kan vise at serveren er ved at vågne.
-async function fetchJson(url, { timeoutMs = 75000, retries = 2, backoffMs = 3000, onRetry = null } = {}) {
+// Henter JSON med timeout og retry.
+// - 429 er serverens rate limit (20 kald/min), ikke en cold start. Et nyt
+//   forsøg tæller selv med i vinduet og gør det kun værre.
+// - Timeout (AbortError) prøves heller ikke igen: et afbrudt kald stopper IKKE
+//   serverens scanning (bekræftet lokalt), så et nyt forsøg starter blot en
+//   scanning mere oven i den første. Kun netværksfejl og 502/503 (Render der
+//   vågner) prøves igen.
+async function fetchJson(url, { timeoutMs = 150000, retries = 2, backoffMs = 3000, onRetry = null } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
@@ -922,15 +928,14 @@ async function fetchJson(url, { timeoutMs = 75000, retries = 2, backoffMs = 3000
       const res = await fetch(url, { signal: controller.signal });
       if (!res.ok) {
         const fejl = new Error('HTTP ' + res.status);
-        // 429 er serverens rate limit (20 kald/min), ikke en cold start. Et
-        // nyt forsøg tæller selv med i vinduet og gør det kun værre.
-        fejl.ingenRetry = res.status === 429;
+        fejl.status = res.status;
+        fejl.ingenRetry = res.status !== 502 && res.status !== 503;
         throw fejl;
       }
       return await res.json();
     } catch (err) {
       lastErr = err;
-      if (err.ingenRetry) break;
+      if (err.ingenRetry || err.name === 'AbortError') break;
       if (attempt < retries) {
         if (onRetry) onRetry(attempt + 1, retries);
         await new Promise(r => setTimeout(r, backoffMs * (attempt + 1)));
@@ -942,10 +947,23 @@ async function fetchJson(url, { timeoutMs = 75000, retries = 2, backoffMs = 3000
   throw lastErr;
 }
 
-// Opdaterer loading-beskeden i en container, så brugeren kan se at
-// serveren vågner i stedet for at tro siden er død.
-function setWakingMsg(container) {
-  if (container) container.innerHTML = '<div class="loading">Serveren vågner (Render free-tier) – kan tage op til ~1 min første gang, henter automatisk<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
+function setLoadingMsg(container, tekst) {
+  if (container) container.innerHTML = `<div class="loading">${escapeHtml(tekst)}<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>`;
+}
+
+// Render free-tier sover efter 15 min. Roden (/) er billig og ikke rate-
+// limiteret, så den afgør, om vi venter på en opvågning eller på en scanning.
+// Før stod der "Serveren vågner" i op til 220 s, selvom serveren svarede på
+// 0,55 s - den var vågen, men scanningen af ~160 kilder var langsom.
+async function vaekServer(container) {
+  const t0 = Date.now();
+  const vaekTimer = setTimeout(() => setLoadingMsg(container,
+    'Serveren vågner (Render free-tier) – kan tage op til ~1 min første gang'), 3000);
+  try {
+    await fetchJson(`${PROXY}/`, { timeoutMs: 90000, retries: 2 });
+  } catch { /* kaldene nedenfor giver selv en fejlbesked */ }
+  clearTimeout(vaekTimer);
+  return Date.now() - t0;
 }
 
 function search() {
@@ -966,61 +984,99 @@ function autoScan() {
   return hentOgVis({ newsQ: 'klimatilpasning skybrud', andreQ: 'klimatilpasning', limit: 6 });
 }
 
+let hentNr = 0;   // en ny søgning gør svar fra en ældre søgning forældede
+let setTimer = null;   // markCurrentAsSeen fra en ældre søgning må ikke ramme den nye liste
+
 async function hentOgVis({ newsQ, andreQ, limit }) {
+  const mitNr = ++hentNr;
+  clearTimeout(setTimer);
   const articlesContainer = document.getElementById('articles-container');
   const tedContainer = document.getElementById('ted-container');
+  const countEl = document.getElementById('articles-count');
   const searchBtn = document.querySelector('.btn-primary');
   const scanBtn = document.querySelector('.btn-secondary');
 
   articlesContainer.setAttribute('aria-busy', 'true');
-  articlesContainer.innerHTML = '<div class="loading">Henter artikler<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
-  tedContainer.innerHTML = '<div class="loading">Henter EU-udbud<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>';
+  setLoadingMsg(articlesContainer, 'Henter artikler');
+  setLoadingMsg(tedContainer, 'Henter EU-udbud');
   if (searchBtn) searchBtn.disabled = true;
   if (scanBtn) scanBtn.disabled = true;
 
-  // Hvis svaret trækker ud (>6s) er serveren sandsynligvis ved at vågne —
-  // skift besked så brugeren ved at siden ikke er frossen.
-  const wakeTimer = setTimeout(() => setWakingMsg(articlesContainer), 6000);
+  await vaekServer(articlesContainer);
+  if (mitNr !== hentNr) return;
+  setLoadingMsg(articlesContainer, 'Henter fra ca. 160 kilder (typisk 30-60 s første gang)');
+
+  // Resultaterne vises, efterhånden som de kommer: TED er klar efter 3-6 s,
+  // RSS-feedsene efter 5-15 s, og de skrabede sider er langsomst. Før stod
+  // siden tom, til den langsomste var færdig.
+  allArticles = [];
+  const seenIds = new Set();
+  let afventer = 2;
+  let feedsChecked = null;
+  const visArtikler = (data) => {
+    if (mitNr !== hentNr) return;
+    afventer--;
+    // Dedup på artikel-ID på tværs af /news/full og /news/scrape — samme
+    // artikel kan fanges af både et RSS-feed og en scrapet kilde.
+    for (const a of (data && data.articles) || []) {
+      const id = getArticleId(a);
+      if (seenIds.has(id)) continue;
+      seenIds.add(id);
+      allArticles.push(a);
+    }
+    if (data && data.feeds_checked != null) feedsChecked = data.feeds_checked;
+    document.getElementById('stat-articles').textContent = allArticles.length;
+    document.getElementById('stat-feeds').textContent = feedsChecked ?? '—';
+    if (allArticles.length || afventer === 0) {
+      renderFilters({ endelig: afventer === 0 });
+      renderArticles(allArticles);
+      if (afventer > 0) countEl.textContent += ' · henter flere kilder…';
+    }
+  };
+
+  const newsP = fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(newsQ)}&limit=${limit}`)
+    .then(d => { visArtikler(d); return d; }, e => { visArtikler(null); throw e; });
+  const scrapeP = fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(andreQ)}`)
+    .then(d => { visArtikler(d); return d; }, e => { visArtikler(null); throw e; });
+  const tedP = fetchJson(`${PROXY}/ted?q=${encodeURIComponent(andreQ)}&size=10`)
+    .then(d => {
+      if (mitNr === hentNr) {
+        const notices = d.notices || d.results || [];
+        document.getElementById('stat-ted').textContent = notices.length;
+        renderTed(notices);
+      }
+      return d;
+    });
 
   // allSettled: ét fejlende endpoint må ikke skjule de andre
-  const [newsR, tedR, scrapeR] = await Promise.allSettled([
-    fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(newsQ)}&limit=${limit}`, { onRetry: () => setWakingMsg(articlesContainer) }),
-    fetchJson(`${PROXY}/ted?q=${encodeURIComponent(andreQ)}&size=10`),
-    fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(andreQ)}`)
-  ]);
-  clearTimeout(wakeTimer);
+  const [newsR, tedR, scrapeR] = await Promise.allSettled([newsP, tedP, scrapeP]);
+  if (mitNr !== hentNr) return;
 
-  const newsData = newsR.status === 'fulfilled' ? newsR.value : {};
-  const tedData = tedR.status === 'fulfilled' ? tedR.value : {};
-  const scrapeData = scrapeR.status === 'fulfilled' ? scrapeR.value : {};
-
-  // Dedup på artikel-ID på tværs af /news/full og /news/scrape — samme
-  // artikel kan fanges af både et RSS-feed og en scrapet kilde.
-  const seenIds = new Set();
-  allArticles = [...(newsData.articles||[]), ...(scrapeData.articles||[])].filter(a => {
-    const id = getArticleId(a);
-    if (seenIds.has(id)) return false;
-    seenIds.add(id);
-    return true;
-  });
-  const notices = tedData.notices || tedData.results || [];
   // Et endpoint tæller også som fejlet når det svarede pænt (HTTP 200) men
   // lagde en error-nøgle i kroppen. Uden det tjek gik /ted i stykker i
   // månedsvis uden at nogen kunne se det: TED svarede 200 med en fejlbesked,
   // fetchJson kaldte det en succes, og siden viste roligt "0 udbud".
-  const failed = [newsR, tedR, scrapeR].filter(r =>
-    r.status === 'rejected' || r.value?.error).length;
+  const alle = [newsR, tedR, scrapeR];
+  const failed = alle.filter(r => r.status === 'rejected' || r.value?.error).length;
+  const rateLimited = alle.some(r => r.status === 'rejected' && r.reason?.status === 429);
 
-  document.getElementById('stat-articles').textContent = allArticles.length;
-  document.getElementById('stat-ted').textContent = notices.length;
-  document.getElementById('stat-feeds').textContent = newsData.feeds_checked ?? '—';
   const now = new Date();
   const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   document.getElementById('stat-time').textContent = t;
   document.getElementById('last-scan').textContent = `Scannet ${t}`;
 
+  if (tedR.status === 'rejected' || tedR.value?.error) {
+    tedContainer.innerHTML = '<div class="error" role="alert">EU-udbud kunne ikke hentes lige nu.</div>';
+    // Ellers bliver den forrige søgnings tal stående ved siden af fejlen.
+    document.getElementById('stat-ted').textContent = '—';
+    document.getElementById('ted-count').textContent = '';
+  }
+  const fejlTekst = rateLimited
+    ? 'For mange søgninger på kort tid — vent et minut, og prøv igen.'
+    : null;
   if (failed === 3) {
-    articlesContainer.innerHTML = '<div class="error" role="alert">Kunne ikke nå serveren efter flere forsøg. Den er sandsynligvis i dvale (Render free-tier) — tryk "Søg" igen om et øjeblik.</div>';
+    articlesContainer.innerHTML = `<div class="error" role="alert">${escapeHtml(fejlTekst ||
+      'Kunne ikke nå serveren efter flere forsøg. Den er sandsynligvis i dvale (Render free-tier) — tryk "Søg" igen om et øjeblik.')}</div>`;
     tedContainer.innerHTML = '';
   } else {
     renderFilters();
@@ -1028,10 +1084,10 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
     // Efter renderArticles - den overskriver containerens indhold, så en
     // besked indsat før ville forsvinde med det samme.
     if (failed > 0) {
-      articlesContainer.insertAdjacentHTML('afterbegin', '<div class="error" role="alert">Nogle kilder svarede ikke — viser de resultater der kunne hentes.</div>');
+      articlesContainer.insertAdjacentHTML('afterbegin', `<div class="error" role="alert">${escapeHtml(fejlTekst ||
+        'Nogle kilder svarede ikke — viser de resultater der kunne hentes.')}</div>`);
     }
-    renderTed(notices);
-    setTimeout(markCurrentAsSeen, 3000);
+    setTimer = setTimeout(markCurrentAsSeen, 3000);
   }
 
   articlesContainer.setAttribute('aria-busy', 'false');

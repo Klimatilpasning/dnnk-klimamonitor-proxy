@@ -91,9 +91,10 @@ RSS_PLATFORME = {
 
 # ── INTERNATIONALE INSTITUTIONER ──
 RSS_INTERNATIONAL = {
-    "FloodList":                "https://floodlist.com/feed",
+    # Fjernet 7/10-2026 (STILLESTÅENDE i check_sources.py): FloodList - nyeste
+    # item 2024-06-03 - og UN Environment - nyeste item 2024-02-22. Feedsene
+    # svarer med items, så de så sunde ud, men har stået stille i over et år.
     "ICLEI":                    "https://iclei.org/news/rss/",
-    "UN Environment":           "https://www.unep.org/rss.xml",
     "IPCC":                     "https://www.ipcc.ch/feed/",
     "World Resources Inst.":    "https://www.wri.org/insights/rss.xml",
     # Fjernet (intet fungerende RSS): Deltares, The Nature Conservancy.
@@ -233,7 +234,7 @@ RSS_BREDE_SOEGNINGER = {
 
 # ── PODCASTS (RSS til nye episoder) ──
 RSS_PODCASTS = {
-    "Warm Regards (klima)":     "https://feeds.feedburner.com/WarmRegardsPodcast",
+    # Fjernet 7/10-2026: Warm Regards - nyeste episode 2023-12-10 (STILLESTÅENDE).
     # Fjernet (døde/placeholder-RSS): Vandkanten (DNNK) (dummy-ID), Hav og
     # himmel (DMI), The Water Values, Sustainability Defined, Drilled (alle
     # 404 — feeds nedlagt/flyttet).
@@ -307,9 +308,9 @@ SCRAPE_SOURCES = {
     # grundvand ligger nu under /vandressourcer uden nyhedssektion), Vand i Byer
     # (domænet er nu en SEO-indholdsfarm — se noten i RSS_VIDEN) og Den Danske
     # Vandklynge (vandklynge.dk har intet DNS-opslag længere).
-    "Naturstyrelsen Vand":              {"url": "https://naturstyrelsen.dk/nyheder/?tema=vand", "gruppe": "Vandkredsløb & grundvand"},
     "Aarhus Vand Innovation":           {"url": "https://aarhusvand.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
-    "VandCenter Syd Innovation":        {"url": "https://vandcenter.dk/nyheder/", "gruppe": "Vandkredsløb & grundvand"},
+    # VandCenter Syd (både "Innovation" og den almindelige post) og Naturstyrelsen
+    # hentes nu via SITEMAP_SOURCES - listerne her gav 0 titler.
 
     # ── LOVGIVNING & HØRINGER ──
     # Høringer hentes nu via Høringsportalens Atom-feed (se RSS_LOVGIVNING).
@@ -385,16 +386,15 @@ SCRAPE_SOURCES = {
     # ── STYRELSER ──
     "Energistyrelsen":                  {"url": "https://ens.dk/presse/nyheder-og-pressemeddelelser", "gruppe": "Myndigheder"},
     "KL":                               {"url": "https://www.kl.dk/nyheder/", "gruppe": "Myndigheder"},
-    "Naturstyrelsen":                   {"url": "https://naturstyrelsen.dk/nyheder/", "gruppe": "Myndigheder"},
     # brs.dk/da/nyheder/ svarer 200, men listen er JS-renderet. Forsiden har
     # derimod server-renderede teasere, så vi scraper den. Brug IKKE
     # www.beredskabsstyrelsen.dk — det domæne afviser forbindelsen helt.
     "Beredskabsstyrelsen":              {"url": "https://brs.dk/", "gruppe": "Myndigheder"},
-    "Stormrådet":                       {"url": "https://www.stormraadet.dk/nyheder/", "gruppe": "Myndigheder"},
+    # Stormrådet hedder nu Naturskaderådet, og Styrelsen for Dataforsyning er
+    # nu Klimadatastyrelsen - begge hentes via SITEMAP_SOURCES.
     # Fjernet 7/10-2026: Vejdirektoratet. 0 klimatilpasningstitler. Hvis den
     # skal tilbage: Next.js-siden har et åbent Drupal JSON:API på
     # api.vejdirektoratet.dk.
-    "Styrelsen for Dataforsyning":      {"url": "https://sdfe.dk/nyheder/", "gruppe": "Myndigheder"},
     "Statens Byggeforskningsinstitut":  {"url": "https://sbi.dk/nyheder/", "gruppe": "Myndigheder"},
 
     # ── FORSYNINGER – Storkøbenhavn ──
@@ -420,7 +420,7 @@ SCRAPE_SOURCES = {
     # se RSS_FORSYNINGER_RSS.
     "Horsens Vand":                     {"url": "https://horsensvand.dk/nyheder/", "gruppe": "Forsyninger"},
     "Vejle Spildevand":                 {"url": "https://www.vejlespildevand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Kolding Spildevand":               {"url": "https://koldingspildevand.dk/nyheder/", "gruppe": "Forsyninger"},
+    # Kolding Spildevand hedder nu BlueKolding - se SITEMAP_SOURCES.
     # Navneskifte: sonderborgforsyning.dk 301'er til sonfor.dk.
     "SONFOR (tidl. Sønderborg Fors.)":  {"url": "https://sonfor.dk/nyheder/", "gruppe": "Forsyninger"},
     # Navneskifte: esbjergforsyning.dk 301'er til dinforsyning.dk (Esbjerg+Varde).
@@ -442,7 +442,6 @@ SCRAPE_SOURCES = {
     # efterfølgeren skal findes manuelt, fx ved at spørge Lemvig Kommune.
 
     # ── FORSYNINGER – Fyn & Sjælland ──
-    "VandCenter Syd":                   {"url": "https://vandcenter.dk/nyheder/", "gruppe": "Forsyninger"},
     "Danva":                            {"url": "https://www.danva.dk/nyheder/", "gruppe": "Forsyninger"},
     "Næstved Forsyning":                {"url": "https://naestvedforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     "Lolland Forsyning":                {"url": "https://lollandforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
@@ -512,6 +511,68 @@ SITEMAP_SOURCES = {
         "moenster": "/nyheder/",
         # Var "Lovgivning", som ingen filterknap matchede - kystkilden kunne
         # kun ses under "Alle".
+        "gruppe": "Myndigheder",
+    },
+    # ── Tilføjet 7/10-2026. Alle bruger sidens egen udgivelsesdato, fordi
+    # lastmod er redigeringsdatoen (se main.py ved SITEMAP_ANTAL). ──
+    # Den nationale klimatilpasningsportal manglede helt. Nyhedslisten er JS,
+    # artikelsiderne har <time datetime>. Titlerne rammer ofte kun brede ord
+    # ("... gennem fysisk planlægning"), men kilden er per definition på feltet.
+    "Klimatilpasning.dk": {
+        "sitemap": "https://klimatilpasning.dk/sitemap.xml",
+        "moenster": "/nyheder/20",
+        "dato_fra_side": True,
+        "altid_relevant": True,
+        "antal": 6,
+        "gruppe": "Myndigheder",
+    },
+    # sdfe.dk sender 301 til Klimadatastyrelsens 404-side, og listen er JS.
+    # 222 nyheder har lastmod fra en migrering i 2022, så datoen tages fra
+    # "Publiceret DD-MM-YYYY" på siden. Via Ritzau-RSS (publisherId=13561073)
+    # er fravalgt: kun sjældne pressemeddelelser. NB: DMI og Klimadatastyrelsen
+    # sammenlægges (nyhed 1/9-2026) - genbesøg både denne kilde og DMI-scrapen,
+    # når den nye styrelse får eget site.
+    "Klimadatastyrelsen (tidl. SDFE)": {
+        "sitemap": "https://www.klimadatastyrelsen.dk/Handlers/Sitemap.ashx",
+        "moenster": "/nyheder/nyhedsarkiv/20",
+        "dato_regex": r'class="date">\s*Publiceret\s+(\d{2}-\d{2}-\d{4})',
+        "antal": 8,
+        "gruppe": "Myndigheder",
+    },
+    # stormraadet.dk sender videre til naturskaderaadet.dk. Kun /nyheder/:
+    # hele pressemeddelelsesarkivet (2011-2024) har lastmod fra migreringen
+    # 2026-07-10 og ville se nyt ud. Datoen står i URL'en (/20260720-...).
+    # robots.txt beder om Crawl-delay 10 - artikelcachen (6 t) holder kaldene få.
+    "Naturskaderådet": {
+        "sitemap": "https://naturskaderaadet.dk/sitemap",
+        "moenster": "/nyheder/20",
+        "dato_fra_url": True,
+        "antal": 6,
+        "gruppe": "Myndigheder",
+    },
+    "VandCenter Syd": {
+        "sitemap": "https://www.vandcenter.dk/xml-sitemap/",
+        "moenster": "/nyheder/",
+        # <p class="text-theme-grey-300 text-sm">21. august 2026</p>
+        "dato_css": "p.text-theme-grey-300",
+        "antal": 8,
+        "gruppe": "Forsyninger",
+    },
+    # Kolding Spildevand hedder nu BlueKolding. Skråstregen til sidst undgår
+    # en 301. Selve oversigtssiden /nws/ springes over af fetch_sitemap_news.
+    "BlueKolding (tidl. Kolding Spildevand)": {
+        "sitemap": "https://bluekolding.dk/nws-sitemap.xml/",
+        "moenster": "/nws/",
+        "antal": 6,
+        "gruppe": "Forsyninger",
+    },
+    # Mest skov og natur, men lavbunds- og vådområdenyheder kommer med ved
+    # bredere søgninger. Lokale nyheder (/kontakt-os-lokalt/lokale-nyheder/)
+    # er bevidst ikke med: 89 indlæg på 120 dage, næsten kun skovdrift og events.
+    "Naturstyrelsen": {
+        "sitemap": "https://naturstyrelsen.dk/sitemap.xml",
+        "moenster": "/nyheder/20",
+        "antal": 10,
         "gruppe": "Myndigheder",
     },
 }
