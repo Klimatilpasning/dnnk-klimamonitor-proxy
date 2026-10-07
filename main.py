@@ -1081,7 +1081,7 @@ async def fetch_cowi(client, query: str):
     return ud
 
 # ── Politiske dagsordener ────────────────────────────────────
-# Klimarelevante punkter fra kommunernes dagsordener (88 kommuner med det fælles
+# Klimarelevante punkter fra kommunernes dagsordener (97 kommuner; de fleste via det fælles
 # dagsordenssystem). Scanningen er for tung til at køre pr. forespørgsel, så den
 # kører ugentligt i GitHub Actions (dagsordener.yml, tools/scan_dagsordener.py)
 # og lægger en rullende JSON-fil på branchen dagsorden-data. Her læses blot den
@@ -1231,7 +1231,7 @@ async def get_kilder():
     kilder["Nævnsafgørelser"] = [
         "%s (%d søgetermer)" % (navn, len(termer)) for navn, _v, termer in NAEVN_KILDER]
     kilder["Politiske dagsordener"] = [
-        "Kommunale dagsordener (90 kommuner, scannes ugentligt)"]
+        "Kommunale dagsordener (97 kommuner, scannes ugentligt)"]
     kilder["Jura & advokater"] = kilder.get("Jura & advokater", []) + [
         "HortenDahl (Umbraco Content Delivery API)"]
     return kilder

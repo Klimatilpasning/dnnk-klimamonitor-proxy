@@ -11,7 +11,8 @@ Bruges to steder:
 Systemet kræver en anonym cookie: forsiden hentes først i samme session, ellers svarer API'et 302.
 dagsorden_portaler.json vedligeholdes med find_dagsorden_portaler.py (ikke del af ugekørslen).
 En værdi i filen er enten en FirstAgenda-vært (streng) eller et objekt med 'type' for kommuner
-med andre systemer (se ADAPTERE: København = kk_jsonapi, Aalborg = aalborg)."""
+med andre systemer (se ADAPTERE: København = kk_jsonapi, Aalborg = aalborg, Glostrup/Syddjurs =
+aabendagsorden, Billund/Norddjurs = meetingsplus, Frederikssund, Hedensted, Ringkøbing-Skjern = rksk)."""
 import json, re, time, html, zlib, argparse, datetime as dt, requests
 from urllib.parse import quote, unquote
 from pathlib import Path
@@ -198,7 +199,279 @@ def scan_aalborg(kommune, cfg, fra, til):
     return fund
 
 
-ADAPTERE = {'kk_jsonapi': scan_kk, 'aalborg': scan_aalborg}
+# ── Fælles hjælpere til HTML-adaptere ───────────────────────────────────────
+MAANEDER = {m: i for i, m in enumerate(
+    ['januar', 'februar', 'marts', 'april', 'maj', 'juni', 'juli', 'august',
+     'september', 'oktober', 'november', 'december'], 1)}
+
+
+def dansk_dato(s):
+    """'29. september 2026 kl. 13:00' -> date (None hvis formatet ikke genkendes)."""
+    m = re.search(r'(\d{1,2})\.\s*([a-zæøå]+)\s+(\d{4})', (s or '').lower())
+    if m and m.group(2) in MAANEDER:
+        return dt.date(int(m.group(3)), MAANEDER[m.group(2)], int(m.group(1)))
+    return None
+
+
+def html_session():
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (DNNK dagsordensovervaagning)'
+    return s
+
+
+def hent_tekst(s, url, **kw):
+    """Henter som UTF-8 uanset Content-Type (flere servere angiver ikke charset)."""
+    r = s.get(url, timeout=60, **kw)
+    r.raise_for_status()
+    return r.content.decode('utf-8', 'replace')
+
+
+def advar_hvis_tom(kommune, moeder):
+    print(f'  {kommune}: {moeder} møder i vinduet', flush=True)
+    if not moeder:
+        print(f'  ! {kommune}: 0 møder i vinduet - tjek om siden har ændret sig', flush=True)
+
+
+# ── Åben Dagsorden (Glostrup, Syddjurs) ─────────────────────────────────────
+# JSON-søgning efter møder + server-renderet HTML-fragment pr. møde. Søgningen giver
+# højst 50 møder, så vinduet hentes i bidder af 10 dage. Datoformatet er forskelligt
+# pr. kommune ('iso' = YYYY-MM-DD, 'dmy' = dd/mm/yyyy). agendaItems i søgesvaret er kun
+# et smugkig (højst 3 titler) og bruges ikke.
+def scan_aabendagsorden(kommune, cfg, fra, til):
+    s, host = html_session(), cfg['host']
+    fmt = (lambda d: d.isoformat()) if cfg.get('datoformat') == 'iso' else (lambda d: d.strftime('%d/%m/%Y'))
+    udeluk = set(cfg.get('udeluk', []))
+    moeder, dag = {}, fra
+    while dag <= til:
+        slut = min(dag + dt.timedelta(9), til)
+        d = s.get(f'https://{host}/rest/meeting/search',
+                  params={'query': '', 'fromDate': fmt(dag), 'toDate': fmt(slut)}, timeout=30).json()
+        if (d.get('numberOfResults') or 0) >= 50:
+            print(f'  ! {kommune}: 50 møder på 10 dage - loftet er nået, nogle kan mangle', flush=True)
+        for m in d.get('meetings') or []:
+            if not m.get('blocked') and m.get('committeeGroupName') not in udeluk:
+                moeder[m['meetingId']] = m
+        dag = slut + dt.timedelta(1)
+        time.sleep(PAUSE)
+    fund = []
+    for mid, m in moeder.items():
+        dato = dt.date.fromisoformat(m['date'][:10])
+        time.sleep(PAUSE)
+        side = hent_tekst(s, f'https://{host}/fragments/meeting/{mid}/view')
+        for del_ in side.split('class="agenda-item-title"')[1:]:
+            titel = tekst(del_.split('</h3>', 1)[0].split('>', 1)[-1])
+            nr = re.match(r'Punkt\s+(\d+)\s*', titel)
+            titel = titel[nr.end():] if nr else titel
+            res = ''
+            if 'Resum' in del_:
+                res = tekst(re.split(r'Resum[ée]</h\d>', del_, 1)[-1])[:600]
+            f = match_punkt(kommune, m.get('committeeGroupName') or m.get('committeeName'), dato, titel, res,
+                            f'https://{host}/meeting/{mid}', '', nr.group(1) if nr else '', host)
+            if f:
+                fund.append(f)
+    advar_hvis_tom(kommune, len(moeder))
+    return fund
+
+
+# ── Formpipe Meetings+ (Billund, Norddjurs) ─────────────────────────────────
+# /overview viser kommende og seneste møder (ca. 2 måneder) for alle udvalg i ét kald.
+# Mødelinks skal læses fra listen (slugs kan ikke bygges). Punkterne står i
+# id="agendaTabContent", indtil referatet er ude - så i id="protocolTabContent".
+# Hvert punkt er en li.meeting-item-row; "Bilag"-overskrifter er ikke rækker og tælles ikke.
+# Resumé findes kun som PDF og hentes ikke.
+def scan_meetingsplus(kommune, cfg, fra, til):
+    s, host = html_session(), cfg['host']
+    oversigt = hent_tekst(s, f'https://{host}/overview')
+    moeder = {}
+    for raekke in oversigt.split('meeting-list-item')[1:]:
+        m = re.search(r'data-content-id="(\d+)".*?<a href="([^"]+)"[^>]*>\s*(\d{4}-\d{2}-\d{2})', raekke, re.S)
+        u = re.search(r'class="url-text">\s*([^<]+?)\s*<', raekke)
+        if not m:
+            continue
+        dato = dt.date.fromisoformat(m.group(3))
+        if fra <= dato <= til:
+            moeder[m.group(1)] = (dato, m.group(2), html.unescape(u.group(1)) if u else '')
+    fund = []
+    for mid, (dato, href, udvalg) in moeder.items():
+        time.sleep(PAUSE)
+        url = href if href.startswith('http') else f'https://{host}{href}'
+        side = hent_tekst(s, url)
+        faner = {}
+        for fane in ('protocolTabContent', 'agendaTabContent'):
+            i = side.find(f'id="{fane}"')
+            if i >= 0:
+                faner[fane] = i
+        # Afgræns hver fane til teksten indtil den næste fane begynder
+        graenser = sorted(faner.values()) + [len(side)]
+        indhold = {f: side[i:graenser[graenser.index(i) + 1]] for f, i in faner.items()}
+        rows = []
+        for fane in ('protocolTabContent', 'agendaTabContent'):
+            rows = indhold.get(fane, '').split('meeting-item-row')[1:]
+            if any('item-title' in r for r in rows):
+                break
+        for r in rows:
+            nr = re.search(r'list-item-number">\s*(\d+)', r)
+            t = re.search(r'class="item-title">\s*(.*?)\s*</p>', r, re.S)
+            pid = re.search(r'name="id_(\d+)"', r)
+            if not t:
+                continue
+            titel = re.sub(r'^[DO]\s+-\s+', '', tekst(t.group(1)))   # Billund: "D - " / "O - " foran
+            f = match_punkt(kommune, udvalg, dato, titel, '', url + (f'#id_{pid.group(1)}' if pid else ''),
+                            '', nr.group(1) if nr else '', host)
+            if f:
+                fund.append(f)
+    advar_hvis_tom(kommune, len(moeder))
+    return fund
+
+
+# ── Frederikssund (egen CMS-side) ───────────────────────────────────────────
+# Udvalgsslugs fra oversigtssiden; mødelinks har datoen i stien
+# (/{slug}/{YYYY-MM-DD_HH-MM}/{dagsorden|referat}), så vinduet filtreres uden at parse tekst.
+# Findes både dagsorden og referat for samme møde, bruges referatet.
+FRS = 'https://www.frederikssund.dk/Politik/Dagsordener-og-referater'
+
+
+def scan_frederikssund(kommune, cfg, fra, til):
+    s = html_session()
+    forside = hent_tekst(s, FRS)
+    slugs = sorted({x for x in re.findall(r'/Politik/Dagsordener-og-referater/([^"/?#]+)"', forside, re.I)
+                    if not x.lower().startswith('udvalg-')})       # udvalg-2024-2025 = forrige periode
+    moeder = {}
+    for slug in slugs:
+        for aar in sorted({fra.year, til.year}):
+            time.sleep(PAUSE)
+            liste = hent_tekst(s, f'{FRS}/{slug}', params={'year': aar} if aar != dt.date.today().year else None)
+            for sti, d, typ in re.findall(
+                    r'href="(/Politik/Dagsordener-og-referater/[^"/]+/(\d{4}-\d{2}-\d{2})_\d{2}-\d{2}/(\w+))"', liste):
+                dato = dt.date.fromisoformat(d)
+                if fra <= dato <= til:
+                    nogle = sti.rsplit('/', 1)[0]
+                    if nogle not in moeder or typ == 'referat':
+                        moeder[nogle] = (dato, sti)
+    fund = []
+    for dato, sti in moeder.values():
+        time.sleep(PAUSE)
+        url = 'https://www.frederikssund.dk' + sti
+        side = hent_tekst(s, url)
+        titel_side = tekst((re.search(r'<title>(.*?)</title>', side, re.S) or [None, ''])[1])
+        udvalg = re.sub(r's? møde den .*$', '', titel_side).strip() or sti.split('/')[3]
+        for nr, titel in re.findall(r'<span class="no">(\d+)</span>\s*<span>(.*?)</span>', side, re.S):
+            blok = side.split(f'id="item-{nr}"', 1)[-1]
+            res = tekst(blok.split('<h3>Resume</h3>', 1)[1][:3000])[:600] if '<h3>Resume</h3>' in blok[:20000] else ''
+            f = match_punkt(kommune, udvalg, dato, tekst(titel), res, f'{url}#item-{nr}', '', nr,
+                            'frederikssund.dk')
+            if f:
+                fund.append(f)
+    advar_hvis_tom(kommune, len(moeder))
+    return fund
+
+
+# ── Hedensted (SBSYS-modul i Umbraco) ───────────────────────────────────────
+# Hver udvalgsside har data-listid/-pageurl/-elementid, der skal med i GetAgendaList
+# (alle tre, ellers 400). listid følger valgperioden ("2026UKlima"), så de hentes dynamisk.
+# Mødesiden: punkter i <h2>{nr}. {titel}</h2>, "Beslutningstema" bruges som resumé.
+HED = 'https://www.hedensted.dk'
+HED_OVERSIGT = '/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater'
+
+
+def scan_hedensted(kommune, cfg, fra, til):
+    s = html_session()
+    oversigt = hent_tekst(s, HED + HED_OVERSIGT)
+    sider = sorted(set(re.findall(r'href="(?:https://www\.hedensted\.dk)?(' + re.escape(HED_OVERSIGT)
+                                  + r'/[^"#?]+-dagsordener-og-referater)"', oversigt)))
+    moeder = {}
+    for side_sti in sider:
+        time.sleep(PAUSE)
+        u = hent_tekst(s, HED + side_sti)
+        a ={k: re.search(rf'data-{k}="([^"]+)"', u) for k in ('listid', 'pageurl', 'elementid')}
+        if not all(a.values()):
+            continue
+        time.sleep(PAUSE)
+        liste = hent_tekst(s, HED + '/surface/AgendaSurface/GetAgendaList',
+                           params={'folderId': a['listid'].group(1), 'pageUrl': html.unescape(a['pageurl'].group(1)),
+                                   'elementId': a['elementid'].group(1)})
+        for href in re.findall(r'class="list__link" href="([^"]+)"', liste):
+            href = html.unescape(href)
+            d = re.search(r'/(\d{2})-(\d{2})-(\d{4})', href)
+            if not d:
+                continue
+            dato = dt.date(int(d.group(3)), int(d.group(2)), int(d.group(1)))
+            if fra <= dato <= til:
+                # Udvalgsnavnet fra sidetitlen ("Udvalget for Klima, Natur & Miljø - dagsordener ... | Hedensted Kommune")
+                t = tekst((re.search(r'<title>(.*?)</title>', u, re.S) or [None, ''])[1])
+                udvalg = re.sub(r'\s*-?\s*dagsordener og referater$', '', re.split(r'\s+[-|]\s+', t)[0], flags=re.I).strip()
+                udvalg = udvalg or side_sti.rsplit('/', 1)[-1].replace('-dagsordener-og-referater', '').replace('-', ' ').capitalize()
+                moeder[href] = (dato, udvalg)
+    fund = []
+    for href, (dato, udvalg) in moeder.items():
+        time.sleep(PAUSE)
+        url = HED + href
+        side = hent_tekst(s, url)
+        for blok in re.split(r'<h2[^>]*>', side)[1:]:
+            titel = tekst(blok.split('</h2>', 1)[0])
+            nr = re.match(r'(\d+)\.\s*', titel)
+            if not nr:
+                continue
+            krop = blok.split('</h2>', 1)[-1]
+            res = tekst(krop.split('<h3>Beslutningstema</h3>', 1)[1][:3000])[:600] if '<h3>Beslutningstema</h3>' in krop else ''
+            f = match_punkt(kommune, udvalg, dato, titel, res, url, '', nr.group(1), 'hedensted.dk')
+            if f:
+                fund.append(f)
+    advar_hvis_tom(kommune, len(moeder))
+    return fund
+
+
+# ── Ringkøbing-Skjern (eDoc i Dynamicweb på rksk.dk) ────────────────────────
+# Mødelister: Byrådets side + hvert aktuelt udvalgs liste (fundet via udvalgsoversigten;
+# "ref-"-sider er tidligere udvalg). Rækkerne er tr.agenda--tr med dansk dato og ?AgendaID=.
+# Mødesiden: punkter i div.agenda--card.agenda--item med titlen i <h2 class="h3">nr <span>: titel</span>.
+# Content-Type mangler charset, og sider kan fylde 4 MB pga. base64-billeder.
+RKSK = 'https://www.rksk.dk'
+
+
+def scan_rksk(kommune, cfg, fra, til):
+    s = html_session()
+    lister = ['/om-kommunen/byraad/dagsorden-og-referat']
+    oversigt = hent_tekst(s, RKSK + '/om-kommunen/politiske-udvalg')
+    for u in sorted(set(re.findall(r'href="(/om-kommunen/politiske-udvalg/[^"#?/]+)"', oversigt))):
+        if u.rsplit('/', 1)[-1].startswith('ref-'):
+            continue
+        time.sleep(PAUSE)
+        side = hent_tekst(s, RKSK + u)
+        lister += sorted(set(re.findall(r'href="(' + re.escape(u) + r'/[^"#?]+)"', side)))
+    moeder = {}
+    for liste_sti in lister:
+        time.sleep(PAUSE)
+        liste = hent_tekst(s, RKSK + liste_sti)
+        for dato_s, udvalg, aid in re.findall(
+                r'<tr class="agenda--tr"[^>]*><td[^>]*>\d+</td><td>([^<]+)</td><td>([^<]+)</td><td><a href="[^"]*AgendaID=(\d+)"',
+                liste):
+            dato = dansk_dato(dato_s)
+            if dato and fra <= dato <= til:
+                moeder[aid] = (dato, html.unescape(udvalg))
+    fund = []
+    for aid, (dato, udvalg) in moeder.items():
+        time.sleep(PAUSE)
+        url = f'{RKSK}/om-kommunen/byraad/dagsorden-og-referat?AgendaID={aid}'
+        side = hent_tekst(s, url)
+        for blok in side.split('class="agenda--card agenda--item" id="')[1:]:
+            guid = blok.split('"', 1)[0]
+            h = re.search(r'<h2 class="h3">\s*(\d+)\s*<span>\s*:\s*(.*?)</span>', blok, re.S)
+            if not h:
+                continue
+            krop = re.sub(r'data:image[^"\']+', '', blok)
+            res = tekst(krop.split('<strong>Sagsfremstilling</strong>', 1)[1][:3000])[:600] \
+                if '<strong>Sagsfremstilling</strong>' in krop else ''
+            f = match_punkt(kommune, udvalg, dato, tekst(h.group(2)), res, f'{url}#{guid}', '', h.group(1), 'rksk.dk')
+            if f:
+                fund.append(f)
+    advar_hvis_tom(kommune, len(moeder))
+    return fund
+
+
+ADAPTERE = {'kk_jsonapi': scan_kk, 'aalborg': scan_aalborg, 'aabendagsorden': scan_aabendagsorden,
+            'meetingsplus': scan_meetingsplus, 'frederikssund': scan_frederikssund,
+            'hedensted': scan_hedensted, 'rksk': scan_rksk}
 
 
 def scan(kommune, cfg, fra, til):
@@ -220,6 +493,8 @@ def punkt_url(f):
         return url
     if '/vis?id=' in url:
         return f"{url}&punkt={nr}"
+    if '#' in url:          # adapteren har allerede sat platformens eget punktanker (fx #item-139)
+        return url
     return f"{url}#punkt-{nr}"
 
 

@@ -1,7 +1,10 @@
 {
   "Albertslund": "dagsordner.albertslund.dk",
   "Assens": "dagsorden.assens.dk",
-  "Billund": null,
+  "Billund": {
+    "type": "meetingsplus",
+    "host": "billund.meetingsplus.dk"
+  },
   "Bornholm": "dagsordener.bornholm.dk",
   "Brøndby": "dagsordener.brondby.dk",
   "Brønderslev": "dagsordener.bronderslev.dk",
@@ -11,11 +14,20 @@
   "Faxe": "dagsordener.faxekommune.dk",
   "Fredensborg": "dagsordener.fredensborg.dk",
   "Furesø": "dagsordener.furesoe.dk",
-  "Frederikssund": null,
+  "Frederikssund": {
+    "type": "frederikssund"
+  },
   "Fredericia": "dagsordner.fredericia.dk",
   "Gladsaxe": "dagsordener.gladsaxe.dk",
   "Ballerup": "dagsorden.ballerup.dk",
-  "Glostrup": null,
+  "Glostrup": {
+    "type": "aabendagsorden",
+    "host": "dagsorden.glostrup.dk",
+    "datoformat": "iso",
+    "udeluk": [
+      "Testudvalget"
+    ]
+  },
   "Gentofte": "dagsordener.gentofte.dk",
   "Esbjerg": "dagsordener.esbjergkommune.dk",
   "Faaborg-Midtfyn": "dagsordener.fmk.dk",
@@ -28,7 +40,9 @@
   "Guldborgsund": "dagsordener.guldborgsund.dk",
   "Haderslev": "dagsordener.haderslev.dk",
   "Halsnæs": "dagsorden.halsnaes.dk",
-  "Hedensted": null,
+  "Hedensted": {
+    "type": "hedensted"
+  },
   "Helsingør": "dagsordener.helsingor.dk",
   "Herlev": "dagsordener.herlev.dk",
   "Herning": "dagsordener.herning.dk",
@@ -59,7 +73,10 @@
   "Mariagerfjord": "dagsordener.mariagerfjord.dk",
   "Middelfart": "dagsordener.middelfart.dk",
   "Morsø": "dagsordener.mors.dk",
-  "Norddjurs": null,
+  "Norddjurs": {
+    "type": "meetingsplus",
+    "host": "norddjurs.meetingsplus.dk"
+  },
   "Nordfyns Kommune": "dagsordener.nordfynskommune.dk",
   "Nyborg": "dagsordener.nyborg.dk",
   "Næstved": "dagsordener.naestved.dk",
@@ -73,7 +90,9 @@
   "Sorø": "dagsordener.soroe.dk",
   "Randers": "dagsordener.randers.dk",
   "Rebild": "dagsordener.rebild.dk",
-  "Ringkøbing-Skjern": null,
+  "Ringkøbing-Skjern": {
+    "type": "rksk"
+  },
   "Rødovre": "dagsordener.rk.dk",
   "Samsø": "dagsorden.samsoe.dk",
   "Skanderborg": "dagsordener.skanderborg.dk",
@@ -83,7 +102,11 @@
   "Stevns": "dagsordener.stevns.dk",
   "Struer": "dagsordener.struer.dk",
   "Svendborg": "dagsordener.svendborg.dk",
-  "Syddjurs": null,
+  "Syddjurs": {
+    "type": "aabendagsorden",
+    "host": "aabendagsorden.syddjurs.dk",
+    "datoformat": "dmy"
+  },
   "Sønderborg": "dagsordener.sonderborgkommune.dk",
   "Thisted": "dagsordener.thisted.dk",
   "Aarhus": "dagsordener.aarhus.dk",
