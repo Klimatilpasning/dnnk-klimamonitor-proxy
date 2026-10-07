@@ -91,9 +91,10 @@ RSS_PLATFORME = {
 
 # ── INTERNATIONALE INSTITUTIONER ──
 RSS_INTERNATIONAL = {
-    "FloodList":                "https://floodlist.com/feed",
+    # Fjernet 7/10-2026 (STILLESTÅENDE i check_sources.py): FloodList - nyeste
+    # item 2024-06-03 - og UN Environment - nyeste item 2024-02-22. Feedsene
+    # svarer med items, så de så sunde ud, men har stået stille i over et år.
     "ICLEI":                    "https://iclei.org/news/rss/",
-    "UN Environment":           "https://www.unep.org/rss.xml",
     "IPCC":                     "https://www.ipcc.ch/feed/",
     "World Resources Inst.":    "https://www.wri.org/insights/rss.xml",
     # Fjernet (intet fungerende RSS): Deltares, The Nature Conservancy.
@@ -233,7 +234,7 @@ RSS_BREDE_SOEGNINGER = {
 
 # ── PODCASTS (RSS til nye episoder) ──
 RSS_PODCASTS = {
-    "Warm Regards (klima)":     "https://feeds.feedburner.com/WarmRegardsPodcast",
+    # Fjernet 7/10-2026: Warm Regards - nyeste episode 2023-12-10 (STILLESTÅENDE).
     # Fjernet (døde/placeholder-RSS): Vandkanten (DNNK) (dummy-ID), Hav og
     # himmel (DMI), The Water Values, Sustainability Defined, Drilled (alle
     # 404 — feeds nedlagt/flyttet).
