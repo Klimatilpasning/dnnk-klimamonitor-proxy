@@ -456,6 +456,13 @@
   }
 
   .empty { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.88rem; }
+  .empty a { color: var(--dnnk-blue); }
+  mark { background: #fff1a8; color: inherit; padding: 0 1px; border-radius: 2px; }
+  .traef-badge {
+    display: inline-block; padding: 0.1rem 0.4rem; border-radius: 2px;
+    font-size: 0.62rem; font-weight: 600; background: #fff1a8; color: #5a4a00; margin-left: 0.3rem;
+  }
+  .ted-note { font-size: 0.8rem; color: var(--muted); margin: 0 0 0.5rem; }
 
   .gruppe-badge {
     display: inline-block;
@@ -550,6 +557,7 @@
     <button type="button" class="sort-btn active" id="sort-date" aria-pressed="true" onclick="setSort('date')">Nyeste først</button>
     <button type="button" class="sort-btn" id="sort-relevance" aria-pressed="false" onclick="setSort('relevance')">Mest relevant</button>
     <button type="button" class="hide-read-btn" id="hide-read-btn" aria-pressed="false" onclick="toggleHideRead()">Skjul læste</button>
+    <button type="button" class="hide-read-btn" id="kun-traef-btn" aria-pressed="false" onclick="toggleKunTraef()" hidden>Kun træf</button>
   </div>
 
   <!-- Intet aria-live her: hele listen blev læst op ved hver gentegning.
@@ -787,8 +795,47 @@ function voteRelevance(id, direction) {
 }
 
 // ─── Render ─────────────────────────────────────────────────
+// ─── Egen søgning ───────────────────────────────────────────
+// Søgeordet hentede før aldrig noget nyt og ændrede ikke listen: ved
+// "stormflod" nævnte 3 af 203 artikler ordet, og de lå på plads 51-204.
+// Backenden markerer nu søgetræf (q_traef, se q_point i main.py); her lægges
+// de øverst, markeres, og "Kun træf" er slået til som standard.
+let aktivQ = 'klimatilpasning';
+let kunTraef = true;
+const egenSoegning = () => aktivQ.trim().toLowerCase() !== 'klimatilpasning';
+
+function toggleKunTraef() {
+  kunTraef = !kunTraef;
+  const btn = document.getElementById('kun-traef-btn');
+  btn.classList.toggle('active', kunTraef);
+  btn.setAttribute('aria-pressed', String(kunTraef));
+  renderArticles(allArticles);
+}
+
+// Til <mark>: ordstart, ord over 3 tegn eller akronymer - samme ånd som
+// backendens regler, men kun til fremhævning, ikke til udvælgelse.
+function traefRegex() {
+  const ord = aktivQ.split(/\s+/).map(w => w.replace(/[.,;:!?"'()»«]/g, ''))
+    .filter(w => w.length > 3 || (w.length >= 2 && w === w.toUpperCase() && /\p{L}/u.test(w)));
+  if (!ord.length) return null;
+  const esc = w => escapeHtml(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('(^|[^\\p{L}\\p{N}])(' + ord.map(esc).join('|') + ')', 'giu');
+}
+
+function fremhaev(tekst, rx) {
+  const html = escapeHtml(tekst);
+  return rx ? html.replace(rx, (m, foer, ord) => `${foer}<mark>${ord}</mark>`) : html;
+}
+
+function formaterMoede(dato) {
+  try { return new Date(dato + 'T12:00').toLocaleDateString('da-DK', { day: 'numeric', month: 'short' }); }
+  catch { return dato; }
+}
+
 function renderArticles(articles) {
   const container = document.getElementById('articles-container');
+  const egen = egenSoegning();
+  const rx = egen ? traefRegex() : null;
 
   // Filtrer DR-irrelevante fra
   let filtered = articles.filter(isRelevantArticle);
@@ -801,16 +848,33 @@ function renderArticles(articles) {
   // Skjul læste
   if (hideRead) filtered = filtered.filter(a => !readArticles.has(getArticleId(a)));
 
-  // Sorter: ulæste øverst
-  const ulaesteArtikler = filtered.filter(a => !readArticles.has(getArticleId(a)));
-  const laesteArtikler = filtered.filter(a => readArticles.has(getArticleId(a)));
-  filtered = [...sortArticles(ulaesteArtikler), ...sortArticles(laesteArtikler)];
+  // Egen søgning: træf øverst (eller kun træf), med "X af Y nævner »q«"
+  const iAlt = filtered.length;
+  const antalTraef = egen ? filtered.filter(a => a.q_traef).length : 0;
+  const traefKnap = document.getElementById('kun-traef-btn');
+  traefKnap.hidden = !egen;
+  if (egen && kunTraef) filtered = filtered.filter(a => a.q_traef);
 
-  const unread = filtered.filter(a => !readArticles.has(getArticleId(a))).length;
-  document.getElementById('articles-count').textContent = `${filtered.length} resultater · ${unread} ulæste`;
+  // Sorter: ulæste øverst, og ved egen søgning træf før øvrige i hver del
+  const laest = a => readArticles.has(getArticleId(a));
+  const dele = egen && !kunTraef
+    ? [filtered.filter(a => !laest(a) && a.q_traef), filtered.filter(a => !laest(a) && !a.q_traef),
+       filtered.filter(a => laest(a) && a.q_traef), filtered.filter(a => laest(a) && !a.q_traef)]
+    : [filtered.filter(a => !laest(a)), filtered.filter(a => laest(a))];
+  filtered = dele.flatMap(sortArticles);
+
+  const unread = filtered.filter(a => !laest(a)).length;
+  document.getElementById('articles-count').textContent = egen
+    ? `${antalTraef} af ${iAlt} nævner »${aktivQ}« · ${unread} ulæste`
+    : `${filtered.length} resultater · ${unread} ulæste`;
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty">Ingen artikler fundet</div>';
+    container.innerHTML = egen && kunTraef && iAlt > 0
+      ? `<div class="empty">Ingen af de ${iAlt} overvågede artikler nævner »${escapeHtml(aktivQ)}«.
+           <br><a href="#" data-action="vis-alle">Vis alle ${iAlt}</a> ·
+           <a href="https://klimatilpasning.github.io/dnnk-vidensassistent/?q=${encodeURIComponent(aktivQ)}" target="_blank" rel="noopener noreferrer">Søg i DNNK's vidensassistent</a> ·
+           <a href="https://www.dnnk.dk/vidensbank/" target="_blank" rel="noopener noreferrer">DNNK's vidensbank</a></div>`
+      : '<div class="empty">Ingen artikler fundet</div>';
     return;
   }
 
@@ -837,12 +901,13 @@ function renderArticles(articles) {
       <div class="article-card ${isRead ? 'is-read' : ''} ${isNew && !isRead ? 'is-new' : ''}">
         <div>
           <div class="article-title">
-            <a href="${safeUrl(a.url || '#')}" target="_blank" rel="noopener noreferrer" data-action="mark-read" data-id="${escapeHtml(id)}">${escapeHtml(a.title || 'Uden titel')}</a>
+            <a href="${safeUrl(a.url || '#')}" target="_blank" rel="noopener noreferrer" data-action="mark-read" data-id="${escapeHtml(id)}">${a.q_traef ? fremhaev(a.title || 'Uden titel', rx) : escapeHtml(a.title || 'Uden titel')}</a>
             ${a.gruppe ? `<span class="gruppe-badge">${escapeHtml(a.gruppe)}</span>` : ''}
+            ${egen && a.q_traef ? '<span class="traef-badge">Søgetræf</span>' : ''}
             ${isNew && !isRead ? '<span class="new-badge">Ny</span>' : ''}
           </div>
-          <div class="article-meta">${escapeHtml(a.feedSource || '')} · ${escapeHtml(a.date || '')}</div>
-          <div class="article-summary">${escapeHtml(summary)}</div>
+          <div class="article-meta">${escapeHtml(a.feedSource || '')} · ${escapeHtml(a.date || 'uden dato')}${a.moede_dato ? ` · <strong>Møde ${escapeHtml(formaterMoede(a.moede_dato))}</strong>` : ''}</div>
+          <div class="article-summary">${a.q_traef ? fremhaev(summary, rx) : escapeHtml(summary)}</div>
           ${webinarLine}
           <div class="tags">
             ${(a.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
@@ -885,6 +950,7 @@ document.getElementById('articles-container').addEventListener('click', (e) => {
     case 'vote-up':     voteRelevance(id, 'up'); break;
     case 'vote-down':   voteRelevance(id, 'down'); break;
     case 'toggle-read': toggleRead(id); break;
+    case 'vis-alle':    e.preventDefault(); if (kunTraef) toggleKunTraef(); break;
   }
 });
 
@@ -969,7 +1035,7 @@ async function vaekServer(container) {
 function search() {
   const q = document.getElementById('search-input').value.trim() || 'klimatilpasning';
   syncUrl();
-  return hentOgVis({ newsQ: q, andreQ: q, limit: 5 });
+  return hentOgVis({ newsQ: q, andreQ: q, limit: 5, dyb: true });
 }
 
 // Auto-scan lavede før 5 /news/full-kald med faste søgninger. Målt gav de 201
@@ -987,7 +1053,10 @@ function autoScan() {
 let hentNr = 0;   // en ny søgning gør svar fra en ældre søgning forældede
 let setTimer = null;   // markCurrentAsSeen fra en ældre søgning må ikke ramme den nye liste
 
-async function hentOgVis({ newsQ, andreQ, limit }) {
+async function hentOgVis({ newsQ, andreQ, limit, dyb = false }) {
+  aktivQ = dyb ? newsQ : 'klimatilpasning';
+  // Hver ny egen søgning starter med "Kun træf" slået til
+  if (!kunTraef) toggleKunTraef();
   const mitNr = ++hentNr;
   clearTimeout(setTimer);
   const articlesContainer = document.getElementById('articles-container');
@@ -1034,7 +1103,8 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
     }
   };
 
-  const newsP = fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(newsQ)}&limit=${limit}`)
+  // dyb=1: søg også på q selv i Nævnenes Hus (kun ved egen søgning)
+  const newsP = fetchJson(`${PROXY}/news/full?q=${encodeURIComponent(newsQ)}&limit=${limit}${dyb && egenSoegning() ? '&dyb=1' : ''}`)
     .then(d => { visArtikler(d); return d; }, e => { visArtikler(null); throw e; });
   const scrapeP = fetchJson(`${PROXY}/news/scrape?q=${encodeURIComponent(andreQ)}`)
     .then(d => { visArtikler(d); return d; }, e => { visArtikler(null); throw e; });
@@ -1044,6 +1114,10 @@ async function hentOgVis({ newsQ, andreQ, limit }) {
         const notices = d.notices || d.results || [];
         document.getElementById('stat-ted').textContent = notices.length;
         renderTed(notices);
+        if (d.match === 'or' && notices.length) {
+          tedContainer.insertAdjacentHTML('afterbegin',
+            '<p class="ted-note">Ingen udbud nævner hele søgningen - viser udbud, der nævner et af ordene.</p>');
+        }
       }
       return d;
     });

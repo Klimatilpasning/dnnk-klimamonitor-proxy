@@ -301,7 +301,9 @@ SCRAPE_SOURCES = {
     # <header>, som scraperen fjernede — derfor fallbacket i scrape_news.
     # Indholdet er kommunale sagsbehandleres spørgsmål/svar — praksisnær viden
     # der ikke findes i nogen nyhedsstrøm.
-    "KTC Kystnetværk Sjælland":         {"url": "https://www.ktc.dk/netvaerk/netvaerk-kystbeskyttelse-region-sjaelland", "gruppe": "Platforme & netværk"},
+    # "betroet": hele indholdet er kystbeskyttelse, så trådene vises uanset
+    # nøgleord og sorteret nyeste først - se _BETROET_STOEJ i main.py.
+    "KTC Kystnetværk Sjælland":         {"url": "https://www.ktc.dk/netvaerk/netvaerk-kystbeskyttelse-region-sjaelland", "gruppe": "Platforme & netværk", "betroet": True},
 
     # ── GRUNDVAND & VANDKREDSLØB ──
     # Fjernet 14/9-2026: GEUS Grundvand (hele /vores-viden/vand/* er nedlagt;

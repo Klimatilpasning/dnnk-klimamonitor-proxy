@@ -79,6 +79,8 @@ def scan_kommune(kommune, host, fra, til):
                                     p.get('SagsNummer') or '',
                                     p.get('Punktnummer') or '', host)
                     if f:
+                        # Hvornår dagsordenen blev offentliggjort - se til_monitor.
+                        f['udgivet'] = (m.get('ReleasedDate') or m['Dato'])[:10]
                         fund.append(f)
     return fund
 
@@ -508,7 +510,11 @@ def til_monitor(f):
     return {"source": f"Dagsorden: {f['kommune']}", "feedSource": "Politiske dagsordener",
             "org": f"{f['kommune']} Kommune",
             "title": f"{f['kommune']}: {f['titel']}",
-            "url": punkt_url(f), "date": f['dato'],
+            # date = offentliggørelse (klemt til mødedatoen), ikke mødet selv: med
+            # mødedatoen lå 21 kommende punkter øverst i "Nyeste først", og den
+            # første rigtige nyhed stod som nr. 37. Mødet står i moede_dato.
+            "url": punkt_url(f), "date": min(f.get('udgivet') or f['dato'], f['dato']),
+            "moede_dato": f['dato'],
             "summary": (f"{f['udvalg']}, møde {f['dato']}, pkt. {f['punkt']}. " + f['resume'])[:400],
             # Stærkt ord i titlen > kun svagt ord i titlen (fx rutinetillæg til spildevandsplanen) > kun i resuméet
             "relevance": 0.9 if f.get('staerk_titel') else 0.7 if f['styrke'] == 'titel' else 0.6, "value": "",
@@ -519,11 +525,11 @@ def skriv_monitor(alle, sti, tidligere, idag):
     """Rullende fil: ugens fund + tidligere fund fra de sidste BEHOLD_DAGE dage (pr. mødedato)."""
     graense = str(idag - dt.timedelta(BEHOLD_DAGE))
     samlet = {a['nogle']: {**a, 'url': ret_gammelt_link(a.get('url'))}
-              for a in tidligere if a.get('date', '') >= graense}
+              for a in tidligere if a.get('moede_dato', a.get('date', '')) >= graense}
     samlet.update({f['nogle']: til_monitor(f) for f in alle})
     # Samme sag behandles ofte i udvalg og derefter byråd: vis den kun én gang, med det seneste møde.
     pr_sag = {}
-    for a in sorted(samlet.values(), key=lambda a: a['date']):
+    for a in sorted(samlet.values(), key=lambda a: a.get('moede_dato', a['date'])):
         pr_sag[(a['org'], a['title'])] = a
     ud = sorted(pr_sag.values(), key=lambda a: a['date'], reverse=True)
     Path(sti).parent.mkdir(parents=True, exist_ok=True)
