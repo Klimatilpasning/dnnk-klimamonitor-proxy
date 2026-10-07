@@ -45,7 +45,9 @@ if __name__ == '__main__':
     with cf.ThreadPoolExecutor(12) as ex:
         res = dict(ex.map(find, KOMMUNER))
     for k, v in res.items():
-        if not v and gamle.get(k) and test(gamle[k]):
+        if isinstance(gamle.get(k), dict):      # kommuner med egen adapter (København, Aalborg ...)
+            res[k] = gamle[k]
+        elif not v and gamle.get(k) and test(gamle[k]):
             res[k] = gamle[k]
     json.dump(res, open(fil, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
     ok = {k: v for k, v in res.items() if v}

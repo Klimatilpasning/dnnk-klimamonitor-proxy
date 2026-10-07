@@ -9,8 +9,11 @@ Bruges to steder:
     punkter i <ud-mappe>/seen.json, så rapporten kun viser det nye.
 
 Systemet kræver en anonym cookie: forsiden hentes først i samme session, ellers svarer API'et 302.
-dagsorden_portaler.json vedligeholdes med find_dagsorden_portaler.py (ikke del af ugekørslen)."""
+dagsorden_portaler.json vedligeholdes med find_dagsorden_portaler.py (ikke del af ugekørslen).
+En værdi i filen er enten en FirstAgenda-vært (streng) eller et objekt med 'type' for kommuner
+med andre systemer (se ADAPTERE: København = kk_jsonapi, Aalborg = aalborg)."""
 import json, re, time, html, zlib, argparse, datetime as dt, requests
+from urllib.parse import quote, unquote
 from pathlib import Path
 
 HER = Path(__file__).parent
@@ -68,26 +71,138 @@ def scan_kommune(kommune, host, fra, til):
                     print(f'  ! {kommune} {u["Navn"]} {dato}: {e}')
                     continue
                 for p in d.get('Dagsordenpunkter') or []:
-                    titel = (p.get('Navn') or p.get('Caption') or '').strip()
-                    # Nogle kommuner sætter punktnummeret foran titlen ("11. Orientering ..."); fjernes,
-                    # så samme sag i udvalg og byråd kan slås sammen i skriv_monitor.
-                    titel = re.sub(r'^\d+\.\s*', '', titel)
-                    res = resume(p)
-                    tl = titel.lower()
-                    hit_t = re.findall(STAERK, tl) + re.findall(SVAG, tl)
-                    hit_r = re.findall(STAERK, res.lower())
-                    if not (hit_t or hit_r):
-                        continue
-                    fund.append(dict(
-                        kommune=kommune, udvalg=u['Navn'], dato=str(dato), titel=titel,
-                        resume=res[:500], styrke='titel' if hit_t else 'resumé',
-                        staerk_titel=bool(re.search(STAERK, tl)),
-                        ord=sorted(set(hit_t + hit_r)),
-                        type='plan-status' if re.search(PLAN, tl) else 'webinarlead',
-                        sag=p.get('SagsNummer') or '', punkt=p.get('Punktnummer') or '',
-                        url=f"https://{host}/vis?id={m['Id']}",
-                        nogle=f"{host}|{dato}|{p.get('SagsNummer')}|{titel}"))
+                    f = match_punkt(kommune, u['Navn'], dato, p.get('Navn') or p.get('Caption') or '', resume(p),
+                                    f"https://{host}/vis?id={m['Id']}", p.get('SagsNummer') or '',
+                                    p.get('Punktnummer') or '', host)
+                    if f:
+                        fund.append(f)
     return fund
+
+
+def match_punkt(kommune, udvalg, dato, titel, res, url, sag, punkt, kilde):
+    """Fælles for alle adaptere: returnerer et fund, hvis punktet er klimarelevant, ellers None."""
+    # Nogle kommuner sætter punktnummeret foran titlen ("11. Orientering ..."); fjernes,
+    # så samme sag i udvalg og byråd kan slås sammen i skriv_monitor.
+    titel = re.sub(r'^\d+\.\s*', '', re.sub(r'\s+', ' ', titel).strip())
+    tl = titel.lower()
+    hit_t = re.findall(STAERK, tl) + re.findall(SVAG, tl)
+    hit_r = re.findall(STAERK, (res or '').lower())
+    if not (hit_t or hit_r):
+        return None
+    return dict(
+        kommune=kommune, udvalg=udvalg, dato=str(dato), titel=titel,
+        resume=(res or '')[:500], styrke='titel' if hit_t else 'resumé',
+        staerk_titel=bool(re.search(STAERK, tl)),
+        ord=sorted(set(hit_t + hit_r)),
+        type='plan-status' if re.search(PLAN, tl) else 'webinarlead',
+        sag=sag, punkt=punkt, url=url, nogle=f"{kilde}|{dato}|{sag}|{titel}")
+
+
+# ── København: Drupal JSON:API på kk.dk ─────────────────────────────────────
+# Ét pagineret kald giver alle udvalgs (inkl. lokaludvalgs) punkter med titel, dato og sti.
+# Udvalget er 2. led i path.alias, og hvert punkt har sin egen side (/.../punkt-N).
+# Samme punkt findes både under /dagsorden/ og /referat/ - de slås sammen her.
+# Klammerne i filter-parametrene skal sendes uændret (requests' params URL-koder dem korrekt).
+KK = 'https://www.kk.dk'
+
+
+def scan_kk(kommune, cfg, fra, til):
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (DNNK dagsordensovervaagning)'
+    params = {
+        'filter[fra][condition][path]': 'agenda_meeting_date',
+        'filter[fra][condition][operator]': '>=',
+        'filter[fra][condition][value]': str(fra),
+        'filter[til][condition][path]': 'agenda_meeting_date',
+        'filter[til][condition][operator]': '<',
+        'filter[til][condition][value]': str(til + dt.timedelta(1)),
+        'fields[node--agenda_element]': 'title,path,agenda_meeting_date,agenda_element_serial_no',
+        'sort': 'agenda_meeting_date',
+        'page[limit]': '50',
+    }
+    url, fund, set_punkter, sider = f'{KK}/jsonapi/node/agenda_element', [], set(), 0
+    while url and sider < 200:          # loft mod løbske løkker (~10.000 punkter)
+        r = s.get(url, params=params if sider == 0 else None, timeout=60)
+        r.raise_for_status()
+        d = r.json()
+        sider += 1
+        for x in d.get('data') or []:
+            a = x.get('attributes') or {}
+            dato = dt.date.fromisoformat((a.get('agenda_meeting_date') or '')[:10])
+            if not (fra <= dato <= til):
+                continue
+            alias = (a.get('path') or {}).get('alias') or ''
+            led = alias.strip('/').split('/')
+            udvalg = led[1] if len(led) > 1 else 'Ukendt udvalg'
+            titel = a.get('title') or ''
+            k = (udvalg, dato, re.sub(r'\s+', ' ', titel).strip())
+            if k in set_punkter:
+                continue
+            set_punkter.add(k)
+            f = match_punkt(kommune, udvalg, dato, titel, '', KK + quote(alias),
+                            '', str(a.get('agenda_element_serial_no') or ''), 'kk.dk')
+            if f:
+                fund.append(f)
+        url = ((d.get('links') or {}).get('next') or {}).get('href')
+        time.sleep(PAUSE)
+    print(f'  {kommune}: {len(set_punkter)} punkter på {sider} sider', flush=True)
+    if not set_punkter:
+        print(f'  ! {kommune}: 0 punkter i vinduet - tjek om API\'et har ændret sig', flush=True)
+    return fund
+
+
+# ── Aalborg: egen app på apps.aalborgkommune.dk ─────────────────────────────
+# Mødelister pr. udvalgs-id; linkene peger på localhost:5287, så kun query-strengen bruges.
+# Kun referater offentliggøres her, så punkter dukker op efter mødet.
+# Udvalgs-id'erne skifter ved konstitueringer og kan ikke listes - 0 møder = alarm.
+AAL = 'https://apps.aalborgkommune.dk/dagsordenreferat/'
+
+
+def scan_aalborg(kommune, cfg, fra, til):
+    s = requests.Session()
+    s.headers['User-Agent'] = 'Mozilla/5.0 (DNNK dagsordensovervaagning)'
+    fund, moeder_i_alt = [], 0
+    for uid in cfg.get('udvalg_ids', []):
+        html_liste = s.get(AAL, params={'Id': uid}, timeout=30).text
+        links = re.findall(r'class="moede-link[^"]*"[^>]*href="[^"?]*\?([^"]+)"[^>]*title="([^"]*)"', html_liste)
+        moeder_i_alt += len(links)
+        if not links:
+            print(f'  ! {kommune}: udvalg {uid} har 0 møder - id skiftet ved konstituering?', flush=True)
+        for query, titel_attr in links:
+            query = html.unescape(query)
+            m = re.search(r'moedetitel=(\d{4}-\d{2}-\d{2})', unquote(query))
+            if not m:
+                continue
+            dato = dt.date.fromisoformat(m.group(1))
+            if not (fra <= dato <= til):
+                continue
+            time.sleep(PAUSE)
+            side = s.get(AAL + 'visreferat?' + query, timeout=60).text
+            udvalg = re.sub(r'^(Referat|Dagsorden) (for|fra) ', '', html.unescape(titel_attr))
+            udvalg = re.sub(r'\s+\d{1,2}\. \w+ \d{4}.*$', '', udvalg)
+            # Punkter: <h3>N. Titel</h3>; teksten frem til næste <h3> bruges som resumé (Indstilling m.m.)
+            dele = re.split(r'<h3[^>]*>', side)[1:]
+            for nr, del_ in enumerate(dele, 1):
+                titel = tekst(del_.split('</h3>', 1)[0])
+                if not re.match(r'^\d+\.', titel):
+                    continue
+                krop = re.sub(r'<(script|style|svg)[^>]*>.*?</\1>', ' ', del_.split('</h3>', 1)[-1], flags=re.S)
+                f = match_punkt(kommune, udvalg, dato, titel, tekst(krop)[:600],
+                                AAL + 'visreferat?' + query, '', titel.split('.', 1)[0], 'apps.aalborgkommune.dk')
+                if f:
+                    fund.append(f)
+    print(f'  {kommune}: {moeder_i_alt} møder i listerne', flush=True)
+    return fund
+
+
+ADAPTERE = {'kk_jsonapi': scan_kk, 'aalborg': scan_aalborg}
+
+
+def scan(kommune, cfg, fra, til):
+    """En streng er en FirstAgenda-vært; et objekt har en 'type', der vælger adapteren."""
+    if isinstance(cfg, str):
+        return scan_kommune(kommune, cfg, fra, til)
+    return ADAPTERE[cfg['type']](kommune, cfg, fra, til)
 
 
 def til_monitor(f):
@@ -157,7 +272,7 @@ def main():
     alle, fejl = [], []
     for k, h in portaler.items():
         try:
-            f = scan_kommune(k, h, fra, til)
+            f = scan(k, h, fra, til)
             alle += f
             print(f'{k}: {len(f)}', flush=True)
         except Exception as e:

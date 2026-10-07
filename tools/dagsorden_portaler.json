@@ -46,7 +46,9 @@
   "Kalundborg": "dagsordener.kalundborg.dk",
   "Kerteminde": "dagsordener.kerteminde.dk",
   "Kolding": "udvalg.kolding.dk",
-  "København": null,
+  "København": {
+    "type": "kk_jsonapi"
+  },
   "Køge": "dagsordener.koege.dk",
   "Langeland": "dagsordener.langelandkommune.dk",
   "Lejre": "dagsordener.lejre.dk",
@@ -96,5 +98,16 @@
   "Vordingborg": "dagsordner.vordingborg.dk",
   "Ærø": "dagsordener.aeroekommune.dk",
   "Aabenraa": "dagsordener.aabenraa.dk",
-  "Aalborg": null
+  "Aalborg": {
+    "type": "aalborg",
+    "udvalg_ids": [
+      15,
+      31,
+      35,
+      56,
+      57,
+      58,
+      59
+    ]
+  }
 }
