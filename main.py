@@ -11,6 +11,10 @@ import re
 import os
 import time
 import collections
+import functools
+import contextvars
+import json
+from html import unescape as html_unescape
 
 
 @asynccontextmanager
@@ -385,21 +389,118 @@ def find_tags(combined: str, top_n: int = 3) -> list:
         tags.append("dige")
     return tags
 
-def score_article(combined: str, q_match: bool):
+# ── Søgeordet (q) ──
+# Før fandtes samme linje syv steder: q.lower().split(), ord over 3 tegn,
+# ordstart-match. Det gav falske træf ("Vejle Fjord" ramte "Vejledning om ...
+# industrispildevand"), ignorerede akronymer (LAR, DMI, VVM - selv LAR fra
+# søgefeltets egen pladsholder virkede ikke), og en frase vejede ikke mere end
+# et enkelt ord. Nu ét sted, med point i stedet for ja/nej.
+STANDARD_Q = "klimatilpasning"
+_KENDTE_AKRONYMER = {"LAR", "VVM", "DMI", "SVK", "EU", "MST", "KL", "BNBO", "DHI",
+                     "SGI", "GEUS", "KTC", "DANVA", "HOFOR", "TED", "IPCC", "DK2020"}
+# Korte fagord matcher kun som helt ord med bøjning: ellers ramte "eng"
+# England, "å" Året og "hav" Havneudvidelse.
+# Bøjningerne er pr. ord: en fælles liste lod "hav" + "n" ramme havn.
+_KORTE_FAGORD = {"hav": "et|ets|e|ene|s", "sø": "en|ens|er|erne|s", "å": "en|ens|er|erne|s",
+                 "eng": "en|ens|e|ene|s", "dige": "t|ts|r|rne|rnes|s"}
+# Stednavne (kommunenavne) skal matche som helt ord, så Vejle ikke rammer
+# Vejledning. Før blev det afgjort af stort forbogstav i søgningen, men så gav
+# "Skybrud" (mobilens autoversal) 0 træf, og "vejle fjord" med småt ramte
+# stadig Vejledning. Navnene læses fra dagsordenscannerens kommuneliste.
+try:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools", "dagsorden_portaler.json"),
+              encoding="utf-8") as _f:
+        _STEDNAVNE = {k.lower() for k in json.load(_f)}
+except Exception as _e:
+    print(f"[q] kommuneliste ikke indlæst: {_e}")
+    _STEDNAVNE = set()
+_STEDNAVNE |= {"vejle", "køge", "ribe", "nakskov", "skagen", "dragør", "ærø", "rømø"}
+# Auto-scan og den daglige digest sender ordbunker ("folketing klima miljø
+# lovforslag"), hvor ét ord skal være nok - som før. Kun Søg-knappen (dyb=1)
+# kræver alle ord. Sættes pr. request i /news/full; asyncio-tasks arver den.
+_Q_ELLER = contextvars.ContextVar("q_eller", default=False)
+_Q_MAX_TEGN = 200   # en q på tusinder af ord ville bygge tusinder af regexer
+# Ord som filteret bevidst vægter let, må ikke give auto-keep, bare fordi de
+# står i søgningen: q='klima' lukkede ellers datacentre og elpriser ind.
+_Q_IKKE = {b.lower() for b in BROAD_KEYWORDS} | {"water", "natur"}
+_BOEJNING_RE = re.compile(r"(?:erne|ene|er|en|et|e)$")
+
+@functools.lru_cache(maxsize=256)
+def _q_termer(query: str, eller: bool = False) -> tuple:
+    """(regex, stærk) pr. søgeord. Reglerne:
+    - akronymer (versaler eller kendte, også skrevet småt): helt ord, så LAR
+      ikke rammer Lars og DHI ikke DHILiving
+    - stednavne (kommunenavne, uanset versaler): helt ord med valgfrit
+      genitiv-s, så Vejle ikke rammer Vejledning
+    - korte fagord (hav, sø, å, eng, dige): helt ord med bøjning
+    - lange ord: bøjningsendelse fjernes, så 'vandhåndteringsplaner' rammer
+      'vandhåndteringsplan'
+    - øvrige ord: ordstart, så 'skybrud' også rammer 'Skybrudsplan'
+    - ord på højst 3 tegn og brede ord udelades - undtagen i eller-tilstand,
+      hvor brede ord tæller som før PR 3, så digestens ordbunker ("folketing
+      klima miljø lovforslag") giver de samme artikler."""
+    termer = []
+    for raa in (query or "")[:_Q_MAX_TEGN].split():
+        w = raa.strip(".,;:!?\"'()»«")
+        if not w:
+            continue
+        if w.upper() in _KENDTE_AKRONYMER or (w.isupper() and len(w) >= 2 and any(c.isalpha() for c in w)):
+            moenster, staerk = re.escape(w) + r"(?!\w)", True
+        elif w.lower() in _STEDNAVNE:
+            moenster, staerk = re.escape(w) + r"s?(?!\w)", len(w) >= 6
+        elif w.lower() in _KORTE_FAGORD:
+            moenster, staerk = re.escape(w) + f"(?:{_KORTE_FAGORD[w.lower()]})?(?!\\w)", False
+        elif len(w) <= 3 or (w.lower() in _Q_IKKE and not eller):
+            continue
+        else:
+            stamme = _BOEJNING_RE.sub("", w) if len(w) >= 8 else w
+            moenster, staerk = re.escape(stamme if len(stamme) >= 6 else w), len(w) >= 6
+        termer.append((moenster, staerk))
+    return tuple(termer)
+
+@functools.lru_cache(maxsize=256)
+def _q_regexer(query: str, eller: bool = False):
+    termer = _q_termer(query, eller)
+    enkelt = [(re.compile(r"(?<!\w)" + m, re.IGNORECASE), s) for m, s in termer]
+    frase = (re.compile(r"(?<!\w)" + r"\W+".join(m for m, _ in termer), re.IGNORECASE)
+             if len(termer) > 1 else None)
+    return enkelt, frase
+
+def q_point(query: str, tekst: str) -> int:
+    """Hvor godt rammer teksten søgningen? 6 = hele frasen, 3 = alle ord (eller
+    det ene ord), 1 = kun et enkelt stærkt ord (akronym eller mindst 6 tegn),
+    0 = intet. Kun 3+ tæller som søgetræf og må lukke en artikel ind.
+    I eller-tilstand (_Q_ELLER) giver ét vilkårligt ord 3, som før PR 3."""
+    eller = _Q_ELLER.get()
+    enkelt, frase = _q_regexer(query or "", eller)
+    if not enkelt:
+        return 0
+    if frase is not None and frase.search(tekst):
+        return 6
+    traef = [bool(rx.search(tekst)) for rx, _ in enkelt]
+    if all(traef) or (any(traef) and eller):
+        return 3
+    if any(t and s for t, (_, s) in zip(traef, enkelt)):
+        return 1
+    return 0
+
+def score_article(combined: str, q_match):
     """Returnér (relevance 0-1, keep).
 
-    Kerneord vejer 3, brede ord 1, et søge-match giver 3. En artikel beholdes
-    kun hvis den rammer mindst ét kerneord, matcher søgningen, eller rammer
-    mindst to brede ord — så artikler der blot strejfer 'klima'/'vand' (fx
-    ministerrokade eller elpriser) sorteres fra i stedet for at score 1.
+    Kerneord vejer 3, brede ord 1. q_match er søgepoint fra q_point (eller
+    True/False, som tæller 3/0). En artikel beholdes kun hvis den rammer mindst
+    ét kerneord, er et søgetræf (3+ point), eller rammer mindst to brede ord —
+    så artikler der blot strejfer 'klima'/'vand' (fx ministerrokade eller
+    elpriser) sorteres fra i stedet for at score 1.
     Der tælles DISTINKTE matchende nøgleord (som før), ikke antal forekomster."""
+    q_pt = 3 if q_match is True else (0 if q_match is False or q_match is None else int(q_match))
     combined = BOILERPLATE_RE.sub(" ", combined)
     core_hits = len({m.lower() for m in CORE_RE.findall(combined)})
     if DIGE_RE.search(combined):
         core_hits += 1
     broad_hits = len({m.lower() for m in BROAD_RE.findall(combined)})
-    keep = core_hits >= 1 or q_match or broad_hits >= 2
-    raw = core_hits * 3 + broad_hits + (3 if q_match else 0)
+    keep = core_hits >= 1 or q_pt >= 3 or broad_hits >= 2
+    raw = core_hits * 3 + broad_hits + q_pt
     return min(round(raw / 12, 2), 1.0), keep
 
 def parse_item_bs(item):
@@ -408,7 +509,11 @@ def parse_item_bs(item):
     title = title.get_text(strip=True) if title else ""
     
     desc = item.find("description") or item.find("summary") or item.find("content")
-    description = re.sub(r"<[^>]+>", "", desc.get_text(strip=True))[:400] if desc else ""
+    # html.unescape: Altinget dobbeltkoder æøå ("p&amp;#229;"), så resuméet
+    # stod som "p&#229;" i stedet for "på" - og ord med æøå matchede ikke.
+    # Unescape FØR tags fjernes: ellers blev dobbeltkodet markup til rigtige
+    # tags, og digest-mailen indsætter resuméet uescapet.
+    description = re.sub(r"<[^>]+>", "", html_unescape(desc.get_text(strip=True)))[:400] if desc else ""
     
     link = item.find("link")
     if link:
@@ -653,14 +758,13 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
             return []
 
         results = []
-        q_lower = query.lower()
 
         for item in items[:40]:
             title, description, link, pub_date = parse_item_bs(item)
             if not title or for_gammel(pub_date):
                 continue
             combined = title + " " + description
-            q_match = any(kw_match(w, combined) for w in q_lower.split() if len(w) > 3)
+            q_match = q_point(query, combined)
             relevance, keep = score_article(combined, q_match)
             # Drop artikler der kun strejfer brede ord — ren støj fra brede feeds
             if not keep:
@@ -759,33 +863,87 @@ def _ted_tekst(v) -> str:
     return str(v or "")
 
 
-def _byg_ted_query(q: str) -> str:
-    """Oversæt en fri søgestreng til TED's expert-query.
-
-    Hvert ord bliver sit eget FT-led (se faldgrube 2 ovenfor), afgrænset til
-    danske udbudssteder og sorteret nyeste først."""
-    ord_ = [o for o in (_TED_ORD_RE.sub(" ", q or "").split()) if len(o) > 2]
-    if not ord_:
-        ord_ = ["klimatilpasning"]
-    fritekst = " OR ".join(f'FT ~ ("{o}")' for o in ord_[:12])
+def _ted_ramme(fritekst: str) -> str:
     return (f"({fritekst}) AND place-of-performance IN (DNK) "
             f"SORT BY publication-date DESC")
+
+# Korte ord (LAR) ankres til feltet - alene gav "LAR" 1.096 udbud om alt fra
+# pædagogvikarer til farligt affald; med ankeret 49, fx separatkloakering.
+# "spildevand" er bevidst ikke i ankeret: det trækker slam og kemikalier ind.
+_TED_ANKER = '(FT ~ ("klimatilpasning") OR FT ~ ("regnvand") OR FT ~ ("skybrud"))'
+
+def _ted_trappe(q: str) -> list:
+    """Forespørgsler i den rækkefølge de skal prøves; første med hits vinder.
+
+    Før blev hvert ord sit eget OR-led, så "Vejle Fjord" gav 3.755 udbud (IT,
+    opvaskemaskiner) i stedet for de 10, der handler om Vejle Fjord.
+    - komma i q: emneliste -> OR mellem de kommaseparerede fraser (som før)
+    - flere ord: frase, så AND, så OR ("skybrud kystbeskyttelse" giver 0 med
+      både frase og AND, så OR-trinnet er nødvendigt)
+    - ét ord under 4 tegn: ankret til klimatilpasning/regnvand/skybrud."""
+    if "," in (q or ""):
+        # "liste", ikke "or": frontenden viser kun "intet nævner hele søgningen"
+        # ved or, og en emneliste er netop ment som enten-eller.
+        dele = [d for d in (_TED_ORD_RE.sub(" ", x).strip() for x in q.split(","))
+                if len(d) > 2 or (d.isupper() and len(d) >= 2)]
+        return [("liste", " OR ".join(f'FT ~ ("{d}")' for d in dele[:12]))] if dele else []
+    ord_ = [o for o in (_TED_ORD_RE.sub(" ", q or "").split()) if len(o) > 2 or o.isupper()]
+    if not ord_:
+        ord_ = [STANDARD_Q]
+    if len(ord_) == 1:
+        o = ord_[0]
+        if len(o) < 4:
+            return [("anker", f'FT ~ ("{o}") AND {_TED_ANKER}')]
+        return [("ord", f'FT ~ ("{o}")')]
+    ord_ = ord_[:12]
+    return [("frase", f'FT ~ ("{" ".join(ord_)}")'),
+            ("and", " AND ".join(f'FT ~ ("{o}")' for o in ord_)),
+            ("or", " OR ".join(f'FT ~ ("{o}")' for o in ord_))]
+
+def _byg_ted_query(q: str) -> str:
+    """Første (snævreste) forespørgsel for q - se _ted_trappe."""
+    trappe = _ted_trappe(q)
+    return _ted_ramme(trappe[0][1] if trappe else f'FT ~ ("{STANDARD_Q}")')
 
 
 @app.get("/ted")
 async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
-    body = {"query": _byg_ted_query(q), "fields": TED_FIELDS,
-            "limit": max(1, min(size, 100)), "page": 1,
-            "scope": "ALL", "onlyLatestVersions": True}
     try:
-        resp = await app.state.client.post(TED_URL, json=body, timeout=20)
-        data = resp.json()
-        if not isinstance(data, dict) or "notices" not in data:
-            # Fejlformet svar med status 200 — netop den fælde der skjulte
-            # GET-fejlen. Meld den videre i stedet for at kalde den 0 udbud.
-            besked = (data or {}).get("message") if isinstance(data, dict) else None
-            raise ValueError(f"uventet svar fra TED (HTTP {resp.status_code}): "
-                             f"{besked or str(data)[:120]}")
+        data, brugt_match = None, ""
+        # Fælles frist for hele trappen: tre trin à 20 s kunne tage 60 s, og
+        # digesten kalder /ted med timeout 30. Et trin, der fejler efter et
+        # gyldigt svar, må ikke smide det svar væk.
+        frist = time.monotonic() + 25
+        for match, fritekst in _ted_trappe(q) or [("ord", f'FT ~ ("{STANDARD_Q}")')]:
+            rest = frist - time.monotonic()
+            if rest < 3 and data is not None:
+                break
+            body = {"query": _ted_ramme(fritekst), "fields": TED_FIELDS,
+                    "limit": max(1, min(size, 100)), "page": 1,
+                    "scope": "ALL", "onlyLatestVersions": True}
+            try:
+                resp = await app.state.client.post(TED_URL, json=body, timeout=max(rest, 3))
+            except httpx.HTTPError:
+                if data is not None:
+                    break
+                raise
+            # TED svarede 429 efter ca. 11 kald i træk, og r.json() kastede så.
+            # Stop trappen ved første ugyldige svar i stedet for at fortsætte.
+            try:
+                svar = resp.json()
+            except ValueError:
+                svar = None
+            if not isinstance(svar, dict) or "notices" not in svar:
+                if data is not None:
+                    break
+                # Fejlformet svar med status 200 — netop den fælde der skjulte
+                # GET-fejlen. Meld den videre i stedet for at kalde den 0 udbud.
+                besked = svar.get("message") if isinstance(svar, dict) else None
+                raise ValueError(f"uventet svar fra TED (HTTP {resp.status_code}): "
+                                 f"{besked or str(svar)[:120]}")
+            data, brugt_match = svar, match
+            if data.get("totalNoticeCount") or data.get("notices"):
+                break
         # Normalisér til de feltnavne frontenden allerede læser (title /
         # publicationDate / tedPublicationUrl), så renderTed kan stå urørt.
         notices = []
@@ -800,7 +958,8 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
                 "value": _ted_tekst(n.get("total-value")),
                 "publicationNumber": n.get("publication-number") or "",
             })
-        return {"notices": notices, "total": data.get("totalNoticeCount", len(notices))}
+        # match fortæller frontenden, hvor bredt der måtte søges (frase/and/or/anker)
+        return {"notices": notices, "total": data.get("totalNoticeCount", len(notices)), "match": brugt_match}
     except Exception as e:
         # Frontenden forventer altid en notices-liste — fejl må ikke give 500
         print(f"[ted-fejl] {e}")
@@ -920,14 +1079,14 @@ NAEVN_UDELUK_KATEGORIER = {"Museumsloven", "Husdyrbrugloven", "Fødevarer",
                            "Arealstøtte", "Projektstøtte"}
 _TAG_RE = re.compile(r"<[^>]+>")
 
-async def _naevn_soeg(client, vaert, term, graense):
+async def _naevn_soeg(client, vaert, term, graense, max_sider=NAEVN_MAX_SIDER):
     """Hent de nyeste afgørelser for ÉN søgeterm, kun dem inden for vinduet.
     Siderne skal hentes i rækkefølge, fordi vi stopper når vinduet er tomt —
     men den ene term ved intet om de andre, så termerne kan køre parallelt."""
     import json as _json
     url = NAEVN_SOEGNING.format(vaert)
     ud = []
-    for side in range(NAEVN_MAX_SIDER):
+    for side in range(max_sider):
         krop = {"query": term, "sort": 2, "skip": side * 10}
         try:
             text = await get_feed_text(client, url, body=krop,
@@ -975,45 +1134,70 @@ async def fetch_naevnsafgoerelser(client):
             print(f"[naevn-fejl] {vaert}/{term}: {pubs}")
             continue
         for pub in pubs:
-            dato = (pub.get("date") or "")[:10]           # afgørelsesdato
-            offentliggjort = (pub.get("published_date") or "")[:10]
             jnr = ", ".join(pub.get("jnr") or [])
             key = (vaert, jnr, pub.get("title") or "")
             if key in fundet:
                 if term not in fundet[key]["tags"]:
                     fundet[key]["tags"].append(term)
                 continue
-            # highlights er selve det matchende tekststykke fra afgørelsen, med
-            # <span>-markering af søgeordet — langt mere sigende end abstract,
-            # der næsten altid er tomt.
-            hl = pub.get("highlights") or []
-            if isinstance(hl, str):
-                hl = [hl]
-            uddrag = _TAG_RE.sub("", hl[0]).strip() if hl else ""
-            dele = ["Nævnsafgørelse"]
-            if jnr:
-                dele.append("j.nr. " + jnr)
-            dele.extend(pub.get("categories") or [])
-            if dato and offentliggjort and offentliggjort != dato:
-                dele.append(f"afgjort {dato}, offentliggjort {offentliggjort}")
-            if str(pub.get("is_brought_to_court")).lower() == "true":
-                dele.append("INDBRAGT FOR DOMSTOLENE")
-            if uddrag:
-                dele.append(uddrag[:220])
-            fundet[key] = {
-                "source": navn,
-                "feedSource": navn,
-                "org": navn,
-                "title": pub.get("title") or "",
-                "url": f"https://{vaert}/afgoerelse/{pub.get('id')}",
-                # Vis afgørelsesdatoen — det er den, sagen citeres på
-                "date": dato or offentliggjort,
-                "summary": " · ".join(dele),
-                "tags": [term],
-                "relevance": 1.0,
-                "value": "",
-            }
+            fundet[key] = _naevn_post(navn, vaert, term, pub)
     return list(fundet.values())
+
+def _naevn_post(navn, vaert, term, pub, praefiks=None):
+    """En afgørelse fra API'et som artikel-post."""
+    dato = (pub.get("date") or "")[:10]           # afgørelsesdato
+    offentliggjort = (pub.get("published_date") or "")[:10]
+    jnr = ", ".join(pub.get("jnr") or [])
+    # highlights er selve det matchende tekststykke fra afgørelsen, med
+    # <span>-markering af søgeordet — langt mere sigende end abstract,
+    # der næsten altid er tomt.
+    hl = pub.get("highlights") or []
+    if isinstance(hl, str):
+        hl = [hl]
+    uddrag = _TAG_RE.sub("", hl[0]).strip() if hl else ""
+    dele = [praefiks] if praefiks else []
+    dele.append("Nævnsafgørelse")
+    if jnr:
+        dele.append("j.nr. " + jnr)
+    dele.extend(pub.get("categories") or [])
+    if dato and offentliggjort and offentliggjort != dato:
+        dele.append(f"afgjort {dato}, offentliggjort {offentliggjort}")
+    if str(pub.get("is_brought_to_court")).lower() == "true":
+        dele.append("INDBRAGT FOR DOMSTOLENE")
+    if uddrag:
+        dele.append(uddrag[:220])
+    return {
+        "source": navn,
+        "feedSource": navn,
+        "org": navn,
+        "title": pub.get("title") or "",
+        "url": f"https://{vaert}/afgoerelse/{pub.get('id')}",
+        # Vis afgørelsesdatoen — det er den, sagen citeres på
+        "date": dato or offentliggjort,
+        "summary": " · ".join(dele),
+        "tags": [term],
+        "relevance": 1.0,
+        "value": "",
+    }
+
+# Fritekst på brugerens eget søgeord. De faste termer ovenfor finder kun det,
+# vi på forhånd har tænkt på: "vandhåndteringsplan" gav 13 afgørelser i Plan-
+# klagenævnet (Herning, Silkeborg, Randers 2026), som ingen fast term rammer.
+# Kun én side pr. nævn og et år tilbage - det er et opslag, ikke overvågning.
+# Retsinformation er bevidst ikke med: 0 titelrelevante træf i 9 af 9 test.
+NAEVN_FRITEKST_DAGE = 365
+
+async def fetch_naevn_fritekst(client, q):
+    graense = (datetime.now(timezone.utc) - timedelta(days=NAEVN_FRITEKST_DAGE)).strftime("%Y-%m-%d")
+    opgaver = [(navn, vaert) for navn, vaert, _ in NAEVN_KILDER]
+    resultater = await asyncio.gather(*[_naevn_soeg(client, vaert, q, graense, max_sider=1)
+                                        for _, vaert in opgaver], return_exceptions=True)
+    ud = []
+    for (navn, vaert), pubs in zip(opgaver, resultater):
+        if isinstance(pubs, BaseException):
+            continue
+        ud.extend(_naevn_post(navn, vaert, q, pub, praefiks="Søgetræf (fritekst)") for pub in pubs)
+    return ud
 
 # ── HortenDahl (tidl. Horten) via Umbraco Content Delivery API ─
 # horten.dk kan IKKE hentes: domænet ligger bag Cloudflare, som afviser selve
@@ -1057,7 +1241,6 @@ async def fetch_hortendahl(client, query: str):
         print(f"[hortendahl-fejl] {e}")
         return []
     graense = (datetime.now(timezone.utc) - timedelta(days=HORTENDAHL_DAGE)).strftime("%Y-%m-%d")
-    q_lower = query.lower()
     ud = []
     for x in (data.get("items") or []):
         p = x.get("properties") or {}
@@ -1072,7 +1255,7 @@ async def fetch_hortendahl(client, query: str):
         omraader = [a.get("name") for a in (p.get("areasOfBusiness") or [])
                     if isinstance(a, dict) and a.get("name")]
         kombi = f"{titel} {manchet}"
-        q_match = any(kw_match(w, kombi) for w in q_lower.split() if len(w) > 3)
+        q_match = q_point(query, kombi)
         relevance, keep = score_article(kombi, q_match)
         fagligt_match = bool(HORTENDAHL_OMRAADER & set(omraader))
         if not keep and not fagligt_match:
@@ -1122,7 +1305,6 @@ async def fetch_cowi(client, query: str):
         return []
 
     graense = (datetime.now(timezone.utc) - timedelta(days=COWI_DAGE)).strftime("%Y-%m-%d")
-    q_lower = query.lower()
     ud = []
     for x in (data.get("items") or []):
         p = x.get("properties") or {}
@@ -1137,7 +1319,7 @@ async def fetch_cowi(client, query: str):
         resume = re.sub(r"\s+", " ", resume).strip()
 
         kombi = f"{titel} {resume}"
-        q_match = any(kw_match(w, kombi) for w in q_lower.split() if len(w) > 3)
+        q_match = q_point(query, kombi)
         relevance, keep = score_article(kombi, q_match)
         if not keep:
             continue
@@ -1180,14 +1362,35 @@ async def fetch_dagsordener(client):
         # Scanneren skriver nu rigtige punktlinks, men den rullende fil har ældre
         # fund med '#punkt-N' - de rettes her, så de virker med det samme.
         a["url"] = re.sub(r"(/vis\?id=[0-9a-fA-F-]+)#punkt-", r"\1&punkt=", a.get("url") or "")
+        # Ældre fund har kun mødedatoen i date, så kommende møder lå øverst i
+        # "Nyeste først". Scanneren skriver nu offentliggørelsesdatoen; indtil
+        # filen er skrevet om, bruges et skøn: dagsordenen udkommer ca. en uge
+        # før mødet (målt: Hillerød 8/10 udkom 2/10, Ringsted 21/10 udkom 2/10).
+        if "moede_dato" not in a and a.get("date"):
+            a["moede_dato"] = a["date"]
+            try:
+                skoen = datetime.strptime(a["date"], "%Y-%m-%d") - timedelta(days=7)
+                a["date"] = min(skoen.strftime("%Y-%m-%d"),
+                                datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+            except ValueError:
+                pass
         a["tags"] = find_tags(f"{a.get('title', '')} {a.get('summary', '')}")
         ud.append(a)
     return ud
 
 @app.get("/news/full")
-async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None), limit: int = Query(8)):
+async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None),
+                        limit: int = Query(8), dyb: int = Query(0)):
+    """dyb=1 sendes kun fra frontendens Søg-knap (ikke auto-scan og digest): så
+    søges der også på q selv i Nævnenes Hus, se fetch_naevn_fritekst."""
+    egen_q = (q or "").strip().lower() != STANDARD_Q
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
+    # Uden dyb (auto-scan, digest): ét ord er nok. Sættes før gather, så
+    # fetch_rss-tasks arver værdien; hver request har sin egen kontekst.
+    _Q_ELLER.set(not dyb)
+    # 0 termer (fx q="klima": kun brede ord) = ingen søgetræf at vise.
+    q_termer = len(_q_termer(q or ""))
     from sources import ALL_FEEDS_FLAT, ALLE_FEEDS
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
@@ -1248,6 +1451,19 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Nævnsafgørelser"
         articles.extend(afgoerelser)
 
+        faste_termer = {t.lower() for _, _, termer in NAEVN_KILDER for t in termer}
+        if dyb and egen_q and len(q.strip()) >= 4 and q.strip().lower() not in faste_termer:
+            try:
+                fritekst = await fetch_naevn_fritekst(app.state.client, q.strip())
+            except Exception as e:
+                print(f"[naevn-fejl] fritekst: {e}")
+                fritekst = []
+            kendte = {a["url"] for a in afgoerelser}
+            for a in fritekst:
+                if a["url"] not in kendte:
+                    a["gruppe"] = "Nævnsafgørelser"
+                    articles.append(a)
+
     # HortenDahl har intet RSS og ligger ikke i ALLE_FEEDS — den hentes fra
     # firmaets eget Umbraco-API og lægges i samme gruppe som de øvrige kontorer.
     if not gruppe or gruppe == "Jura & advokater":
@@ -1283,6 +1499,19 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Politiske dagsordener"
         articles.extend(dg)
 
+    # Ved egen søgning: Lovstof, nævn og dagsordener har fast høj relevans (de
+    # er udvalgt på forhånd), så de lå øverst i "Mest relevant" uanset søgning -
+    # 65 poster, hvoraf ingen nævnte hedebølge, Grøn trepart eller Vejle Fjord.
+    # Nu scores de mod q med et gulv på 0,4, så en nyhed med søgetræf og ét
+    # kerneord (0,5) kommer foran, mens de selv stiger ved eget træf.
+    if egen_q and q_termer:
+        for a in articles:
+            tekst = f"{a.get('title') or ''} {a.get('summary') or ''}"
+            pt = q_point(q, tekst)
+            a["q_traef"] = pt >= 3
+            if a.get("gruppe") in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener"):
+                a["relevance"] = max(score_article(tekst, pt)[0], 0.4)
+
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan
     # se hvad DNNK allerede har dækket om emnet. Indekset er 12t-cached, og
     # matchingen er rene set-snit — koster nærmest intet pr. artikel.
@@ -1294,7 +1523,7 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
             "feeds_checked": len(feeds), "feeds_failed": feeds_failed,
-            "query": q,
+            "query": q, "q_termer": q_termer,
             "scanned_at": datetime.now(timezone.utc).isoformat()}
 
 @app.get("/news/kilder")
@@ -1527,7 +1756,7 @@ def _vaelg_kandidater(soup):
         # Lister bygget som "items-list-row"/"list-item" uden nyhedsord i
         # klassenavnet (fx DIN Forsyning). Står efter de mere specifikke trin,
         # så det kun slår til når intet andet matcher.
-        lambda: soup.find_all(class_=re.compile(r"items?[-_]list[-_]row|list[-_]items?", re.I)),
+        lambda: soup.find_all(class_=re.compile(r"items?[-_]list[-_]row|list[-_]items?\b", re.I)),
         lambda: soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)),
         # Fallback: alle h2/h3 med links
         lambda: [a.parent for a in soup.find_all("a", href=True)
@@ -1596,7 +1825,7 @@ def _jsonld_liste(text, base_url, source, gruppe, query, seen_titles, kun_udtrae
                 # artikler, og deres titler er korte navigationsord.
                 if not isinstance(maal, str) or not maal:
                     continue
-                q_match = any(kw_match(w, titel) for w in query.lower().split() if len(w) > 3)
+                q_match = q_point(query, titel)
                 relevance, keep = score_article(titel, q_match)
                 # kun_udtraek: sundhedstjekket spørger "kan der overhovedet
                 # udtrækkes noget her", ikke "er ugens indhold relevant". Uden
@@ -1645,7 +1874,7 @@ def _tekstblok_liste(soup, base_url, source, gruppe, query, seen_titles, kun_udt
         # igennem filteret. Afsenderens navn er metadata, ikke indhold, så det
         # fjernes inden scoringen.
         til_score = re.sub(re.escape(source), " ", titel, flags=re.IGNORECASE)
-        q_match = any(kw_match(w, til_score) for w in query.lower().split() if len(w) > 3)
+        q_match = q_point(query, til_score)
         relevance, keep = score_article(til_score, q_match)
         if not keep and not kun_udtraek:   # se _jsonld_liste
             continue
@@ -1761,21 +1990,32 @@ def _udtraek_side(text, url, source, gruppe) -> dict:
     tekstblok = _tekstblok_liste(soup, base_url, source, gruppe, "", set(seen_titles), kun_udtraek=True)
     return {"hoved": hoved, "jsonld": jsonld, "tekstblok": tekstblok}
 
-def _scor_udtraek(ud: dict, source, gruppe, query, limit) -> list:
+# Fagnetværk, hvor ALT er inden for feltet (meta "betroet": True i SCRAPE_SOURCES).
+# KTC-trådene om kystbeskyttelsesloven nævner sjældent et nøgleord i
+# overskriften ("Stiller I lånegaranti til kommunale fællesprojekter?"), så de
+# 6 nyeste (maj-sep. 2026) blev smidt væk, mens tråde fra 2024 blev vist. Kun
+# åbenlyse ikke-indslag sorteres fra. Hold listen kort: skifter en betroet kilde
+# indhold (jf. vandibyer.dk), slipper alt igennem.
+_BETROET_STOEJ = re.compile(r"^(TEST\b|Arrangementer, netværksmøder|Ledig stilling)", re.IGNORECASE)
+
+def _scor_udtraek(ud: dict, source, gruppe, query, limit, betroet=False) -> list:
     """Scor et cachet udtræk mod søgeordet - samme regler som før opdelingen."""
-    q_ord = [w for w in query.lower().split() if len(w) > 3]
     # Cachen er pr. URL, og to kilder kan dele URL (Aarhus Vand og Aarhus Vand
     # Innovation). Reservernes poster bærer afsenderen fra den kilde, der
     # fyldte cachen - så den sættes altid på fra det aktuelle kald.
     afsender = {"feedSource": source, "org": source, "gruppe": gruppe}
 
     def scor(tekst):
-        return score_article(tekst, any(kw_match(w, tekst) for w in q_ord))
+        return score_article(tekst, q_point(query, tekst))
 
     articles = []
     for title, description, pub_date, article_url in ud["hoved"]:
         combined = title + " " + description
         relevance, keep = scor(combined)
+        if betroet:
+            if _BETROET_STOEJ.match(title):
+                continue
+            keep, relevance = True, max(relevance, 0.25)
         # Drop artikler der kun strejfer brede ord — samme tærskel som RSS
         if not keep or for_gammel(pub_date):
             continue
@@ -1802,10 +2042,13 @@ def _scor_udtraek(ud: dict, source, gruppe, query, limit) -> list:
     # kalder dem direkte for at spørge "kan der udtrækkes noget".
     articles = [a for a in articles if not for_gammel(a["date"])]
 
-    articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+    # Betroede kilder sorteres på dato før loftet, ellers skærer det de nyeste
+    # tråde væk til fordel for ældre med et nøgleord i titlen.
+    articles.sort(key=(lambda x: x["date"]) if betroet else (lambda x: (x["relevance"], x["date"])),
+                  reverse=True)
     return articles[:limit]
 
-async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
+async def scrape_news(client, source, url, gruppe, query, limit: int = 8, betroet: bool = False):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML.
     Returnerer None, hvis siden ikke kunne hentes (så /news/scrape kan tælle
     sources_failed), og en liste - evt. tom - ellers."""
@@ -1832,7 +2075,7 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8):
                 # andre kald ikke står stille, mens 90 sider parses.
                 await asyncio.sleep(0)
             _UDTRAEK_CACHE[url] = (now, ud)
-        return _scor_udtraek(ud, source, gruppe, query, limit)
+        return _scor_udtraek(ud, source, gruppe, query, limit, betroet)
 
     except Exception as e:
         print(f"[feed-fejl] {url}: {e}")
@@ -1971,7 +2214,7 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query, meta=None):
     if dato and dato < graense:
         return None
     kombi = f"{titel} {manchet}"
-    q_match = any(kw_match(w, kombi) for w in query.lower().split() if len(w) > 3)
+    q_match = q_point(query, kombi)
     relevance, keep = score_article(kombi, q_match)
     if not keep and not meta.get("altid_relevant"):
         return None
@@ -2059,7 +2302,8 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     from sources import SITEMAP_SOURCES
     navne = list(SCRAPE_SOURCES) + list(SITEMAP_SOURCES)
     tasks = [
-        scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit)
+        scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit,
+                    betroet=meta.get("betroet", False))
         for navn, meta in SCRAPE_SOURCES.items()
     ] + [
         fetch_sitemap_news(app.state.client, navn, meta, q, limit)
@@ -2071,6 +2315,9 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     # kilde og en uge uden nyheder så ens ud - nu tælles og navngives de.
     fejlede = [navn for navn, sub in zip(navne, nested) if not isinstance(sub, list)]
     articles = [a for sub in nested if isinstance(sub, list) for a in sub]
+    if (q or "").strip().lower() != STANDARD_Q:
+        for a in articles:
+            a["q_traef"] = q_point(q, f"{a.get('title') or ''} {a.get('summary') or ''}") >= 3
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {
         "articles": articles,
