@@ -48,7 +48,7 @@ from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
 import main as prod
-from sources import ALL_FEEDS_FLAT, SCRAPE_SOURCES, SITEMAP_SOURCES
+from sources import ALL_FEEDS_FLAT, SCRAPE_SOURCES, SITEMAP_SOURCES, JSON_SOURCES
 
 TIMEOUT = 20
 ITEM_RE = re.compile(rb"<(?:item|entry)[\s>]", re.IGNORECASE)
@@ -58,10 +58,31 @@ MIN_BODY = 2000
 
 def hent(url, max_bytes=prod.MAX_FEED_BYTES):
     """Returnér (status, body). Status er et tal eller en fejlstreng."""
-    req = urllib.request.Request(url, headers=prod.RSS_HEADERS)
+    # Samme UA-undtagelse pr. vært som produktionen (Springer).
+    vaert = url.split("/")[2] if "://" in url else ""
+    headers = dict(prod.RSS_HEADERS)
+    if vaert in prod.UA_PR_VAERT:
+        headers["User-Agent"] = prod.UA_PR_VAERT[vaert]
+        # Springer udfordrer urllib selv med den ærlige UA, men ikke httpx -
+        # og det er httpx, produktionen bruger.
+        try:
+            r = prod.httpx.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
+            return r.status_code, r.content[:max_bytes + 1]
+        except prod.httpx.HTTPError as e:
+            return f"NETVAERK ({type(e).__name__})", b""
+    req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-            return r.getcode(), r.read(max_bytes + 1)
+            body = r.read(max_bytes + 1)
+            # Realdania sender gzip uden at være bedt om det. httpx pakker
+            # selv ud i produktionen; urllib gør ikke.
+            if body[:2] == b"\x1f\x8b":
+                import gzip
+                try:
+                    body = gzip.decompress(body)
+                except (OSError, EOFError):
+                    pass
+            return r.getcode(), body
     except urllib.error.HTTPError as e:
         # Statuskoden er med vilje ikke diskvalificerende for scrape-kilder —
         # body'en kan sagtens indeholde nyhedslisten alligevel.
@@ -153,6 +174,20 @@ def tjek_sitemap(navn, meta):
     return navn, meta["gruppe"], meta["sitemap"], "OK",         f"{len(traef)} artikel-URL'er, nyeste {traef[0][0]}{advarsel}"
 
 
+def tjek_json(navn, meta):
+    """JSON-kilder: samme læsning som produktionen (prod._json_poster)."""
+    status, body = hent(meta["json"])
+    if isinstance(status, str):
+        return navn, meta["gruppe"], meta["json"], "NETVAERK", status
+    poster = prod._json_poster(body.decode("utf-8", "ignore"), meta)
+    if not poster:
+        return navn, meta["gruppe"], meta["json"], "TOM", f"HTTP {status}, 0 poster i JSON"
+    nyeste = max((d for _, _, d, _ in poster if d), default="")
+    if nyeste and nyeste < STILLE_GRAENSE:
+        return navn, meta["gruppe"], meta["json"], "STILLESTAAENDE", f"{len(poster)} poster, nyeste {nyeste}"
+    return navn, meta["gruppe"], meta["json"], "OK", f"{len(poster)} poster, nyeste {nyeste}"
+
+
 def tjek(navn, url, gruppe, er_feed):
     status, body = hent(url)
 
@@ -194,6 +229,7 @@ def main():
     with ThreadPoolExecutor(max_workers=12) as pool:
         resultater = list(pool.map(lambda a: tjek(*a), opgaver))
         resultater += list(pool.map(lambda a: tjek_sitemap(*a), SITEMAP_SOURCES.items()))
+        resultater += list(pool.map(lambda a: tjek_json(*a), JSON_SOURCES.items()))
 
     raekkefoelge = {"TOM": 0, "STILLESTAAENDE": 1, "NETVAERK": 2, "OK": 3}
     resultater.sort(key=lambda r: (raekkefoelge[r[3]], r[1], r[0]))

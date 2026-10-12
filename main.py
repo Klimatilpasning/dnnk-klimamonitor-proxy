@@ -199,10 +199,19 @@ KEYWORDS = [
     "climate", "flood", "urban", "infrastructure",
 ]
 
+# Chrome/140, ikke /120: Automattic-CDN'et (Norsk Vann, Circle of Blue) og
+# sla.dk svarede 403 på præcis "Chrome/120.0.0.0" - alle andre versioner fik
+# 200 (målt 12/10-2026). Hold versionen nogenlunde aktuel.
 RSS_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
     "Accept": "application/rss+xml, application/xml, text/xml, */*",
     "Accept-Language": "da,en;q=0.9",
+}
+
+# Værter der afviser en browser-UA fra httpx (TLS-fingeraftrykket passer ikke)
+# men gerne svarer en ærlig bot: Springer gav en "Client Challenge"-side.
+UA_PR_VAERT = {
+    "link.springer.com": "DNNK-Klimamonitor/1.0 (+https://www.dnnk.dk)",
 }
 
 DANSKE_MAANEDER = ["januar", "februar", "marts", "april", "maj", "juni",
@@ -232,7 +241,7 @@ def normalize_date(raw: str) -> str:
     # Dansk langform: "14. september 2026". Mange danske CMS'er skriver datoen
     # sådan i listevisninger, og uden dette bliver hver eneste artikel fra dem
     # datoløs — hvilket både ødelægger sorteringen og is_recent i digesten.
-    m_dk = re.search(r'(\d{1,2})\.?\s+(' + '|'.join(DANSKE_MAANEDER) + r')\.?\s+(\d{4})',
+    m_dk = re.search(r'(\d{1,2})\.?\s+(' + '|'.join(DANSKE_MAANEDER) + r')\.?,?\s+(\d{4})',
                      raw, re.IGNORECASE)
     if m_dk:
         dag = int(m_dk.group(1))
@@ -612,6 +621,10 @@ async def get_feed_text(client, url: str, headers=None, body=None,
     _INFLIGHT[key] = fut
     try:
         async with _FETCH_SEM:
+            if headers is None:
+                vaert = url.split("/")[2] if "://" in url else ""
+                if vaert in UA_PR_VAERT:
+                    headers = {**RSS_HEADERS, "User-Agent": UA_PR_VAERT[vaert]}
             if body is None:
                 resp = await client.get(url, timeout=_TIMEOUT_GET, follow_redirects=True,
                                         headers=headers or RSS_HEADERS)
@@ -1758,6 +1771,10 @@ def _vaelg_kandidater(soup):
         # så det kun slår til når intet andet matcher.
         lambda: soup.find_all(class_=re.compile(r"items?[-_]list[-_]row|list[-_]items?\b", re.I)),
         lambda: soup.find_all(class_=re.compile(r"news|nyheder|articles|posts", re.I)),
+        # Bootstrap-kort: <a class="card"> med <h5 class="card-title">
+        # (Frederiksberg Forsyning). Sent i kæden, så "card" på andre sider
+        # ikke kan fortrænge et mere specifikt trin.
+        lambda: soup.find_all(class_=re.compile(r"^card$")),
         # Fallback: alle h2/h3 med links
         lambda: [a.parent for a in soup.find_all("a", href=True)
                  if a.find_parent(["h2", "h3"]) or a.find(["h2", "h3"])][:20],
@@ -1971,6 +1988,13 @@ def _udtraek_side(text, url, source, gruppe) -> dict:
             # Sidste udvej: relative datoer ("3 måneder 1 uge siden"), som
             # KTC's netværkssider bruger i stedet for <time>-tags.
             pub_date = relativ_dato(el.get_text(" ", strip=True)[:200])
+        if not pub_date:
+            # Dato i en neutral <div> uden dato-klasse (Frederiksberg Forsyning:
+            # <div class="opacity-75 fs-7 mb-3">04-08-2026</div>).
+            # En fremtidig dato er en frist i teksten, ikke udgivelsesdatoen.
+            pub_date = normalize_date(el.get_text(" ", strip=True)[:200])
+            if pub_date > datetime.now(timezone.utc).strftime("%Y-%m-%d"):
+                pub_date = ""
 
         # Find beskrivelse
         desc_el = el.find("p")
@@ -2294,13 +2318,64 @@ async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
     ud.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return ud[:limit]
 
+def _json_poster(tekst: str, meta: dict) -> list:
+    """(titel, url, dato, manchet) fra en JSON-liste som beskrevet i
+    JSON_SOURCES. Delt med check_sources.py, så de læser ens."""
+    import json as _json
+    from urllib.parse import urljoin
+    try:
+        data = _json.loads(tekst)
+    except ValueError:
+        return []
+    if isinstance(data, dict):
+        data = next((v for v in data.values() if isinstance(v, list)), [])
+    ud = []
+    for el in data if isinstance(data, list) else []:
+        if not isinstance(el, dict):
+            continue
+        titel = html_unescape(str(el.get(meta["titel"]) or "")).strip()
+        link = el.get(meta["link"]) or ""
+        if len(titel) < 8 or not link:
+            continue
+        manchet = re.sub(r"<[^>]+>", " ", html_unescape(str(el.get(meta.get("manchet", "")) or "")))
+        ud.append((titel, urljoin(meta.get("base", meta["json"]), link),
+                   normalize_date(str(el.get(meta["dato"]) or "")),
+                   re.sub(r"\s+", " ", manchet).strip()))
+    return ud
+
+async def fetch_json_news(client, source, meta, query, limit: int = 8):
+    """Nyheder fra et åbent JSON-endpoint, som sidens egen nyhedsliste
+    henter i browseren (Samn Forsyning). None = endpointet svarede ikke."""
+    try:
+        tekst = await get_feed_text(client, meta["json"])
+    except Exception as e:
+        print(f"[json-fejl] {source}: {e}")
+        return None
+    graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
+    ud = []
+    for titel, url, dato, manchet in _json_poster(tekst or "", meta):
+        if dato and dato < graense:
+            continue
+        kombi = f"{titel} {manchet}"
+        relevance, keep = score_article(kombi, q_point(query, kombi))
+        if not keep:
+            continue
+        ud.append({
+            "source": "scrape", "feedSource": source, "org": source,
+            "title": titel, "url": url, "date": dato,
+            "summary": manchet[:300], "tags": find_tags(kombi),
+            "relevance": relevance, "value": None, "gruppe": meta["gruppe"],
+        })
+    ud.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
+    return ud[:limit]
+
 @app.get("/news/scrape")
 async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), limit: int = Query(8)):
     """Hent nyheder via direkte scraping fra sider uden RSS"""
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
-    from sources import SITEMAP_SOURCES
-    navne = list(SCRAPE_SOURCES) + list(SITEMAP_SOURCES)
+    from sources import SITEMAP_SOURCES, JSON_SOURCES
+    navne = list(SCRAPE_SOURCES) + list(SITEMAP_SOURCES) + list(JSON_SOURCES)
     tasks = [
         scrape_news(app.state.client, navn, meta["url"], meta["gruppe"], q, limit,
                     betroet=meta.get("betroet", False))
@@ -2308,6 +2383,9 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     ] + [
         fetch_sitemap_news(app.state.client, navn, meta, q, limit)
         for navn, meta in SITEMAP_SOURCES.items()
+    ] + [
+        fetch_json_news(app.state.client, navn, meta, q, limit)
+        for navn, meta in JSON_SOURCES.items()
     ]
     nested = await asyncio.gather(*tasks, return_exceptions=True)
 
