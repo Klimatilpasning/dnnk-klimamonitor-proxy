@@ -12,6 +12,8 @@ import os
 import time
 import collections
 import functools
+import contextvars
+import json
 from html import unescape as html_unescape
 
 
@@ -396,35 +398,60 @@ def find_tags(combined: str, top_n: int = 3) -> list:
 STANDARD_Q = "klimatilpasning"
 _KENDTE_AKRONYMER = {"LAR", "VVM", "DMI", "SVK", "EU", "MST", "KL", "BNBO", "DHI",
                      "SGI", "GEUS", "KTC", "DANVA", "HOFOR", "TED", "IPCC", "DK2020"}
-_KORTE_FAGORD = {"hav", "sø", "å", "eng", "dige"}
+# Korte fagord matcher kun som helt ord med bøjning: ellers ramte "eng"
+# England, "å" Året og "hav" Havneudvidelse.
+# Bøjningerne er pr. ord: en fælles liste lod "hav" + "n" ramme havn.
+_KORTE_FAGORD = {"hav": "et|ets|e|ene|s", "sø": "en|ens|er|erne|s", "å": "en|ens|er|erne|s",
+                 "eng": "en|ens|e|ene|s", "dige": "t|ts|r|rne|rnes|s"}
+# Stednavne (kommunenavne) skal matche som helt ord, så Vejle ikke rammer
+# Vejledning. Før blev det afgjort af stort forbogstav i søgningen, men så gav
+# "Skybrud" (mobilens autoversal) 0 træf, og "vejle fjord" med småt ramte
+# stadig Vejledning. Navnene læses fra dagsordenscannerens kommuneliste.
+try:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools", "dagsorden_portaler.json"),
+              encoding="utf-8") as _f:
+        _STEDNAVNE = {k.lower() for k in json.load(_f)}
+except Exception as _e:
+    print(f"[q] kommuneliste ikke indlæst: {_e}")
+    _STEDNAVNE = set()
+_STEDNAVNE |= {"vejle", "køge", "ribe", "nakskov", "skagen", "dragør", "ærø", "rømø"}
+# Auto-scan og den daglige digest sender ordbunker ("folketing klima miljø
+# lovforslag"), hvor ét ord skal være nok - som før. Kun Søg-knappen (dyb=1)
+# kræver alle ord. Sættes pr. request i /news/full; asyncio-tasks arver den.
+_Q_ELLER = contextvars.ContextVar("q_eller", default=False)
+_Q_MAX_TEGN = 200   # en q på tusinder af ord ville bygge tusinder af regexer
 # Ord som filteret bevidst vægter let, må ikke give auto-keep, bare fordi de
 # står i søgningen: q='klima' lukkede ellers datacentre og elpriser ind.
 _Q_IKKE = {b.lower() for b in BROAD_KEYWORDS} | {"water", "natur"}
 _BOEJNING_RE = re.compile(r"(?:erne|ene|er|en|et|e)$")
 
 @functools.lru_cache(maxsize=256)
-def _q_termer(query: str) -> tuple:
+def _q_termer(query: str, eller: bool = False) -> tuple:
     """(regex, stærk) pr. søgeord. Reglerne:
     - akronymer (versaler eller kendte, også skrevet småt): helt ord, så LAR
       ikke rammer Lars og DHI ikke DHILiving
-    - korte egennavne (stort forbogstav, højst 7 tegn: Vejle, Køge, Fjord):
-      helt ord med valgfrit genitiv-s, så Vejle ikke rammer Vejledning
+    - stednavne (kommunenavne, uanset versaler): helt ord med valgfrit
+      genitiv-s, så Vejle ikke rammer Vejledning
+    - korte fagord (hav, sø, å, eng, dige): helt ord med bøjning
     - lange ord: bøjningsendelse fjernes, så 'vandhåndteringsplaner' rammer
       'vandhåndteringsplan'
-    - ord på højst 3 tegn og brede ord udelades (undtagen korte fagord)."""
+    - øvrige ord: ordstart, så 'skybrud' også rammer 'Skybrudsplan'
+    - ord på højst 3 tegn og brede ord udelades - undtagen i eller-tilstand,
+      hvor brede ord tæller som før PR 3, så digestens ordbunker ("folketing
+      klima miljø lovforslag") giver de samme artikler."""
     termer = []
-    for raa in (query or "").split():
+    for raa in (query or "")[:_Q_MAX_TEGN].split():
         w = raa.strip(".,;:!?\"'()»«")
         if not w:
             continue
         if w.upper() in _KENDTE_AKRONYMER or (w.isupper() and len(w) >= 2 and any(c.isalpha() for c in w)):
             moenster, staerk = re.escape(w) + r"(?!\w)", True
-        elif w.lower() in _KORTE_FAGORD:
-            moenster, staerk = re.escape(w), False
-        elif len(w) <= 3 or w.lower() in _Q_IKKE:
-            continue
-        elif w[0].isupper() and len(w) <= 7:
+        elif w.lower() in _STEDNAVNE:
             moenster, staerk = re.escape(w) + r"s?(?!\w)", len(w) >= 6
+        elif w.lower() in _KORTE_FAGORD:
+            moenster, staerk = re.escape(w) + f"(?:{_KORTE_FAGORD[w.lower()]})?(?!\\w)", False
+        elif len(w) <= 3 or (w.lower() in _Q_IKKE and not eller):
+            continue
         else:
             stamme = _BOEJNING_RE.sub("", w) if len(w) >= 8 else w
             moenster, staerk = re.escape(stamme if len(stamme) >= 6 else w), len(w) >= 6
@@ -432,8 +459,8 @@ def _q_termer(query: str) -> tuple:
     return tuple(termer)
 
 @functools.lru_cache(maxsize=256)
-def _q_regexer(query: str):
-    termer = _q_termer(query)
+def _q_regexer(query: str, eller: bool = False):
+    termer = _q_termer(query, eller)
     enkelt = [(re.compile(r"(?<!\w)" + m, re.IGNORECASE), s) for m, s in termer]
     frase = (re.compile(r"(?<!\w)" + r"\W+".join(m for m, _ in termer), re.IGNORECASE)
              if len(termer) > 1 else None)
@@ -442,14 +469,16 @@ def _q_regexer(query: str):
 def q_point(query: str, tekst: str) -> int:
     """Hvor godt rammer teksten søgningen? 6 = hele frasen, 3 = alle ord (eller
     det ene ord), 1 = kun et enkelt stærkt ord (akronym eller mindst 6 tegn),
-    0 = intet. Kun 3+ tæller som søgetræf og må lukke en artikel ind."""
-    enkelt, frase = _q_regexer(query or "")
+    0 = intet. Kun 3+ tæller som søgetræf og må lukke en artikel ind.
+    I eller-tilstand (_Q_ELLER) giver ét vilkårligt ord 3, som før PR 3."""
+    eller = _Q_ELLER.get()
+    enkelt, frase = _q_regexer(query or "", eller)
     if not enkelt:
         return 0
     if frase is not None and frase.search(tekst):
         return 6
     traef = [bool(rx.search(tekst)) for rx, _ in enkelt]
-    if all(traef):
+    if all(traef) or (any(traef) and eller):
         return 3
     if any(t and s for t, (_, s) in zip(traef, enkelt)):
         return 1
@@ -482,7 +511,9 @@ def parse_item_bs(item):
     desc = item.find("description") or item.find("summary") or item.find("content")
     # html.unescape: Altinget dobbeltkoder æøå ("p&amp;#229;"), så resuméet
     # stod som "p&#229;" i stedet for "på" - og ord med æøå matchede ikke.
-    description = html_unescape(re.sub(r"<[^>]+>", "", desc.get_text(strip=True)))[:400] if desc else ""
+    # Unescape FØR tags fjernes: ellers blev dobbeltkodet markup til rigtige
+    # tags, og digest-mailen indsætter resuméet uescapet.
+    description = re.sub(r"<[^>]+>", "", html_unescape(desc.get_text(strip=True)))[:400] if desc else ""
     
     link = item.find("link")
     if link:
@@ -851,8 +882,11 @@ def _ted_trappe(q: str) -> list:
       både frase og AND, så OR-trinnet er nødvendigt)
     - ét ord under 4 tegn: ankret til klimatilpasning/regnvand/skybrud."""
     if "," in (q or ""):
-        dele = [d for d in (_TED_ORD_RE.sub(" ", x).strip() for x in q.split(",")) if d]
-        return [("or", " OR ".join(f'FT ~ ("{d}")' for d in dele[:12]))] if dele else []
+        # "liste", ikke "or": frontenden viser kun "intet nævner hele søgningen"
+        # ved or, og en emneliste er netop ment som enten-eller.
+        dele = [d for d in (_TED_ORD_RE.sub(" ", x).strip() for x in q.split(","))
+                if len(d) > 2 or (d.isupper() and len(d) >= 2)]
+        return [("liste", " OR ".join(f'FT ~ ("{d}")' for d in dele[:12]))] if dele else []
     ord_ = [o for o in (_TED_ORD_RE.sub(" ", q or "").split()) if len(o) > 2 or o.isupper()]
     if not ord_:
         ord_ = [STANDARD_Q]
@@ -875,12 +909,24 @@ def _byg_ted_query(q: str) -> str:
 @app.get("/ted")
 async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
     try:
-        data, match = None, ""
+        data, brugt_match = None, ""
+        # Fælles frist for hele trappen: tre trin à 20 s kunne tage 60 s, og
+        # digesten kalder /ted med timeout 30. Et trin, der fejler efter et
+        # gyldigt svar, må ikke smide det svar væk.
+        frist = time.monotonic() + 25
         for match, fritekst in _ted_trappe(q) or [("ord", f'FT ~ ("{STANDARD_Q}")')]:
+            rest = frist - time.monotonic()
+            if rest < 3 and data is not None:
+                break
             body = {"query": _ted_ramme(fritekst), "fields": TED_FIELDS,
                     "limit": max(1, min(size, 100)), "page": 1,
                     "scope": "ALL", "onlyLatestVersions": True}
-            resp = await app.state.client.post(TED_URL, json=body, timeout=20)
+            try:
+                resp = await app.state.client.post(TED_URL, json=body, timeout=max(rest, 3))
+            except httpx.HTTPError:
+                if data is not None:
+                    break
+                raise
             # TED svarede 429 efter ca. 11 kald i træk, og r.json() kastede så.
             # Stop trappen ved første ugyldige svar i stedet for at fortsætte.
             try:
@@ -895,7 +941,7 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
                 besked = svar.get("message") if isinstance(svar, dict) else None
                 raise ValueError(f"uventet svar fra TED (HTTP {resp.status_code}): "
                                  f"{besked or str(svar)[:120]}")
-            data = svar
+            data, brugt_match = svar, match
             if data.get("totalNoticeCount") or data.get("notices"):
                 break
         # Normalisér til de feltnavne frontenden allerede læser (title /
@@ -913,7 +959,7 @@ async def search_ted(q: str = Query("klimatilpasning"), size: int = 10):
                 "publicationNumber": n.get("publication-number") or "",
             })
         # match fortæller frontenden, hvor bredt der måtte søges (frase/and/or/anker)
-        return {"notices": notices, "total": data.get("totalNoticeCount", len(notices)), "match": match}
+        return {"notices": notices, "total": data.get("totalNoticeCount", len(notices)), "match": brugt_match}
     except Exception as e:
         # Frontenden forventer altid en notices-liste — fejl må ikke give 500
         print(f"[ted-fejl] {e}")
@@ -1340,6 +1386,11 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     egen_q = (q or "").strip().lower() != STANDARD_Q
     if is_rate_limited(request):
         return JSONResponse(status_code=429, content={"error": "For mange forespørgsler — prøv igen om lidt"})
+    # Uden dyb (auto-scan, digest): ét ord er nok. Sættes før gather, så
+    # fetch_rss-tasks arver værdien; hver request har sin egen kontekst.
+    _Q_ELLER.set(not dyb)
+    # 0 termer (fx q="klima": kun brede ord) = ingen søgetræf at vise.
+    q_termer = len(_q_termer(q or ""))
     from sources import ALL_FEEDS_FLAT, ALLE_FEEDS
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
@@ -1453,7 +1504,7 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     # 65 poster, hvoraf ingen nævnte hedebølge, Grøn trepart eller Vejle Fjord.
     # Nu scores de mod q med et gulv på 0,4, så en nyhed med søgetræf og ét
     # kerneord (0,5) kommer foran, mens de selv stiger ved eget træf.
-    if egen_q:
+    if egen_q and q_termer:
         for a in articles:
             tekst = f"{a.get('title') or ''} {a.get('summary') or ''}"
             pt = q_point(q, tekst)
@@ -1472,7 +1523,7 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     articles.sort(key=lambda x: (x["relevance"], x["date"]), reverse=True)
     return {"articles": articles, "total": len(articles),
             "feeds_checked": len(feeds), "feeds_failed": feeds_failed,
-            "query": q,
+            "query": q, "q_termer": q_termer,
             "scanned_at": datetime.now(timezone.utc).isoformat()}
 
 @app.get("/news/kilder")

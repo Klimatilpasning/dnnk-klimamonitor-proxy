@@ -802,7 +802,11 @@ function voteRelevance(id, direction) {
 // de øverst, markeres, og "Kun træf" er slået til som standard.
 let aktivQ = 'klimatilpasning';
 let kunTraef = true;
-const egenSoegning = () => aktivQ.trim().toLowerCase() !== 'klimatilpasning';
+// Backendens antal søgetermer: 0 når q kun består af brede ord ("klima",
+// "vand"). Så kan intet være et søgetræf, og "Kun træf" ville skjule alt.
+let qTermer = null;
+let senestVist = [];   // ID'er fra seneste renderArticles - kun de markeres som set
+const egenSoegning = () => aktivQ.trim().toLowerCase() !== 'klimatilpasning' && qTermer !== 0;
 
 function toggleKunTraef() {
   kunTraef = !kunTraef;
@@ -863,6 +867,7 @@ function renderArticles(articles) {
     : [filtered.filter(a => !laest(a)), filtered.filter(a => laest(a))];
   filtered = dele.flatMap(sortArticles);
 
+  senestVist = filtered.map(getArticleId);
   const unread = filtered.filter(a => !laest(a)).length;
   document.getElementById('articles-count').textContent = egen
     ? `${antalTraef} af ${iAlt} nævner »${aktivQ}« · ${unread} ulæste`
@@ -972,8 +977,10 @@ function renderTed(notices) {
   }).join('');
 }
 
+// Kun det, der faktisk blev vist: med "Kun træf" er resten skjult, og det
+// må ikke miste "Ny"-mærket, før brugeren har set det.
 function markCurrentAsSeen() {
-  allArticles.forEach(a => touch(seenArticles, getArticleId(a)));
+  senestVist.forEach(id => touch(seenArticles, id));
   saveSeen();
 }
 
@@ -1055,6 +1062,7 @@ let setTimer = null;   // markCurrentAsSeen fra en ældre søgning må ikke ramm
 
 async function hentOgVis({ newsQ, andreQ, limit, dyb = false }) {
   aktivQ = dyb ? newsQ : 'klimatilpasning';
+  qTermer = null;
   // Hver ny egen søgning starter med "Kun træf" slået til
   if (!kunTraef) toggleKunTraef();
   const mitNr = ++hentNr;
@@ -1094,6 +1102,7 @@ async function hentOgVis({ newsQ, andreQ, limit, dyb = false }) {
       allArticles.push(a);
     }
     if (data && data.feeds_checked != null) feedsChecked = data.feeds_checked;
+    if (data && data.q_termer != null) qTermer = data.q_termer;
     document.getElementById('stat-articles').textContent = allArticles.length;
     document.getElementById('stat-feeds').textContent = feedsChecked ?? '—';
     if (allArticles.length || afventer === 0) {
