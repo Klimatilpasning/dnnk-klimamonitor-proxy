@@ -107,7 +107,7 @@
   .read-count:hover { color: var(--dnnk-blue); }
 
   main {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
   }
@@ -419,20 +419,82 @@
     font-weight: 500;
   }
 
+  /* Nyheder til venstre, EU-udbud i en fast sidekolonne til højre.
+     Udbuddene lå før under hele nyhedslisten (300+ artikler) og blev
+     reelt aldrig set. Under 960px kommer de over nyhederne i stedet. */
+  .content-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 2rem;
+    align-items: start;
+  }
+  .content-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  .ted-aside {
+    grid-column: 2; grid-row: 1;
+    position: sticky;
+    top: calc(64px + 1rem);
+    max-height: calc(100vh - 64px - 2rem);
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--ted-blue);
+    border-radius: 2px;
+    padding: 1rem;
+  }
+  .ted-aside .section-header { margin-bottom: 0.75rem; }
+  .ted-intro { font-size: 0.75rem; color: var(--muted); margin: 0 0 0.75rem; line-height: 1.4; }
+
   .ted-card {
     background: var(--ted-pale);
     border: 1px solid #bee3f8;
     border-left: 4px solid var(--ted-blue);
     border-radius: 0 2px 2px 0;
-    padding: 1.25rem;
-    margin-bottom: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 0.6rem;
     transition: border-color 0.15s;
   }
   .ted-card:hover { border-color: var(--ted-blue); }
-  .ted-title { font-weight: 500; font-size: 0.92rem; color: var(--ted-blue); margin-bottom: 0.3rem; }
+  .ted-card.ted-resultat { background: var(--card); border-left-color: #9aa5ad; }
+  .ted-title { font-weight: 500; font-size: 0.86rem; color: var(--ted-blue); margin-bottom: 0.3rem; line-height: 1.35; }
   .ted-title a { color: inherit; text-decoration: none; }
   .ted-title a:hover { text-decoration: underline; }
-  .ted-meta { font-size: 0.72rem; color: var(--muted); }
+  .ted-meta { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+  .ted-type {
+    display: inline-block;
+    font-size: 0.64rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    margin-bottom: 0.35rem;
+    background: var(--ted-blue);
+    color: #fff;
+  }
+  .ted-resultat .ted-type { background: #6b767e; }
+  .ted-more {
+    width: 100%;
+    padding: 0.5rem;
+    background: none;
+    border: 1px solid var(--ted-blue);
+    border-radius: 2px;
+    color: var(--ted-blue);
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .ted-more:hover { background: var(--ted-pale); }
+  a.stat-card { text-decoration: none; color: inherit; display: block; }
+  a.stat-card:hover { border-color: var(--ted-blue); }
+
+  @media (max-width: 959px) {
+    .content-layout { display: block; }
+    .ted-aside { position: static; max-height: none; overflow: visible; margin-bottom: 2rem; }
+    .ted-aside:not(.vis-alle) .ted-card:nth-child(n+4) { display: none; }
+  }
+  @media (min-width: 960px) {
+    .ted-more { display: none; }
+  }
 
   .loading {
     text-align: center;
@@ -524,10 +586,10 @@
       <div class="label">Nyheder fundet</div>
       <div class="value" id="stat-articles">—</div>
     </div>
-    <div class="stat-card">
+    <a class="stat-card" href="#udbud" title="Gå til EU-udbud">
       <div class="label">EU-udbud</div>
       <div class="value" id="stat-ted">—</div>
-    </div>
+    </a>
     <div class="stat-card">
       <div class="label">Feeds scannet</div>
       <div class="value" id="stat-feeds">—</div>
@@ -538,6 +600,22 @@
     </div>
   </div>
 
+  <div class="content-layout">
+  <!-- Udbuddene står først i kilden, så de også kommer først på mobil og
+       for skærmlæsere; på bred skærm lægger griddet dem i højre kolonne. -->
+  <aside class="ted-aside" id="udbud" aria-labelledby="ted-heading">
+    <div class="section-header">
+      <h2 class="section-title" id="ted-heading" style="color:var(--ted-blue);margin:0;">EU-udbud (TED)</h2>
+      <div class="section-count" id="ted-count" role="status"></div>
+    </div>
+    <p class="ted-intro">Nyeste udbud på TED, der matcher søgningen. Udbud = åbent for bud, resultat = kontrakten er tildelt.</p>
+    <div id="ted-container">
+      <div class="loading">Henter EU-udbud<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+    </div>
+    <button type="button" class="ted-more" id="ted-more" hidden onclick="visAlleUdbud()">Vis alle udbud</button>
+  </aside>
+
+  <div class="content-main">
   <div class="section-header">
     <div class="section-title">Nyheder &amp; artikler</div>
     <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -558,12 +636,7 @@
     <div class="loading">Henter nyheder<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
   </div>
 
-  <div class="section-header" style="margin-top:2rem;">
-    <div class="section-title" style="color:var(--ted-blue)">EU-udbud (TED)</div>
-    <div class="section-count" id="ted-count" role="status"></div>
   </div>
-  <div id="ted-container">
-    <div class="loading">Henter EU-udbud<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
   </div>
 </main>
 
@@ -888,22 +961,54 @@ document.getElementById('articles-container').addEventListener('click', (e) => {
   }
 });
 
+// TED's notice-type: cn-* = udbud (åbent for bud), can-* = resultat
+// (kontrakt tildelt), pin-* = forhåndsmeddelelse, veat = frivillig
+// forudgående gennemsigtighed. Ukendte typer vises uden mærkat.
+function tedType(t) {
+  t = String(t || '').toLowerCase();
+  if (t.startsWith('can')) return {tekst: 'Resultat', resultat: true};
+  if (t.startsWith('cn')) return {tekst: 'Udbud', resultat: false};
+  if (t.startsWith('pin')) return {tekst: 'Forhåndsmeddelelse', resultat: false};
+  if (t.startsWith('veat')) return {tekst: 'Direkte tildeling', resultat: true};
+  return null;
+}
+
+function visAlleUdbud() {
+  document.getElementById('udbud').classList.add('vis-alle');
+  document.getElementById('ted-more').hidden = true;
+}
+
 function renderTed(notices) {
   const container = document.getElementById('ted-container');
+  const more = document.getElementById('ted-more');
   document.getElementById('ted-count').textContent = `${notices.length} udbud`;
   if (notices.length === 0) {
     container.innerHTML = '<div class="empty">Ingen aktuelle EU-udbud fundet</div>';
+    more.hidden = true;
     return;
   }
-  container.innerHTML = notices.slice(0,10).map(n => {
+  const vist = notices.slice(0,10);
+  container.innerHTML = vist.map(n => {
     let title = n.title || {};
     if (typeof title === 'object') title = title.dan || title.eng || 'Uden titel';
+    // TED-titler hedder "Land – CPV-kategori – egentlig titel"; de to første
+    // led er ens for næsten alle og æder den smalle kolonne. Hele titlen
+    // ligger stadig i title-attributten.
+    const fuldTitel = String(title);
+    const led = fuldTitel.split(' – ');
+    const kortTitel = led.length >= 3 ? led.slice(2).join(' – ') : fuldTitel;
     const date = (n.publicationDate || '').slice(0,10);
-    return `<div class="ted-card">
-      <div class="ted-title"><a href="${safeUrl(n.tedPublicationUrl||'#')}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a></div>
-      <div class="ted-meta">TED EU · ${escapeHtml(date)}</div>
+    const type = tedType(n.noticeType);
+    const meta = [n.buyer, date].filter(Boolean).map(escapeHtml).join(' · ');
+    return `<div class="ted-card${type?.resultat ? ' ted-resultat' : ''}">
+      ${type ? `<span class="ted-type">${type.tekst}</span>` : ''}
+      <div class="ted-title"><a href="${safeUrl(n.tedPublicationUrl||'#')}" title="${escapeHtml(fuldTitel)}" target="_blank" rel="noopener noreferrer">${escapeHtml(kortTitel)}</a></div>
+      <div class="ted-meta">${meta || 'TED EU'}</div>
     </div>`;
   }).join('');
+  // Knappen ses kun under 960px (CSS), hvor kun de tre første vises.
+  more.hidden = document.getElementById('udbud').classList.contains('vis-alle') || vist.length <= 3;
+  more.textContent = `Vis alle ${vist.length} udbud`;
 }
 
 function markCurrentAsSeen() {
