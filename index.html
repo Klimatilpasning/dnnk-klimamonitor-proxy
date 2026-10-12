@@ -1044,6 +1044,15 @@ function tedType(t) {
   return null;
 }
 
+// "Ny" på udbud = ikke vist ved et tidligere besøg. Listen fra sidste besøg
+// fryses ved sideindlæsning, så mærket bliver stående, mens siden er åben,
+// og først forsvinder ved næste besøg. Første besøg nogensinde mærker intet -
+// ellers ville alle udbud stå som nye.
+const tedSetFoer = safeParse('dnnk_ted_seen', null);
+const tedFoersteBesoeg = !Array.isArray(tedSetFoer);
+const tedSet = new Set(tedFoersteBesoeg ? [] : tedSetFoer);
+const tedSetNu = new Set(tedSet);
+
 function visAlleUdbud() {
   document.getElementById('udbud').classList.add('vis-alle');
   document.getElementById('ted-more').hidden = true;
@@ -1071,12 +1080,16 @@ function renderTed(notices) {
     const date = (n.publicationDate || '').slice(0,10);
     const type = tedType(n.noticeType);
     const meta = [n.buyer, date].filter(Boolean).map(escapeHtml).join(' · ');
+    const id = n.publicationNumber || n.tedPublicationUrl || fuldTitel;
+    const ny = !tedFoersteBesoeg && !tedSet.has(id);
+    touch(tedSetNu, id);
     return `<div class="ted-card${type?.resultat ? ' ted-resultat' : ''}">
-      ${type ? `<span class="ted-type">${type.tekst}</span>` : ''}
+      ${type ? `<span class="ted-type">${type.tekst}</span>` : ''}${ny ? ' <span class="new-badge">Ny</span>' : ''}
       <div class="ted-title"><a href="${safeUrl(n.tedPublicationUrl||'#')}" title="${escapeHtml(fuldTitel)}" target="_blank" rel="noopener noreferrer">${escapeHtml(kortTitel)}</a></div>
       <div class="ted-meta">${meta || 'TED EU'}</div>
     </div>`;
   }).join('');
+  safeSet('dnnk_ted_seen', [...tedSetNu].slice(-500));
   // Knappen ses kun under 960px (CSS), hvor kun de tre første vises.
   more.hidden = document.getElementById('udbud').classList.contains('vis-alle') || vist.length <= 3;
   more.textContent = `Vis alle ${vist.length} udbud`;
