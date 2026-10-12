@@ -25,7 +25,10 @@ RSS_NEWS = {
 
 # ── VIDENSINSTITUTIONER ──
 RSS_VIDEN = {
-    "Klimatorium":              "https://klimatorium.dk/feed/",
+    # Fjernet 12/10-2026: Klimatorium (feed og nyhedsside). Hostingfirmaet
+    # Simply.com's firewall svarer HTTP 454 "Checking your browser" på alle
+    # stier og kræver en JavaScript-beregning - bot-blokering, som også rammer
+    # Render. Kommer kun tilbage, hvis Klimatorium undtager /feed/.
     # Fjernet (døde RSS, flyttet til SCRAPE_SOURCES): IDA, DANVA, CONCITO, DMI.
     # Fjernet 14/9-2026: Vand i Byer. Domænet er IKKE længere innovations-
     # netværkets site — det er overtaget og drives nu som indholdsfarm
@@ -63,7 +66,8 @@ RSS_NORDEN = {
     "VA-guiden (SE)":           "https://www.vaguiden.se/rss",
     "NRK Klima":                "https://www.nrk.no/toppsaker.rss",
     "SMHI Sverige":             "https://www.smhi.se/rss/nyheter-fran-smhi",
-    "Norsk Vann":               "https://www.norskvann.no/rss",
+    # /rss sender 301 hertil. 403 skyldtes UA'en Chrome/120 (se RSS_HEADERS).
+    "Norsk Vann":               "https://norskvann.no/feed/",
     # Fjernet: NCCS Norge (forkert institution — CO2-lagring, ikke
     # klimaservice; rette site har intet RSS) og SYKE Finland (intet RSS).
     "HaV Sverige":              "https://www.mynewsdesk.com/rss/current_news/6994",
@@ -123,8 +127,13 @@ RSS_KREATIVT = {
     "Dezeen Arkitektur":        "https://www.dezeen.com/feed/",
     "ArchDaily":                "https://www.archdaily.com/feed",
     "The Conversation Env.":    "https://theconversation.com/global/environment/articles.atom",
-    "Planetizen":               "https://www.planetizen.com/rss.xml",
-    # Fjernet: Tredje Natur, SLA (dækket af SCRAPE_SOURCES); WEF Natur & Klima,
+    # rss.xml ligger bag Cloudflare-udfordring (Cf-Mitigated: challenge) for
+    # alle; forsidefeedet slipper igennem (12/10-2026). Tom efter deploy = fjern.
+    "Planetizen":               "https://www.planetizen.com/frontpage/feed",
+    # sla.dk/nyheder/ er 404 (sitet er engelsk); feedet virker, når UA'en
+    # ikke er Chrome/120. Sjældne nyheder, men kernefaglige (Stig L. Andersson).
+    "SLA Arkitekter":           "https://www.sla.dk/feed/",
+    # Fjernet: Tredje Natur; WEF Natur & Klima,
     # Landezine, Fast Company (403 — bot-blok); Landscape Architecture (404);
     # Citylab/Bloomberg (sitemap, ikke et nyhedsfeed).
 }
@@ -137,6 +146,10 @@ RSS_LOVGIVNING = {
     # renderet indhold. NB: ?Authorities=-parameteren ignoreres af portalen, så
     # feedet dækker ALLE myndigheders høringer — relevansfilteret skiller fra.
     "Høringsportalen":          "https://hoeringsportalen.dk/Syndication/HearingsFeed",
+    # Klima-, Energi- og Forsyningsministeriet: nyhedslisten er JS, men siden
+    # har en "Hent RSS feed"-knap (50 items). Mest energi - relevansfilteret
+    # sorterer; forsyningsstoffet (vand) er grunden til at have den.
+    "Klima-, Energi- og Forsyningsministeriet": "https://www.kefm.dk/handlers/DynamicRss.ashx?id=76163fac-6c0a-4edb-8e6e-86a4dcf36bd4",
     # Fjernet: Folketing + Folketing Dagsorden (403 — ft.dk bot-blokerer også
     # Renders server-IP, så feedet returnerer aldrig indhold).
     # Fjernet (døde RSS, allerede dækket af SCRAPE_SOURCES): Miljøministeriet,
@@ -173,6 +186,8 @@ RSS_VIDENSKAB = {
     # består relevansfilteret, og science.org ligger bag Cloudflare. Får Render
     # 403 eller en udfordringsside, så fjern kilden frem for at bygge en omvej.
     "Science Advances":         "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciadv",
+    # Springer svarer en "Client Challenge"-side på browser-UA fra httpx; se
+    # UA_PR_VAERT i main.py. Query filtrerer løst - relevansscoringen sorterer.
     "Climatic Change":          "https://link.springer.com/search.rss?query=climate+adaptation&search-within=Journal&facet-journal-id=10584",
     "Urban Climate":            "https://rss.sciencedirect.com/publication/science/22120955",
     "Journal Water Research":   "https://rss.sciencedirect.com/publication/science/00431354",
@@ -331,12 +346,10 @@ SCRAPE_SOURCES = {
     # kystnetværk. Det er et reelt hul, ikke en bevidst nedprioritering.
 
     # ── KREATIVE VINKLER ──
-    "Realdania Projekter":              {"url": "https://realdania.dk/projekter/", "gruppe": "Kreative vinkler"},
     # Fjernet 7/10-2026: Tredje Natur. Omdøbt til Third Nature Architects
     # (thirdnaturearchitects.com/news, engelsk). Listen er server-renderet, men
     # titlerne står i <a class="news-header">, som scraperen ikke læser, og
     # volumen er 3-5 nyheder om året - det står ikke mål med en særregel.
-    "SLA Arkitekter":                   {"url": "https://www.sla.dk/nyheder/", "gruppe": "Kreative vinkler"},
     # GHB Landskabsarkitekter hedder nu LYTT Architecture — ghb-landskab.dk
     # 301'er til lytt.dk. Navnet står med begge former, så gamle artikler stadig
     # kan genkendes. NB: overskrifterne er i rå HTML, men datoer vises kun
@@ -346,19 +359,20 @@ SCRAPE_SOURCES = {
     # Fjernet 14/9-2026: Schønherr Landskab. Sitet er relanceret på Webflow helt
     # uden nyhedssektion — /aktuelt, /nyheder, /news, /journal, /stories,
     # /insights og /press giver alle 404, og der findes ingen oversigtsside.
-    "Klimatorium":                      {"url": "https://klimatorium.dk/nyheder/", "gruppe": "Kreative vinkler"},
 
     # ── RÅDGIVERE ──
-    "Rambøll DK":                       {"url": "https://ramboll.com/da-dk/nyheder", "gruppe": "Rådgivere"},
     # Fjernet 14/9-2026: COWI DK. /da/nyheder er 404, og efterfølgeren
     # /news-and-press/news/ er en tom SPA-skal (<div id="news-app">). COWI har
     # hverken RSS eller sitemap, men nyhederne ligger i et åbent JSON-API:
     # /api/news/GetNews?id=d8673f9b-cb9a-43c7-8c19-a81e81b33619
     #   &region=ae4218c7-4ca9-4081-a4aa-862965bcc6ee&pageNumber=1&pageSize=20
     # Kan hentes ind igen med samme mønster som fetch_hortendahl() i main.py.
-    "Niras DK":                         {"url": "https://www.niras.dk/nyheder/", "gruppe": "Rådgivere"},
     "Sweco DK":                         {"url": "https://www.sweco.dk/nyheder/", "gruppe": "Rådgivere"},
-    "Orbicon|WSP":                      {"url": "https://www.wsp.com/da-dk/nyheder", "gruppe": "Rådgivere"},
+    # Flyttet 12/10-2026 til SITEMAP_SOURCES: Rambøll DK, Niras DK, Realdania
+    # (nyheder i stedet for de udaterede projektsider), Vejle Spildevand.
+    # Fjernet 12/10-2026: Orbicon|WSP. Cloudflare afviser httpx på TLS-
+    # fingeraftrykket (403 uanset UA), sitemap'et har ingen lastmod, og nyeste
+    # danske nyhed var fra marts. Kræver curl_cffi/headless - ikke det værd.
     "Krüger":                           {"url": "https://www.kruger.dk/nyheder/", "gruppe": "Rådgivere"},
     "MOE":                              {"url": "https://moe.dk/nyheder/", "gruppe": "Rådgivere"},
     # Fjernet 7/10-2026: Watertech. Overtaget af NIRAS; domænet sender 301 til
@@ -381,9 +395,11 @@ SCRAPE_SOURCES = {
     "Poul Schmith":                     {"url": "https://poulschmith.dk/nyheder/", "gruppe": "Jura & advokater"},
 
     # ── MINISTERIER ──
+    # 12/10-2026: Klima-, Energi- og Forsyningsministeriet hentes nu via RSS
+    # (RSS_LOVGIVNING). Indenrigsministeriet fjernet: im.dk sender videre til
+    # Sundheds- og Kirkeministeriet efter delingen 3/6-2026, og Økonomi- og
+    # Indenrigsministeriet har sjældent klimatilpasningsstof.
     "Miljøministeriet":                 {"url": "https://www.mim.dk/nyheder/", "gruppe": "Myndigheder"},
-    "Klima- og Energiministeriet":      {"url": "https://kefm.dk/aktuelt/nyheder/", "gruppe": "Myndigheder"},
-    "Indenrigsministeriet":             {"url": "https://www.im.dk/nyheder/", "gruppe": "Myndigheder"},
 
     # ── STYRELSER ──
     "Energistyrelsen":                  {"url": "https://ens.dk/presse/nyheder-og-pressemeddelelser", "gruppe": "Myndigheder"},
@@ -420,8 +436,6 @@ SCRAPE_SOURCES = {
     "Silkeborg Forsyning":              {"url": "https://silkeborgforsyning.dk/nyheder/", "gruppe": "Forsyninger"},
     # Herning Vand og Energi Viborg (tidl. Viborg Vand) hentes nu via RSS -
     # se RSS_FORSYNINGER_RSS.
-    "Horsens Vand":                     {"url": "https://horsensvand.dk/nyheder/", "gruppe": "Forsyninger"},
-    "Vejle Spildevand":                 {"url": "https://www.vejlespildevand.dk/nyheder/", "gruppe": "Forsyninger"},
     # Kolding Spildevand hedder nu BlueKolding - se SITEMAP_SOURCES.
     # Navneskifte: sonderborgforsyning.dk 301'er til sonfor.dk.
     "SONFOR (tidl. Sønderborg Fors.)":  {"url": "https://sonfor.dk/nyheder/", "gruppe": "Forsyninger"},
@@ -479,8 +493,10 @@ SCRAPE_SOURCES = {
     # sitemap.xml kender dem alle med dato.
 
     # ── NORDISKE NABOER (uden RSS) ──
-    "Movium nyheder (SE)":              {"url": "https://movium.slu.se/nyheter/", "gruppe": "Nordiske naboer"},
-    "Movium kalendarium (SE)":          {"url": "https://movium.slu.se/kalendarium/", "gruppe": "Nordiske naboer"},
+    # Fjernet 12/10-2026: Movium nyheder og kalendarium. Listen ligger som
+    # Alpine.js-data i en x-data-attribut (ingen HTML-liste, intet RSS eller
+    # sitemap), kalenderen har ingen udgivelsesdato, og stoffet er mest grønne
+    # byrum. En særparser var ikke værd at vedligeholde.
 }
 
 
@@ -576,5 +592,67 @@ SITEMAP_SOURCES = {
         "moenster": "/nyheder/20",
         "antal": 10,
         "gruppe": "Myndigheder",
+    },
+    # ── Tilføjet 12/10-2026 (før tomme scrape-kilder). ──
+    # Rambøll: brug det danske del-sitemap direkte (/sitemap.xml er et index,
+    # som motoren ikke følger). Datoen findes via JSON-LD datePublished; lastmod
+    # er støj (20 nyheder ompubliceret 19/8-2026).
+    "Rambøll DK": {
+        "sitemap": "https://www.ramboll.com/da-dk/sitemapurls.xml",
+        "moenster": "/da-dk/nyheder/",
+        "antal": 10,
+        "gruppe": "Rådgivere",
+    },
+    # Niras: listen har titlen i <p class="headline">, som scrapen ikke ser.
+    # moenster_re udelukker /sektorer/.../nyheder/ og selve oversigten. Datoen
+    # "25. september, 2026" kræver kommaet i normalize_date.
+    "Niras DK": {
+        "sitemap": "https://www.niras.dk/sitemap.xml",
+        "moenster": "/nyheder/",
+        "moenster_re": r"niras\.dk/nyheder/[^/]+/$",
+        "dato_css": "div.date",
+        "antal": 8,
+        "gruppe": "Rådgivere",
+    },
+    # Realdania: nyheder i stedet for projektsiderne, som er stedsegrønne og
+    # udaterede. Artikelsider er ca. 1,35 MB - hold antal lavt (Render 512 MB).
+    # Notitser er udeladt: deres <h1> er bare "Nyhedsoverblik".
+    "Realdania": {
+        "sitemap": "https://realdania.dk/sitemap.xml",
+        "moenster": "/nyhedsoverblik/nyheder/20",
+        "moenster_re": r"/nyheder/20\d\d/\d\d/[^/]+$",
+        "dato_css": "p.contentheader__date",
+        "antal": 8,
+        "gruppe": "Kreative vinkler",
+    },
+    # Vejle Spildevand: listen har titlen i <p class="bold">. NB: ca. 165
+    # nyheder fik samme lastmod 18/9-2026, så ældre artikler kan fylde
+    # pladserne indtil der kommer nye; sidens egen dato sorterer dem fra.
+    "Vejle Spildevand": {
+        "sitemap": "https://www.vejlespildevand.dk/sitemap/",
+        "moenster": "/nyheder/",
+        "dato_regex": r">DATO</div>\s*(\d{1,2}\.\s*[a-zæøå]+\s+\d{4})",
+        "antal": 12,
+        "gruppe": "Forsyninger",
+    },
+}
+
+
+# ─────────────────────────────────────────────────────────────
+# JSON-KILDER - nyhedslisten hentes i browseren fra et åbent JSON-endpoint
+# ─────────────────────────────────────────────────────────────
+# Felterne angiver hvilke nøgler i hvert listeelement der er titel, dato,
+# manchet og link (relativt link sættes sammen med "base"). Se
+# fetch_json_news i main.py.
+JSON_SOURCES = {
+    # horsensvand.dk sender videre til samn.dk (Samn Forsyning: Horsens og
+    # Odder). Listen bygges fra <div data-feed-url>, og sitemap'et har hverken
+    # nyheder eller lastmod. Samn står bag klimatilpasningsanlægget ved
+    # Ringvej Syd/Bygholm Å.
+    "Samn Forsyning (tidl. Horsens Vand)": {
+        "json": "https://www.samn.dk/Default.aspx?ID=202&minimal=true&PageSize=30",
+        "titel": "heading", "dato": "publishTime", "manchet": "summary", "link": "link",
+        "base": "https://www.samn.dk",
+        "gruppe": "Forsyninger",
     },
 }
