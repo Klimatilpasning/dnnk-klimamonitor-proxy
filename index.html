@@ -455,6 +455,11 @@
   }
   .ted-card:hover { border-color: var(--ted-blue); }
   .ted-card.ted-resultat { background: var(--card); border-left-color: #9aa5ad; }
+  .ted-card.is-read { opacity: 0.45; background: var(--card); border-left-color: var(--border); }
+  .ted-card.is-read:hover { opacity: 0.7; }
+  .ted-bund { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .ted-laest-btn { padding: 0.1rem 0.45rem; font-size: 0.66rem; flex-shrink: 0; }
+  .ted-card.is-read .ted-laest-btn { color: var(--dnnk-green); border-color: var(--dnnk-green); }
   .ted-title { font-weight: 500; font-size: 0.86rem; color: var(--ted-blue); margin-bottom: 0.3rem; line-height: 1.35; }
   .ted-title a { color: inherit; text-decoration: none; }
   .ted-title a:hover { text-decoration: underline; }
@@ -1053,6 +1058,30 @@ const tedFoersteBesoeg = !Array.isArray(tedSetFoer);
 const tedSet = new Set(tedFoersteBesoeg ? [] : tedSetFoer);
 const tedSetNu = new Set(tedSet);
 
+// Læst = KP har klikket sig ind på udbuddet (eller markeret det selv).
+// Kortet bliver gråt som læste artikler, men bliver stående, så det kan
+// findes igen; knappen på kortet fortryder.
+const tedLaest = new Set(somListe(safeParse('dnnk_ted_read', [])));
+function saetTedLaest(id, laest) {
+  if (laest) touch(tedLaest, id); else tedLaest.delete(id);
+  safeSet('dnnk_ted_read', [...tedLaest].slice(-500));
+  document.querySelectorAll('#ted-container .ted-card').forEach(kort => {
+    if (kort.dataset.id !== id) return;
+    kort.classList.toggle('is-read', laest);
+    kort.querySelector('.new-badge')?.remove();
+    const knap = kort.querySelector('.ted-laest-btn');
+    knap.textContent = laest ? '✓ Læst' : 'Marker læst';
+    knap.setAttribute('aria-pressed', String(laest));
+  });
+}
+document.getElementById('ted-container').addEventListener('click', (e) => {
+  const kort = e.target.closest('.ted-card');
+  if (!kort) return;
+  const id = kort.dataset.id || '';
+  if (e.target.closest('.ted-laest-btn')) saetTedLaest(id, !tedLaest.has(id));
+  else if (e.target.closest('a')) saetTedLaest(id, true); // linket åbner selv i ny fane
+});
+
 function visAlleUdbud() {
   document.getElementById('udbud').classList.add('vis-alle');
   document.getElementById('ted-more').hidden = true;
@@ -1081,12 +1110,16 @@ function renderTed(notices) {
     const type = tedType(n.noticeType);
     const meta = [n.buyer, date].filter(Boolean).map(escapeHtml).join(' · ');
     const id = n.publicationNumber || n.tedPublicationUrl || fuldTitel;
-    const ny = !tedFoersteBesoeg && !tedSet.has(id);
+    const laest = tedLaest.has(id);
+    const ny = !laest && !tedFoersteBesoeg && !tedSet.has(id);
     touch(tedSetNu, id);
-    return `<div class="ted-card${type?.resultat ? ' ted-resultat' : ''}">
+    return `<div class="ted-card${type?.resultat ? ' ted-resultat' : ''}${laest ? ' is-read' : ''}" data-id="${escapeHtml(id)}">
       ${type ? `<span class="ted-type">${type.tekst}</span>` : ''}${ny ? ' <span class="new-badge">Ny</span>' : ''}
       <div class="ted-title"><a href="${safeUrl(n.tedPublicationUrl||'#')}" title="${escapeHtml(fuldTitel)}" target="_blank" rel="noopener noreferrer">${escapeHtml(kortTitel)}</a></div>
-      <div class="ted-meta">${meta || 'TED EU'}</div>
+      <div class="ted-bund">
+        <div class="ted-meta">${meta || 'TED EU'}</div>
+        <button type="button" class="mark-read-btn ted-laest-btn" aria-pressed="${laest}">${laest ? '✓ Læst' : 'Marker læst'}</button>
+      </div>
     </div>`;
   }).join('');
   safeSet('dnnk_ted_seen', [...tedSetNu].slice(-500));
