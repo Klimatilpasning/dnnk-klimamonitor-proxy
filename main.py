@@ -493,6 +493,26 @@ def q_point(query: str, tekst: str) -> int:
         return 1
     return 0
 
+# ── Strengt klimatilpasningsfilter for "radar"-kilder ──
+# Folketinget, EU og Grøn trepart er de kilder, DANVA og KL selv reagerer mest
+# på (interesseanalysen 13/10-2026), men de handler for det meste om alt andet:
+# CO2-afgift, kvælstof, budgetter. Det almindelige filter beholder alt med
+# "vandmiljø" eller "spildevand", hvilket ville lukke hele treparten ind. Her
+# kræves derfor et egentligt tilpasningsord (oversvømmelse, kyst, skybrud ...).
+TILPASNING_RE = re.compile(
+    r"klimatilpas|klimasikr|oversvøm|skybrud|stormflod|kystbeskyt|kystsikr|kysterosion|\bkyst"
+    r"|havvandsstig|havstig|havniveau|ekstremregn|ekstremnedbør|regnvand|terrænnær|grundvandsstig"
+    r"|\bdige|digelag|højvand|risikostyringsplan|oversvømmelsesdirektiv|tørke|vandløb|lavbund|vådområde"
+    r"|klimarisik|klimarobust|klimaatlas"
+    r"|climate adaptation|adaptation to climate|climate resilien|flood|drought|storm surge|sea[- ]level"
+    r"|coastal (?:erosion|protection)|water resilience|extreme (?:rain|weather)|heatwave|heat wave",
+    re.I)
+
+
+def kun_tilpasning(tekst: str) -> bool:
+    return bool(TILPASNING_RE.search(tekst or ""))
+
+
 def score_article(combined: str, q_match):
     """Returnér (relevance 0-1, keep).
 
@@ -781,6 +801,8 @@ async def fetch_rss(client, source, url, query, limit: int = 8):
             relevance, keep = score_article(combined, q_match)
             # Drop artikler der kun strejfer brede ord — ren støj fra brede feeds
             if not keep:
+                continue
+            if source in STRENGE_KILDER and not kun_tilpasning(combined):
                 continue
             # HOFOR's RSS giver rod-relative links (/nyhed/...). Uden dette blev
             # de til døde links på klimatilpasning.github.io og undgik URL-
@@ -1391,6 +1413,112 @@ async def fetch_dagsordener(client):
         ud.append(a)
     return ud
 
+
+# ─────────────────────────────────────────────────────────────
+# FOLKETINGET — sager om klimatilpasning via Folketingets åbne data (ODA)
+# ─────────────────────────────────────────────────────────────
+# ft.dk blokerer Renders IP (403), men oda.ft.dk er Folketingets officielle,
+# åbne OData-API. Lovforslag, beslutningsforslag, aktstykker og §20-spørgsmål
+# med et tilpasningsord i titlen. Spørgsmålene er det tidligste politiske
+# signal: Kystdirektoratets praksis blev spurgt ind til (S 1383-1385) før
+# sagen nåede pressen. Testet lokalt 13/10-2026 (L 22, Aktstk. 144, B 152).
+ODA_API = "https://oda.ft.dk/api/Sag"
+ODA_ORD = ["klimatilpasning", "oversvømmelse", "kystbeskyttelse", "stormflod", "skybrud",
+           "klimasikring", "terrænnært", "højvande", "kystsikring", "havvandsstigning"]
+ODA_TYPER = {3: "lovforslag", 5: "beslutningsforslag", 8: "aktstykke", 10: "spoergsmaal"}
+ODA_DAGE = 120
+
+
+def _ft_url(sag: dict) -> str:
+    """ft.dk-link: /samling/{periode}/{type}/{nummer}/index.htm, fx l22."""
+    kode = (sag.get("Periode") or {}).get("kode") or ""
+    nummer = re.sub(r"[^a-z0-9]", "", (sag.get("nummer") or "").lower())
+    typ = ODA_TYPER.get(sag.get("typeid"))
+    if kode and nummer and typ:
+        return f"https://www.ft.dk/samling/{kode}/{typ}/{nummer}/index.htm"
+    return f"https://oda.ft.dk/api/Sag({sag.get('id')})"
+
+
+async def fetch_folketing(client):
+    from urllib.parse import quote
+    filt = " or ".join(f"substringof('{o}',titel)" for o in ODA_ORD)
+    typer = " or ".join(f"typeid eq {t}" for t in ODA_TYPER)
+    url = (f"{ODA_API}?$filter=({quote(filt)})%20and%20({quote(typer)})"
+           f"&$orderby=opdateringsdato%20desc&$top=40&$expand=Periode&$format=json")
+    tekst = await get_feed_text(client, url)
+    graense = (datetime.now(timezone.utc) - timedelta(days=ODA_DAGE)).strftime("%Y-%m-%d")
+    ud = []
+    for sag in json.loads(tekst or "{}").get("value", []):
+        titel = (sag.get("titel") or "").strip()
+        dato = (sag.get("opdateringsdato") or "")[:10]
+        if not titel or dato < graense or not kun_tilpasning(titel):
+            continue
+        nr = sag.get("nummer") or ""
+        relevance, _ = score_article(titel, None)
+        ud.append({
+            "source": "lovstof", "feedSource": "Folketinget", "org": "Folketinget",
+            "title": f"{nr}: {titel}" if nr else titel, "url": _ft_url(sag), "date": dato,
+            "summary": (sag.get("resume") or "")[:300], "tags": find_tags(titel),
+            "relevance": max(relevance, 0.5), "value": None,
+        })
+    return ud
+
+
+# ─────────────────────────────────────────────────────────────
+# EU-KOMMISSIONEN — DG ENV og DG CLIMA's nyheder
+# ─────────────────────────────────────────────────────────────
+# Kommissionens RSS-feeds er nedlagt (se RSS_EU), men nyhedslisterne er server-
+# renderede, og hver artikel-URL slutter på -ÅÅÅÅ-MM-DD_en. Den generelle
+# skraber fandt kun én overskrift, så listen læses her direkte. Vandrammedirektivet,
+# byspildevandsdirektivet og oversvømmelsesdirektivet kommer herfra; kun
+# nyheder med et tilpasningsord beholdes (ikke emissioner, landbrug, plast).
+EU_SIDER = {
+    "EU-Kommissionen (miljø)": "https://environment.ec.europa.eu/news_en",
+    "EU-Kommissionen (klima)": "https://climate.ec.europa.eu/news-other-reads/news_en",
+}
+_EU_STAERK_RE = re.compile(r"flood|drought|climate adaptation|adaptation to climate|storm surge|sea[- ]level|heatwave|extreme heat", re.I)
+_EU_URL_RE = re.compile(r"/news[^\"']*-(\d{4}-\d{2}-\d{2})_en$")
+
+
+async def fetch_eu_nyheder(client):
+    from urllib.parse import urljoin
+    graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
+    ud, sete = [], set()
+    for navn, url in EU_SIDER.items():
+        try:
+            tekst = await get_feed_text(client, url, gem=False)
+        except Exception as e:
+            print(f"[eu-fejl] {navn}: {e}")
+            continue
+        soup = BeautifulSoup(tekst or "", "html.parser")
+        for a in soup.find_all("a", href=True):
+            m = _EU_URL_RE.search(a["href"])
+            titel = a.get_text(" ", strip=True)
+            if not m or len(titel) < 15:
+                continue
+            link = urljoin(url, a["href"])
+            dato = m.group(1)
+            if link in sete or dato < graense:
+                continue
+            boks = a.find_parent(["article", "li"])
+            manchet = ""
+            if boks:
+                manchet = re.sub(r"\s+", " ", boks.get_text(" ", strip=True).replace(titel, "", 1))[:300]
+            kombi = f"{titel} {manchet}"
+            # "Water resilience" står som fast emnemærke i manchetterne, så den
+            # alene lukkede havstrategi- og håndhævelsesnyheder ind. Ordet skal
+            # stå i overskriften, eller manchetten skal have et stærkt ord.
+            if not (kun_tilpasning(titel) or _EU_STAERK_RE.search(manchet)):
+                continue
+            sete.add(link)
+            relevance, _ = score_article(kombi, None)
+            ud.append({
+                "source": "news", "feedSource": navn, "org": navn, "title": titel, "url": link,
+                "date": dato, "summary": manchet, "tags": find_tags(kombi),
+                "relevance": max(relevance, 0.4), "value": None,
+            })
+    return ud
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None),
                         limit: int = Query(8), dyb: int = Query(0)):
@@ -1500,6 +1628,28 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
         for a in cw:
             a["gruppe"] = "Rådgivere"
         articles.extend(cw)
+
+    # Folketinget (åbne data) - lægges i Lovstof ved siden af Retsinformation.
+    if not gruppe or gruppe == "Lovstof":
+        try:
+            ft = await fetch_folketing(app.state.client)
+        except Exception as e:
+            print(f"[folketing-fejl] samlet: {e}")
+            ft = []
+        for a in ft:
+            a["gruppe"] = "Lovstof"
+        articles.extend(ft)
+
+    # EU-Kommissionen (DG ENV/CLIMA) - kun klimatilpasning, se fetch_eu_nyheder.
+    if not gruppe or gruppe == "Internationale inst.":
+        try:
+            eu = await fetch_eu_nyheder(app.state.client)
+        except Exception as e:
+            print(f"[eu-fejl] samlet: {e}")
+            eu = []
+        for a in eu:
+            a["gruppe"] = "Internationale inst."
+        articles.extend(eu)
 
     # Politiske dagsordener — forhåndsscannet ugentligt, se fetch_dagsordener.
     if not gruppe or gruppe == "Politiske dagsordener":
@@ -1720,6 +1870,7 @@ def root():
 
 # SCRAPE_SOURCES importeres fra sources.py
 from sources import SCRAPE_SOURCES
+from sources import STRENGE_KILDER
 
 # Titel-klasser for lister uden overskrifts-tags: "title", "node-title",
 # "news_title", "card__title" — men IKKE "sub-title", der er en underrubrik.

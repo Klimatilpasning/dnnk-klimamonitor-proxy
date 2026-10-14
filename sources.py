@@ -245,6 +245,22 @@ RSS_BREDE_SOEGNINGER = {
     "Bing News – lavbundsjord":          _BING_30D.format("lavbundsjord"),
     "Bing News – vandløbsrestaurering":  _BING_30D.format("vandl%C3%B8bsrestaurering"),
     "Bing News – klimatilpasning pulje": _BING_30D.format("klimatilpasning%20pulje"),
+    # ── Grøn trepart (tilføjet 13/10-2026) ──
+    # Det emne DANVA og KL oftest reagerer på, men SGAV's egen nyhedsliste er
+    # JS-renderet og sitemap'et står stille siden juni 2025. Kun trepart-stof
+    # med et tilpasningsord beholdes (STRENGE_KILDER) - ikke CO2 og kvælstof.
+    "Bing News – trepart klimatilpasning": _BING_30D.format("trepart%20klimatilpasning"),
+    "Bing News – trepart oversvømmelse":   _BING_30D.format("trepart%20oversv%C3%B8mmelse"),
+    "Bing News – trepart vandløb":         _BING_30D.format("trepart%20vandl%C3%B8b"),
+}
+
+# Kilder hvor en artikel KUN beholdes med et egentligt klimatilpasningsord
+# (TILPASNING_RE i main.py) - brede politiske kilder, hvor det normale filter
+# ellers lukker CO2-, kvælstof- og budgetstof ind.
+STRENGE_KILDER = {
+    "Bing News – trepart klimatilpasning",
+    "Bing News – trepart oversvømmelse",
+    "Bing News – trepart vandløb",
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
