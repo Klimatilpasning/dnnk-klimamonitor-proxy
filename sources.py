@@ -130,9 +130,8 @@ RSS_KREATIVT = {
     # rss.xml ligger bag Cloudflare-udfordring (Cf-Mitigated: challenge) for
     # alle; forsidefeedet slipper igennem (12/10-2026). Tom efter deploy = fjern.
     "Planetizen":               "https://www.planetizen.com/frontpage/feed",
-    # sla.dk/nyheder/ er 404 (sitet er engelsk); feedet virker, når UA'en
-    # ikke er Chrome/120. Sjældne nyheder, men kernefaglige (Stig L. Andersson).
-    "SLA Arkitekter":           "https://www.sla.dk/feed/",
+    # Fjernet 15/10-2026: SLA Arkitekter. SiteGround-captcha (HTTP 202 +
+    # sgcaptcha-redirect) på både /feed/ og /nyheder/, også lokalt.
     # Fjernet: Tredje Natur; WEF Natur & Klima,
     # Landezine, Fast Company (403 — bot-blok); Landscape Architecture (404);
     # Citylab/Bloomberg (sitemap, ikke et nyhedsfeed).
@@ -389,7 +388,8 @@ SCRAPE_SOURCES = {
     # Fjernet 12/10-2026: Orbicon|WSP. Cloudflare afviser httpx på TLS-
     # fingeraftrykket (403 uanset UA), sitemap'et har ingen lastmod, og nyeste
     # danske nyhed var fra marts. Kræver curl_cffi/headless - ikke det værd.
-    "Krüger":                           {"url": "https://www.kruger.dk/nyheder/", "gruppe": "Rådgivere"},
+    # Fjernet 15/10-2026: Krüger. Cloudflare-udfordring ("Just a moment...",
+    # HTTP 403) uanset UA, samme mønster som Orbicon|WSP.
     "MOE":                              {"url": "https://moe.dk/nyheder/", "gruppe": "Rådgivere"},
     # Fjernet 7/10-2026: Watertech. Overtaget af NIRAS; domænet sender 301 til
     # niras.dk, og certifikatet er udstedt til et fremmed domæne.
