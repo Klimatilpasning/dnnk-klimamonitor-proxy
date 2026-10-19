@@ -2004,6 +2004,21 @@ async def trigger_digest(request: Request):
     asyncio.create_task(_run_digest())
     return {"status": "Digest scanning startet – e-mail sendes om ca. 60 sek"}
 
+@app.post("/send-ugemail")
+async def send_ugemail(request: Request):
+    """Ugentlig mail til KP (fund + systemstatus), se ugemail.py. Kaldes af
+    .github/workflows/ugemail.yml med {"sundhed": [...], "test": bool,
+    "kun_alarm": bool}. Beskyttet som de andre trigger-endpoints."""
+    if not trigger_ok(request):
+        return JSONResponse(status_code=401, content={"error": "Adgang nægtet"})
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    from ugemail import koer
+    return await koer(app.state.client, body.get("sundhed") or [],
+                      test=bool(body.get("test")), kun_alarm=bool(body.get("kun_alarm")))
+
 @app.get("/send-weekly-analysis")
 async def trigger_weekly(request: Request):
     if not trigger_ok(request):
