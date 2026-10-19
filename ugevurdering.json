@@ -1,1 +1,477 @@
-{"dato": "2026-01-01", "periode": "", "opsummering": "", "punkter": [], "sete": []}
+{
+ "dato": "2026-10-19",
+ "periode": "11/10-19/10",
+ "opsummering": "Kun kommunenyheder og politiske dagsordener er med (klimamonitorens Render-server kunne ikke nås). Ugens vigtigste: Nordkystens Fremtid har fået tilladelse, flere kommuner (Herlev, Fredensborg, Holstebro) implementerer den nye regel om terrænnært grundvand, og skybrudsprojekter og digeprojekter i København og Frederikssund er på dagsordenen.",
+ "punkter": [
+  {
+   "farve": "groen",
+   "titel": "Nordkystens Fremtid får tilladelse til kystbeskyttelsesprojekt",
+   "url": "https://gribskov.dk/nyheder/2026/oktober/nordkystens-fremtid-faar-tilladelse-til-kystbeskyttelsesprojekt",
+   "kilde": "Gribskov Kommune",
+   "dato": "2026-10-12",
+   "begrundelse": "Efter over 10 års arbejde er tilladelsen til Nordkystens Fremtid på plads. Stor kystbeskyttelsescase; vinkel: tilladelsesproces og samarbejde mellem kommuner og grundejere."
+  },
+  {
+   "farve": "groen",
+   "titel": "København: Projektforslag for skybrudsprojektet Lersø Parkallé Syd, Bispebjerg, Nørrebro og Østerbro",
+   "url": "https://www.kk.dk/dagsordener-og-referater/Klima-%2C%20Milj%C3%B8-%20og%20Teknikudvalget/m%C3%B8de-26102026/dagsorden/punkt-3#punkt-3",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-26",
+   "begrundelse": "Skybrudsprojekt i København med projektforslag på politisk dagsorden. Mulig vinkel: Lersøparken som case på skybrudsløsninger i byrum, afsender Klimaenheden i Københavns Kommune."
+  },
+  {
+   "farve": "groen",
+   "titel": "Frederikssund: Beslutning om Kignæs digeprojekt - anmodning om bevilling til miljøundersøgelser",
+   "url": "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/Oekonomiudvalgets-moeder/2026-10-21_08-15/dagsorden#item-193",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-21",
+   "begrundelse": "Kignæs-digeprojekt i Frederikssund: bevilling til miljøundersøgelser. Vinkel: digelags- og kommunal proces for kystbeskyttelse; samles med Dalby Huse i én henvendelse til Frederikssund."
+  },
+  {
+   "farve": "groen",
+   "titel": "Frederikssund: Beslutning om bevilling til opstart af nyt digeprojekt ved Dalby Huse",
+   "url": "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/Oekonomiudvalgets-moeder/2026-10-21_08-15/dagsorden#item-194",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-21",
+   "begrundelse": "Nyt digeprojekt ved Dalby Huse. Samme kommune som Kignæs, så én fælles henvendelse om kommunale digeprojekter."
+  },
+  {
+   "farve": "groen",
+   "titel": "Norddjurs: Godkendelse af forslag til risikostyringsplaner for Grenaa og Randers Fjord",
+   "url": "https://norddjurs.meetingsplus.dk/committees/erhvervs-vaekst-og-klimaudvalg/19-10-2026#id_162193",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Risikostyringsplaner for Grenaa og Randers Fjord. Vinkel: erfaringer med ny planlægning efter oversvømmelsesdirektivet, Norddjurs som oplægsholder."
+  },
+  {
+   "farve": "groen",
+   "titel": "Sønderborg: Godkendelse af forslag til Klimatilpasningsplan 2026",
+   "url": "https://dagsordener.sonderborgkommune.dk/vis?id=5a2ab832-d686-407e-8157-1709e86b5c83&punktid=e81115f6-c82a-4b61-aaee-aa97bc8ae0aa",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-16",
+   "begrundelse": "Forslag til Klimatilpasningsplan 2026 i Sønderborg. Vinkel: hvordan en kommune sammenfatter klimatilpasning i en samlet plan."
+  },
+  {
+   "farve": "groen",
+   "titel": "Fredensborg: Godkendelse af forslag til tillæg til spildevandsplanen - Områder i risiko for terrænnært grundvand",
+   "url": "https://dagsordener.fredensborg.dk/vis?id=3581cbad-1658-4ebc-ba0f-63d5729e1a5d&punktid=ff6cfdf7-5a30-4f4c-98da-9af9971519f7",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Fredensborg: tillæg til spildevandsplanen om terrænnært grundvand. Se også Herlev og Holstebro; ny regel med webinarpotentiale."
+  },
+  {
+   "farve": "groen",
+   "titel": "Herlev: Tillæg nr. 4 til spildevandsplanen om terrænnært grundvand",
+   "url": "https://dagsordener.herlev.dk/vis?id=1e1e8cc2-4853-4991-9738-db36529b62f1&punktid=81028261-f2ae-465d-ba33-288235bcea34",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-07",
+   "begrundelse": "Herlev: tillæg om terrænnært grundvand med ny lovhjemmel. Vinkel: kommunernes første erfaringer med den nye regel; flere kommuner (Fredensborg, Holstebro) er i gang."
+  },
+  {
+   "farve": "groen",
+   "titel": "Holstebro: Forslag til Tillæg nr. 9 til Spildevandsplan - implementering af ny lovgivning om terrænnært grundvand",
+   "url": "https://dagsordener.holstebro.dk/vis?id=30b1c9f9-16a6-4dfa-a861-4650e5fe3567&punktid=015d9b0b-e1e3-491e-86c3-55dd204f9f7b",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-06",
+   "begrundelse": "Holstebro: tillæg til spildevandsplan, implementering af ny lovgivning om terrænnært grundvand. Se også Herlev og Fredensborg."
+  },
+  {
+   "farve": "groen",
+   "titel": "Hvidovre: Orientering - Status på beslutningsgrundlag for kystsikring langs Kalvebodkysten",
+   "url": "https://dagsordener-referater.hvidovre.dk/vis?id=25a7a2c9-6734-4c5d-bdfd-c48225337774&punktid=a3af6f77-1233-4b7a-91c8-757c00a66282",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-05",
+   "begrundelse": "Hvidovre: status på beslutningsgrundlag for kystsikring langs Kalvebodkysten. Vinkel: tværkommunal kystbeskyttelse i Køge Bugt/Kalvebod-området."
+  },
+  {
+   "farve": "groen",
+   "titel": "Haderslev: Klimatilpasningsanalyse for Haderslev Kommune",
+   "url": "https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=179",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-30",
+   "begrundelse": "Haderslev: klimatilpasningsanalyse for hele kommunen. Vinkel: metode og prioritering."
+  },
+  {
+   "farve": "groen",
+   "titel": "Vejle: Stormflodsbeskyttelse – godkendelse af anbefalinger til videre arbejde i statslig forundersøgelse",
+   "url": "https://dagsordener.vejle.dk/vis?id=574b44c5-b1e6-48c7-98df-8ac40be01d10&punkt=190",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-30",
+   "begrundelse": "Statslig forundersøgelse af stormflodsbeskyttelse med Kystdirektoratet og Vejle. Vinkel: samarbejde stat og kommune om fjordbyer."
+  },
+  {
+   "farve": "groen",
+   "titel": "Holbæk: Beslutning om godkendelse af samarbejdsaftale og benyttelsesaftale for Vallestrup Levende Grundvandspark",
+   "url": "https://dagsordener.holbaek.dk/vis?id=2327deca-6661-4691-bd04-6d326adebf72&punktid=de58e572-5f51-4b7c-bd68-ad32c795b0cf",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Holbæk: Vallestrup Levende Grundvandspark. Vinkel: grundvandsbeskyttelse og rekreativ klimatilpasning i ét; unik case."
+  },
+  {
+   "farve": "gul",
+   "titel": "København: B-sag - Orientering om Valby Lokaludvalgs svar på høring om skybrudsprojekter i Valby",
+   "url": "https://www.kk.dk/dagsordener-og-referater/Valby%20Lokaludvalg/m%C3%B8de-20102026/dagsorden/punkt-13#punkt-13",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-20",
+   "begrundelse": "Høring om skybrudsprojekter i Valby, lokaludvalgets svar. Høringsproces som webinarstof."
+  },
+  {
+   "farve": "gul",
+   "titel": "Dragør: Orientering - Kystbeskyttelse - Status for igangværende indsatser",
+   "url": "https://dagsordener.dragoer.dk/vis?id=1378a9a9-1018-42bd-b004-420500258f43&punktid=331001da-40b2-4ab6-ad94-28438e8837d7",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-16",
+   "begrundelse": "Status for kystbeskyttelsesindsatser i Dragør."
+  },
+  {
+   "farve": "gul",
+   "titel": "Horsens: PV Anlægsbevilling, klimatilpasningsanlæg",
+   "url": "https://dagsordener.horsens.dk/vis?id=06f1e42b-f1bb-410b-b3ff-a2663699196a&punktid=538e6d1e-cda0-4b96-972b-42cdf77dffaf",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-15",
+   "begrundelse": "Horsens: anlægsbevilling til klimatilpasningsanlæg, relevant for forsyningsvinkel."
+  },
+  {
+   "farve": "gul",
+   "titel": "Kolding: Ansøgning om anlægsbevilling vedr. p.nr. 5413 - Realisering af kystsikring ved Binderup-Grønninghoved",
+   "url": "https://udvalg.kolding.dk/vis?id=f73a08bf-77d7-4875-9194-6426899e76e3&punktid=c0725ac3-aed2-4388-9145-839fc655ca2e",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-15",
+   "begrundelse": "Kolding: anlægsbevilling til kystsikring ved Binderup-Grønninghoved, konkret gennemførelse."
+  },
+  {
+   "farve": "gul",
+   "titel": "Svendborg: Igangsættelse af planlægning for klimasikring og naturgenopretning af Kobberbækken ved øverste Ørkilds Mølle",
+   "url": "https://dagsordener.svendborg.dk/vis?id=3baba0a0-dc14-4b3f-ae9c-b76047d8cc95&punktid=5b81bec8-c53f-4ec5-8eb4-a429432f53e4",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Svendborg: planlægning for klimatilpasning og naturgenopretning af Kobberbækken. Kombinationsprojekt."
+  },
+  {
+   "farve": "gul",
+   "titel": "Halsnæs: Igangsætning af risikostyringsplaner",
+   "url": "https://dagsorden.halsnaes.dk/vis?id=0ef4541a-3633-4dc3-a179-491e85972b5a&punktid=4cfe3a64-cc3d-4294-9294-4204861ea68c",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Halsnæs: igangsætning af risikostyringsplaner."
+  },
+  {
+   "farve": "gul",
+   "titel": "Aabenraa: Orientering om revision af risikostyringsplanen",
+   "url": "https://dagsordener.aabenraa.dk/vis?id=20d8f5ec-b075-4d23-8abe-a8d9981933ef&punktid=cbf6a7c1-b9d4-403a-b266-b6656e52e239",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Aabenraa: revision af risikostyringsplan."
+  },
+  {
+   "farve": "gul",
+   "titel": "Vordingborg: Beslutningssag - Ansøgning om anlægsbevilling og frigivelse af rådighedsbeløb til udbud mhp. indkøb af rådgiverydelser i forbindelse med Præstø kyst- og oversvømmelsesprojekt",
+   "url": "https://dagsordner.vordingborg.dk/vis?id=d0bb3bd3-8fbc-477a-b839-0f0905ed8930&punktid=e3d0dc53-018e-4f01-9d65-f96052fe47a3",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-07",
+   "begrundelse": "Vordingborg: rådgiverudbud til klimatilpasningsprojekt, tidligt stadie."
+  },
+  {
+   "farve": "gul",
+   "titel": "Roskilde: Frigivelse af rådighedsbeløb - Klimatilpasningsplan",
+   "url": "https://dagsordener.roskilde.dk/vis?id=26061f5b-6e3d-4285-b69c-bf6435861e1e&punktid=a8b25941-88eb-40e5-b69f-a04559d31b89",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-07",
+   "begrundelse": "Roskilde: frigivelse af midler til Klimatilpasningsplan."
+  },
+  {
+   "farve": "gul",
+   "titel": "Hedensted: Klimaplan - Midtvejsevaluering med CONCITO og retning for klimatilpasning",
+   "url": "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/udvalget-for-klima-natur-miljoe-dagsordener-og-referater?agenda=/dagsorden/2026UKlima/07-10-2026&elementid=7f99#punkt-120",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-07",
+   "begrundelse": "Hedensted: retning for klimatilpasning i klimaplan."
+  },
+  {
+   "farve": "gul",
+   "titel": "Hedensted: Klimaplan - Retning for klimatilpasning",
+   "url": "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/udvalget-for-klima-natur-miljoe-dagsordener-og-referater?agenda=/dagsorden/2026UKlima/07-10-2026&elementid=7f99#punkt-121",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-07",
+   "begrundelse": "Hedensted: retning for klimatilpasning i klimaplan."
+  },
+  {
+   "farve": "gul",
+   "titel": "Skive: Kommunegaranti til Kystsikring ved Hostrup Stramd",
+   "url": "https://dagsordener.skive.dk/vis?id=1fb84d9b-99db-4af1-8435-869474ab7ac3&punktid=f432462e-cca0-4295-82b5-a2731f3977d1",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-06",
+   "begrundelse": "Skive: kommunegaranti til kystsikring, finansieringsmodel for digelag."
+  },
+  {
+   "farve": "gul",
+   "titel": "Frederikssund: Beslutning om tilladelse til vedligehold og udvidelse af Svineholmens dige",
+   "url": "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/teknik-og-klima/2026-10-06_08-15/dagsorden#item-141",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-06",
+   "begrundelse": "Frederikssund: tilladelse til digelags dige, finansierings- og tilladelsesvinkel."
+  },
+  {
+   "farve": "gul",
+   "titel": "Lolland: Kystsikring af Nakskov - Drøftelse og orientering om borgermøde afholdt den 7. september 2026",
+   "url": "https://dagsordener.lolland.dk/vis?id=52a9ecb4-6b6e-4aca-97f8-02eeb405280b&punktid=7814b77b-f878-487d-bd89-99d39b28b4e2",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-05",
+   "begrundelse": "Lolland: kystsikring af Nakskov, borgerinddragelse."
+  },
+  {
+   "farve": "gul",
+   "titel": "København: Forhøjelse af klimabevilling for skybrudsprojekter i Lersøparken, Bispebjerg",
+   "url": "https://www.kk.dk/dagsordener-og-referater/Klima-%2C%20Milj%C3%B8-%20og%20Teknikudvalget/m%C3%B8de-05102026/referat/punkt-2#punkt-2",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-05",
+   "begrundelse": "København: forhøjet bevilling til skybrudsprojekter i Lersøparken."
+  },
+  {
+   "farve": "gul",
+   "titel": "Ringsted: Anlægsbevilling til forsinkelsesbassin ved Ringsted Sportscenter",
+   "url": "https://dagsordener.ringsted.dk/vis?id=60c40abc-8a1d-4bfc-a12a-82b2c5b98b16&punktid=f339fc3b-7b03-499c-b050-868457e49f28",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-02",
+   "begrundelse": "Ringsted: forsinkelsesbassin ved sportscenter, multifunktionelt areal."
+  },
+  {
+   "farve": "gul",
+   "titel": "København: Høring: VEL44 Lundtoftegade, skybrudsprojekt",
+   "url": "https://www.kk.dk/dagsordener-og-referater/N%C3%B8rrebro%20Lokaludvalg/m%C3%B8de-29092026/referat/punkt-10#punkt-10",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-29",
+   "begrundelse": "København: høring om skybrudsprojekt Lundtoftegade."
+  },
+  {
+   "farve": "gul",
+   "titel": "Ringkøbing-Skjern: Klimaplan A 2027-2030: Retning for klimasporene Klimarobust kommune og Kommunen som virksomhed",
+   "url": "https://www.rksk.dk/om-kommunen/byraad/dagsorden-og-referat?AgendaID=6714#3f92696c-df0f-40c6-8435-72c4e9f0aaaf",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-29",
+   "begrundelse": "Ringkøbing-Skjern: klimarobust kommune i klimaplan."
+  },
+  {
+   "farve": "gul",
+   "titel": "Fanø: Beslutning: Vedtagelse af lokalplan 134 og kommuneplantillæg 7. Dige ved Sønderho",
+   "url": "https://dagsordener.fanoe.dk/vis?id=736cabe1-694c-4a06-bdde-51f71af64316&punkt=6",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-28",
+   "begrundelse": "Fanø: lokalplan for dige ved Sønderho."
+  },
+  {
+   "farve": "roed",
+   "titel": "Varsel om forhøjet vandstand ved Føns tidligt søndag morgen den 18. oktober",
+   "url": "https://middelfart.dk/nyheder/2026/okt/varsel-om-forhoejet-vandstand-ved-foens",
+   "kilde": "Middelfart Kommune",
+   "dato": "2026-10-16",
+   "begrundelse": "Rutinemæssigt varsel om forhøjet vandstand."
+  },
+  {
+   "farve": "roed",
+   "titel": "Vejle: Anlægsbevilling til klimasikring af Skyttehusvejen i Vejle",
+   "url": "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=1b015381-b145-439e-b68b-5e245e436101",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-09",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Vejle: Anlægsbevilling til renovering og klimatilpasning af Steensens Vej i Vejle",
+   "url": "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=75c29deb-f225-414e-8b98-82ecd3cce450",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-09",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Vejle: Anlægsbevilling til renovering og klimatilpasning af Bygade i Vonge",
+   "url": "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=80517322-ec10-47b2-aa60-1612e8da2957",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-09",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Aabenraa: Orientering om klimatilpasning",
+   "url": "https://dagsordener.aabenraa.dk/vis?id=20d8f5ec-b075-4d23-8abe-a8d9981933ef&punktid=e0e21fcb-b669-46f7-84da-bfd397449690",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Kalundborg: Orientering om Naturområdet og kystbeskyttelse",
+   "url": "https://dagsordener.kalundborg.dk/vis?id=77bd0139-da19-4f33-9662-c4d495c8c189&punkt=3",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Kalundborg: Orientering om naturområdet og kystbeskyttelse",
+   "url": "https://dagsordener.kalundborg.dk/vis?id=3662d1a0-b6a5-4e2d-aad1-b6ead19550c6&punktid=ca8f1929-5fb1-4dd0-b768-239eeedeb4be",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-08",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Billund: Tilkendegivelse af ekspropriationsvilje vedrørende areal til regnvandsbassin på matr. 6fø - Østerby By, Sdr. Omme",
+   "url": "https://billund.meetingsplus.dk/committees/kommunalbestyrelsen-2026-2029/mode-i-kommunalbestyrelsen-27820#id_202179",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-06",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Slagelse: Offentliggørelse af forslag til lokalplan og kommuneplantillæg for regnvandsbassin ved Omfartsvejen, Slagelse (B)",
+   "url": "https://dagsordener.slagelse.dk/vis?id=30fb1d84-401d-41bb-8131-d0fb3f1dc0a6&punktid=8202417d-6cdd-448a-baff-f141e09d9d41",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-06",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Solrød: Godkendelse af fastsættelse af driftsbidrag for kystsikringsområde A for 2027",
+   "url": "https://dagsordener.solrod.dk/vis?id=11c149af-81ea-4bcd-ac41-8ba8490aff4b&punktid=66d211d5-dfe3-4f1a-9c99-cc6b43f5153b",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-05",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Egedal: Miljøvurdering af regnvandsbassin A1 ved Kildedal og tilhørende udledningstilladelser - beslutning",
+   "url": "https://dagsordener.egedalkommune.dk/vis?id=46379eba-6319-457e-8c4e-63aca69aeaca&punkt=22",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-30",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Fredensborg: Beslutning om fastsættelse af bidrag for 2027 for de enkelte bidragspligtige ejendomme til Kystbeskyttelseslaget for Gl Strandvej 165A-169 og 252-268B",
+   "url": "https://dagsordener.fredensborg.dk/vis?id=b747eb63-aa13-4ce9-827e-c82fc44df64f&punkt=144",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-09-28",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Syddjurs: Anmodning om dispensation til skovrejsning, matr.nr. 21a, Hyllested By, Hyllested.",
+   "url": "https://aabendagsorden.syddjurs.dk/meeting/2832#punkt-210",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-21",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Hedensted: Grøn Trepart - Principper for fremtidige vandløbsregulativer i Hedensted Kommune",
+   "url": "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-175",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Hedensted: Forslag til tillæg 60 til spildevandsplanen 2015 om administrationspraksis for fastsættelse afledningsret forbindelse med bygge- og matrikulærsager",
+   "url": "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-172",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Hedensted: Forslag til tillæg 61 til Spildevandsplan 2015 om ændring af kloakeringsprincip for planlagte kloakoplande",
+   "url": "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-173",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Norddjurs: Temadrøftelse: Natur og Grøn Trepart",
+   "url": "https://norddjurs.meetingsplus.dk/committees/natur-miljo-og-teknikudvalget/19-10-2026#id_162109",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-19",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Egedal: Indtægtsbevilling - Klima-lavbund og kvælstofvådområdeprojekt Svinemosen - beslutning",
+   "url": "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=e9d58d6a-8a32-4220-a8c5-aa0ec021ee88",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-16",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Egedal: Indtægtsbevilling - Klima-lavbund og kvælstofvådområdeprojekt Tysmosen - beslutning",
+   "url": "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=bbf253d0-3699-41bb-86ba-55e3bbdb51d4",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-16",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  },
+  {
+   "farve": "roed",
+   "titel": "Egedal: Indtægtsbevilling - Vandløbsrestaurering, dele af Værebro Å - beslutning",
+   "url": "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=e8918e9f-0293-4bab-bb71-b5907a67be9c",
+   "kilde": "Politiske dagsordener",
+   "dato": "2026-10-16",
+   "begrundelse": "Rutinesag eller kun løst knyttet til klimatilpasning (naturgenopretning, Grøn Trepart, spildevandsadministration)."
+  }
+ ],
+ "sete": [
+  "https://gribskov.dk/nyheder/2026/oktober/nordkystens-fremtid-faar-tilladelse-til-kystbeskyttelsesprojekt",
+  "https://www.kk.dk/dagsordener-og-referater/Klima-%2C%20Milj%C3%B8-%20og%20Teknikudvalget/m%C3%B8de-26102026/dagsorden/punkt-3#punkt-3",
+  "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/Oekonomiudvalgets-moeder/2026-10-21_08-15/dagsorden#item-193",
+  "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/Oekonomiudvalgets-moeder/2026-10-21_08-15/dagsorden#item-194",
+  "https://norddjurs.meetingsplus.dk/committees/erhvervs-vaekst-og-klimaudvalg/19-10-2026#id_162193",
+  "https://dagsordener.sonderborgkommune.dk/vis?id=5a2ab832-d686-407e-8157-1709e86b5c83&punktid=e81115f6-c82a-4b61-aaee-aa97bc8ae0aa",
+  "https://dagsordener.fredensborg.dk/vis?id=3581cbad-1658-4ebc-ba0f-63d5729e1a5d&punktid=ff6cfdf7-5a30-4f4c-98da-9af9971519f7",
+  "https://dagsordener.herlev.dk/vis?id=1e1e8cc2-4853-4991-9738-db36529b62f1&punktid=81028261-f2ae-465d-ba33-288235bcea34",
+  "https://dagsordener.holstebro.dk/vis?id=30b1c9f9-16a6-4dfa-a861-4650e5fe3567&punktid=015d9b0b-e1e3-491e-86c3-55dd204f9f7b",
+  "https://dagsordener-referater.hvidovre.dk/vis?id=25a7a2c9-6734-4c5d-bdfd-c48225337774&punktid=a3af6f77-1233-4b7a-91c8-757c00a66282",
+  "https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=179",
+  "https://dagsordener.vejle.dk/vis?id=574b44c5-b1e6-48c7-98df-8ac40be01d10&punkt=190",
+  "https://dagsordener.holbaek.dk/vis?id=2327deca-6661-4691-bd04-6d326adebf72&punktid=de58e572-5f51-4b7c-bd68-ad32c795b0cf",
+  "https://www.kk.dk/dagsordener-og-referater/Valby%20Lokaludvalg/m%C3%B8de-20102026/dagsorden/punkt-13#punkt-13",
+  "https://dagsordener.dragoer.dk/vis?id=1378a9a9-1018-42bd-b004-420500258f43&punktid=331001da-40b2-4ab6-ad94-28438e8837d7",
+  "https://dagsordener.horsens.dk/vis?id=06f1e42b-f1bb-410b-b3ff-a2663699196a&punktid=538e6d1e-cda0-4b96-972b-42cdf77dffaf",
+  "https://udvalg.kolding.dk/vis?id=f73a08bf-77d7-4875-9194-6426899e76e3&punktid=c0725ac3-aed2-4388-9145-839fc655ca2e",
+  "https://dagsordener.svendborg.dk/vis?id=3baba0a0-dc14-4b3f-ae9c-b76047d8cc95&punktid=5b81bec8-c53f-4ec5-8eb4-a429432f53e4",
+  "https://dagsorden.halsnaes.dk/vis?id=0ef4541a-3633-4dc3-a179-491e85972b5a&punktid=4cfe3a64-cc3d-4294-9294-4204861ea68c",
+  "https://dagsordener.aabenraa.dk/vis?id=20d8f5ec-b075-4d23-8abe-a8d9981933ef&punktid=cbf6a7c1-b9d4-403a-b266-b6656e52e239",
+  "https://dagsordner.vordingborg.dk/vis?id=d0bb3bd3-8fbc-477a-b839-0f0905ed8930&punktid=e3d0dc53-018e-4f01-9d65-f96052fe47a3",
+  "https://dagsordener.roskilde.dk/vis?id=26061f5b-6e3d-4285-b69c-bf6435861e1e&punktid=a8b25941-88eb-40e5-b69f-a04559d31b89",
+  "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/udvalget-for-klima-natur-miljoe-dagsordener-og-referater?agenda=/dagsorden/2026UKlima/07-10-2026&elementid=7f99#punkt-120",
+  "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/udvalget-for-klima-natur-miljoe-dagsordener-og-referater?agenda=/dagsorden/2026UKlima/07-10-2026&elementid=7f99#punkt-121",
+  "https://dagsordener.skive.dk/vis?id=1fb84d9b-99db-4af1-8435-869474ab7ac3&punktid=f432462e-cca0-4295-82b5-a2731f3977d1",
+  "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/teknik-og-klima/2026-10-06_08-15/dagsorden#item-141",
+  "https://dagsordener.lolland.dk/vis?id=52a9ecb4-6b6e-4aca-97f8-02eeb405280b&punktid=7814b77b-f878-487d-bd89-99d39b28b4e2",
+  "https://www.kk.dk/dagsordener-og-referater/Klima-%2C%20Milj%C3%B8-%20og%20Teknikudvalget/m%C3%B8de-05102026/referat/punkt-2#punkt-2",
+  "https://dagsordener.ringsted.dk/vis?id=60c40abc-8a1d-4bfc-a12a-82b2c5b98b16&punktid=f339fc3b-7b03-499c-b050-868457e49f28",
+  "https://www.kk.dk/dagsordener-og-referater/N%C3%B8rrebro%20Lokaludvalg/m%C3%B8de-29092026/referat/punkt-10#punkt-10",
+  "https://www.rksk.dk/om-kommunen/byraad/dagsorden-og-referat?AgendaID=6714#3f92696c-df0f-40c6-8435-72c4e9f0aaaf",
+  "https://dagsordener.fanoe.dk/vis?id=736cabe1-694c-4a06-bdde-51f71af64316&punkt=6",
+  "https://middelfart.dk/nyheder/2026/okt/varsel-om-forhoejet-vandstand-ved-foens",
+  "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=1b015381-b145-439e-b68b-5e245e436101",
+  "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=75c29deb-f225-414e-8b98-82ecd3cce450",
+  "https://dagsordener.vejle.dk/vis?id=116a8026-c569-4c17-ae11-2ea72a54e9e4&punktid=80517322-ec10-47b2-aa60-1612e8da2957",
+  "https://dagsordener.aabenraa.dk/vis?id=20d8f5ec-b075-4d23-8abe-a8d9981933ef&punktid=e0e21fcb-b669-46f7-84da-bfd397449690",
+  "https://dagsordener.kalundborg.dk/vis?id=77bd0139-da19-4f33-9662-c4d495c8c189&punkt=3",
+  "https://dagsordener.kalundborg.dk/vis?id=3662d1a0-b6a5-4e2d-aad1-b6ead19550c6&punktid=ca8f1929-5fb1-4dd0-b768-239eeedeb4be",
+  "https://billund.meetingsplus.dk/committees/kommunalbestyrelsen-2026-2029/mode-i-kommunalbestyrelsen-27820#id_202179",
+  "https://dagsordener.slagelse.dk/vis?id=30fb1d84-401d-41bb-8131-d0fb3f1dc0a6&punktid=8202417d-6cdd-448a-baff-f141e09d9d41",
+  "https://dagsordener.solrod.dk/vis?id=11c149af-81ea-4bcd-ac41-8ba8490aff4b&punktid=66d211d5-dfe3-4f1a-9c99-cc6b43f5153b",
+  "https://dagsordener.egedalkommune.dk/vis?id=46379eba-6319-457e-8c4e-63aca69aeaca&punkt=22",
+  "https://dagsordener.fredensborg.dk/vis?id=b747eb63-aa13-4ce9-827e-c82fc44df64f&punkt=144",
+  "https://aabendagsorden.syddjurs.dk/meeting/2832#punkt-210",
+  "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-175",
+  "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-172",
+  "https://www.hedensted.dk/politik-og-indflydelse/kommunalbestyrelse-og-udvalg/dagsordener-og-referater/oekonomiudvalget-dagsordener-og-referater?agenda=/dagsorden/2026Oko/19-10-2026&elementid=7560#punkt-173",
+  "https://norddjurs.meetingsplus.dk/committees/natur-miljo-og-teknikudvalget/19-10-2026#id_162109",
+  "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=e9d58d6a-8a32-4220-a8c5-aa0ec021ee88",
+  "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=bbf253d0-3699-41bb-86ba-55e3bbdb51d4",
+  "https://dagsordener.egedalkommune.dk/vis?id=3f617ced-4147-43a0-a3ba-c662144e2cfe&punktid=e8918e9f-0293-4bab-bb71-b5907a67be9c"
+ ]
+}
