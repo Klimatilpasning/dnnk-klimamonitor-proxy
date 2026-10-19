@@ -1,0 +1,73 @@
+name: Ugemail og systemalarm
+
+# Indført 19/10-2026, så KP kan følge med under barslen uden en tændt pc.
+# Dagligt: tools/sundhedstjek.py - alarmmail til kp@dnnk.dk, KUN hvis noget fejler.
+# Fredag: ugemail med ugens vurderede fund (fra cloud-rutinen) + systemstatus.
+# Mailen sendes af Render (/send-ugemail) via Brevo, som den gamle digest.
+# Tider i UTC: 05:20 = 7:20 dansk vintertid / 6:20 sommertid.
+
+on:
+  schedule:
+    - cron: '20 5 * * 1-4,6,0'   # alle dage undtagen fredag: kun alarm ved fejl
+    - cron: '20 5 * * 5'         # fredag: ugemail (efter cloud-rutinens vurdering kl. ca. 5)
+  workflow_dispatch:
+    inputs:
+      tilstand:
+        description: 'uge = fuld ugemail, alarm = kun ved fejl'
+        default: 'uge'
+        type: choice
+        options: [uge, alarm]
+      test:
+        description: 'Markér mailen som TEST'
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  tjek:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install httpx
+
+      - name: Vælg tilstand
+        id: t
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tilstand=${{ inputs.tilstand }}" >> $GITHUB_OUTPUT
+            echo "test=${{ inputs.test }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "20 5 * * 5" ]; then
+            echo "tilstand=uge" >> $GITHUB_OUTPUT; echo "test=false" >> $GITHUB_OUTPUT
+          else
+            echo "tilstand=alarm" >> $GITHUB_OUTPUT; echo "test=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sundhedstjek
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARG=""; [ "${{ steps.t.outputs.tilstand }}" = "uge" ] && ARG="--uge"
+          python tools/sundhedstjek.py $ARG > /tmp/sundhed.json
+          cat /tmp/sundhed.json
+
+      - name: Send mail via Render
+        run: |
+          KUN_ALARM=false; [ "${{ steps.t.outputs.tilstand }}" = "alarm" ] && KUN_ALARM=true
+          python - <<EOF > /tmp/body.json
+          import json
+          print(json.dumps({"sundhed": json.load(open("/tmp/sundhed.json")),
+                            "test": "${{ steps.t.outputs.test }}" == "true",
+                            "kun_alarm": $( [ "$KUN_ALARM" = true ] && echo True || echo False )}))
+          EOF
+          curl --fail-with-body --max-time 180 --retry 3 --retry-delay 30 --retry-all-errors \
+            -X POST -H "Content-Type: application/json" -H "X-DNNK-Code: ${{ secrets.DNNK_ACCESS_CODE }}" \
+            --data @/tmp/body.json "https://dnnk-klimamonitor-proxy.onrender.com/send-ugemail" | tee /tmp/svar.json
+          echo
+          python -c "import json,sys; d=json.load(open('/tmp/svar.json')); sys.exit(0 if d.get('sendt') or d.get('grund') else 1)"
