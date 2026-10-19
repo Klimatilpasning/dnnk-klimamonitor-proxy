@@ -1,0 +1,53 @@
+name: Kommunenyheder
+
+# Scanner hver mandag 75 kommuners egne nyhedslister (tools/kommune_kilder.json)
+# for klimatilpasningsstof og lægger resultatet på branchen kommune-data
+# (kommunenyheder.json), som backenden læser i gruppen "Kommuner". Samme
+# mønster som dagsordenerne: egen branch, så main ikke får ugentlige
+# data-commits, og Render ikke skal deployes forfra.
+
+on:
+  schedule:
+    - cron: '37 4 * * 1'   # mandag ca. kl. 6.30 dansk tid, efter dagsordenerne
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Scanneren importerer main.py for at læse siderne som produktionen.
+      - run: pip install -r requirements.txt
+
+      - name: Hent forrige uges fil
+        run: |
+          git fetch origin kommune-data:refs/remotes/origin/kommune-data || true
+          git show origin/kommune-data:kommunenyheder.json > /tmp/forrige.json 2>/dev/null || echo '[]' > /tmp/forrige.json
+
+      - name: Scan kommunernes nyheder
+        run: python tools/scan_kommunenyheder.py --ud /tmp/ud/kommunenyheder.json --tidligere /tmp/forrige.json
+
+      - name: Gem på kommune-data
+        run: |
+          git config user.name "dnnk-kommunescanner"
+          git config user.email "actions@users.noreply.github.com"
+          if git rev-parse --verify -q origin/kommune-data >/dev/null; then
+            git worktree add /tmp/data origin/kommune-data
+            cd /tmp/data && git checkout -B kommune-data
+          else
+            git worktree add --detach /tmp/data && cd /tmp/data
+            git checkout --orphan kommune-data && git rm -rfq .
+          fi
+          cp /tmp/ud/kommunenyheder.json .
+          git add kommunenyheder.json
+          git diff --cached --quiet || git commit -qm "Kommunescanning $(date +%F)"
+          git push origin kommune-data
