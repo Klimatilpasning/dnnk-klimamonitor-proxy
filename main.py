@@ -504,6 +504,9 @@ TILPASNING_RE = re.compile(
     r"|havvandsstig|havstig|havniveau|ekstremregn|ekstremnedbør|regnvand|terrænnær|grundvandsstig"
     r"|\bdige|digelag|højvand|risikostyringsplan|oversvømmelsesdirektiv|tørke|vandløb|lavbund|vådområde"
     r"|klimarisik|klimarobust|klimaatlas"
+    # Høringsparter (19/10-2026): museer og foreninger skriver "højere
+    # vandstand", "stigende hav" og "strandfodring" uden de øvrige ord.
+    r"|vandstand|stigende hav|strandfodr"
     r"|climate adaptation|adaptation to climate|climate resilien|flood|drought|storm surge|sea[- ]level"
     r"|coastal (?:erosion|protection)|water resilience|extreme (?:rain|weather)|heatwave|heat wave",
     re.I)
@@ -2205,13 +2208,19 @@ def _scor_udtraek(ud: dict, source, gruppe, query, limit, betroet=False) -> list
     afsender = {"feedSource": source, "org": source, "gruppe": gruppe}
 
     def scor(tekst):
-        return score_article(tekst, q_point(query, tekst))
+        relevance, keep = score_article(tekst, q_point(query, tekst))
+        # Strenge kilder (høringsparter, radar): kun egentligt
+        # klimatilpasningsstof - se STRENGE_KILDER i sources.py.
+        if streng and not kun_tilpasning(tekst):
+            keep = False
+        return relevance, keep
 
+    streng = source in STRENGE_KILDER
     articles = []
     for title, description, pub_date, article_url in ud["hoved"]:
         combined = title + " " + description
         relevance, keep = scor(combined)
-        if betroet:
+        if betroet and not streng:
             if _BETROET_STOEJ.match(title):
                 continue
             keep, relevance = True, max(relevance, 0.25)
@@ -2418,6 +2427,8 @@ async def _sitemap_artikel(client, url, dato, source, gruppe, query, meta=None):
     relevance, keep = score_article(kombi, q_match)
     if not keep and not meta.get("altid_relevant"):
         return None
+    if source in STRENGE_KILDER and not kun_tilpasning(kombi):
+        return None
     return {
         "source": "scrape", "feedSource": source, "org": source,
         "title": titel, "url": url, "date": dato,
@@ -2534,7 +2545,7 @@ async def fetch_json_news(client, source, meta, query, limit: int = 8):
             continue
         kombi = f"{titel} {manchet}"
         relevance, keep = score_article(kombi, q_point(query, kombi))
-        if not keep:
+        if not keep or (source in STRENGE_KILDER and not kun_tilpasning(kombi)):
             continue
         ud.append({
             "source": "scrape", "feedSource": source, "org": source,

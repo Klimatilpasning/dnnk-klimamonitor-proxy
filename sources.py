@@ -253,6 +253,20 @@ RSS_BREDE_SOEGNINGER = {
     "Bing News – trepart vandløb":         _BING_30D.format("trepart%20vandl%C3%B8b"),
 }
 
+# ── HØRINGSPARTER via Bing (tilføjet 19/10-2026) ──
+# Museerne skal inddrages, når en kommune- eller lokalplan berører
+# bevaringsværdier (museumsloven § 23, stk. 2). Men 0 af 15 testede museers
+# egne nyhedslister gav ét klimatilpasningstræf (de skriver formidling), og
+# flere er JS-renderede eller bag bot-filtre. Når museer og kulturarv nævnes i
+# forbindelse med klimatilpasning, er det i pressen - derfor søgninger. Digelag
+# er lokale høringsparter ved kystbeskyttelse (3 af 7 træf ved test).
+RSS_HOERINGSPARTER = {
+    "Bing News – kulturarv klima":       _BING_30D.format("kulturarv%20klima"),
+    "Bing News – museum stormflod":      _BING_30D.format("museum%20stormflod"),
+    "Bing News – fortidsminder kyst":    _BING_30D.format("fortidsminder%20kyst"),
+    "Bing News – digelag":               _BING_30D.format("digelag"),
+}
+
 # Kilder hvor en artikel KUN beholdes med et egentligt klimatilpasningsord
 # (TILPASNING_RE i main.py) - brede politiske kilder, hvor det normale filter
 # ellers lukker CO2-, kvælstof- og budgetstof ind.
@@ -260,6 +274,13 @@ STRENGE_KILDER = {
     "Bing News – trepart klimatilpasning",
     "Bing News – trepart oversvømmelse",
     "Bing News – trepart vandløb",
+    # Høringsparter (19/10-2026)
+    *RSS_HOERINGSPARTER,
+    "Danmarks Naturfredningsforening",
+    "Friluftsrådet",
+    "Plan- og Landdistriktsstyrelsen",
+    "Styrelsen for Grøn Arealomlægning og Vandmiljø",
+    "Danmarks Sportsfiskerforbund",
 }
 
 # ── PODCASTS (RSS til nye episoder) ──
@@ -286,6 +307,7 @@ ALLE_FEEDS = {
     "Lovgivning & politik":     RSS_LOVGIVNING,
     "Jura & advokater":         RSS_JURA,
     "Videnskab & forskning":    RSS_VIDENSKAB,
+    "Høringsparter":            RSS_HOERINGSPARTER,
     "Podcasts":                 RSS_PODCASTS,
 }
 
@@ -513,6 +535,15 @@ SCRAPE_SOURCES = {
     # Alpine.js-data i en x-data-attribut (ingen HTML-liste, intet RSS eller
     # sitemap), kalenderen har ingen udgivelsesdato, og stoffet er mest grønne
     # byrum. En særparser var ikke værd at vedligeholde.
+
+    # ── HØRINGSPARTER (tilføjet 19/10-2026) ──
+    # Landsdækkende foreninger, der er klageberettigede efter planloven § 59,
+    # stk. 2, og skal underrettes efter bl.a. naturbeskyttelsesloven § 86 og
+    # vandløbsloven § 84. De skriver mest om andet (fugle, havbrug, friluftsliv),
+    # så de står i STRENGE_KILDER: kun nyheder med et tilpasningsord vises.
+    # De står sidst, så de ikke kommer i scrapens første semaforbølge.
+    "Danmarks Naturfredningsforening":  {"url": "https://www.dn.dk/nyheder/", "gruppe": "Høringsparter"},
+    "Friluftsrådet":                    {"url": "https://friluftsraadet.dk/aktuelt", "gruppe": "Høringsparter"},
 }
 
 
@@ -650,6 +681,32 @@ SITEMAP_SOURCES = {
         "dato_regex": r">DATO</div>\s*(\d{1,2}\.\s*[a-zæøå]+\s+\d{4})",
         "antal": 12,
         "gruppe": "Forsyninger",
+    },
+    # ── HØRINGSPARTER (tilføjet 19/10-2026, strengt filter) ──
+    # Plan- og Landdistriktsstyrelsen modtager alle planforslag (planloven
+    # § 25, stk. 1) og har indsigelsespligten (§ 29). Nyheder på planinfo.dk;
+    # stiens måned passer ikke altid med datoen, så den læses fra siden.
+    "Plan- og Landdistriktsstyrelsen": {
+        "sitemap": "https://www.plst.dk/sitemap.xml",
+        "moenster": "/nyheder-paa-planinfo/20",
+        "dato_fra_side": True,
+        "gruppe": "Høringsparter",
+    },
+    # SGAV (vandmiljø, lavbund, Grøn trepart) høres som statslig myndighed
+    # (planloven § 25, stk. 1). sgav.dk er JS-renderet, og /sitemap.xml står
+    # stille, men CMS'ets egen Sitemap.ashx er frisk.
+    "Styrelsen for Grøn Arealomlægning og Vandmiljø": {
+        "sitemap": "https://sgav.dk/Handlers/Sitemap.ashx",
+        "moenster": "/alle-nyheder/nyheder/20",
+        "dato_regex": r'class="date">\s*(\d{2}-\d{2}-\d{4})',
+        "gruppe": "Høringsparter",
+    },
+    # Navngivet i vandløbsloven § 84, stk. 4. RSS'ens danske datoer ("tor, 15
+    # okt. 2026") kan ikke parses, så sitemap'ets politiske nyheder bruges.
+    "Danmarks Sportsfiskerforbund": {
+        "sitemap": "https://www.sportsfiskeren.dk/sitemap.xml",
+        "moenster": "/natur-og-fiskeripolitik/nyheder/",
+        "gruppe": "Høringsparter",
     },
 }
 
