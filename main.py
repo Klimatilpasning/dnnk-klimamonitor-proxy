@@ -568,7 +568,8 @@ def parse_item_bs(item):
 #   og de ældste smides ud, når cachen passerer CACHE_MAX_TEGN.
 # - NEGATIV CACHE: døde værter (DNS, TLS, timeout, reset) blev prøvet igen ved
 #   HVERT kald og kostede op til 16 s hver gang. Nu huskes en netværksfejl i
-#   FAIL_TTL. Kilden fjernes ikke, den springes kun over et stykke tid. HTTP-
+#   FAIL_TTL_FOERSTE og ved anden fejl i træk i FAIL_TTL (se nedenfor).
+#   Kilden fjernes ikke, den springes kun over et stykke tid. HTTP-
 #   statuskoder caches IKKE negativt: 404-sider kan rumme hele nyhedslisten.
 # - SINGLE-FLIGHT: fem samtidige /news/full med kold cache gav 496 udgående
 #   kald til 83 unikke URL'er (Nævnenes Hus 81 gange). Samtidige cache-miss på
@@ -586,8 +587,27 @@ SITEMAP_MAX_BYTES = 8 * 1024 * 1024
 # for sig. Loftet er en sikkerhedsgrænse over det normale forbrug; ved 20 mio.
 # skubbede én søgning selv feedsene ud. Ca. 40-80 MB afhængigt af æøå-andelen.
 CACHE_MAX_TEGN = 40_000_000
+# Første netværksfejl huskes kun kort; først ved anden fejl i træk får
+# værten den fulde FAIL_TTL. 18/10-2026 fejlede hele scrapens første
+# semaforbølge (15 sunde kilder, fra DNNK til MOE) samlet i ét kald, og den
+# negative cache gjorde dem usynlige i 10 min. Døde værter (Bornholm, Næstved)
+# fejler også anden gang og koster derfor kun ét ekstra forsøg.
+# For store svar (ValueError) er ikke tilfældige og får straks fuld TTL.
 FAIL_TTL = 600
-_FEED_FAIL: dict[str, tuple[float, str]] = {}
+FAIL_TTL_FOERSTE = 60
+_FEED_FAIL: dict[str, tuple[float, str, int]] = {}   # nøgle -> (tid, fejltype, fejl i træk)
+
+def _fail_ttl(fejl: tuple[float, str, int]) -> int:
+    _, typ, antal = fejl
+    return FAIL_TTL if antal >= 2 or typ == "ValueError" else FAIL_TTL_FOERSTE
+
+def _fejltekst(e: Exception) -> str:
+    """Kort fejlbeskrivelse til log og fejl_aarsag. str(e) er tom ved
+    httpx-timeouts, så typen skal med."""
+    tekst = str(e).strip()
+    if isinstance(e, RuntimeError) and tekst:
+        return tekst[:200]   # "negativ cache: ConnectTimeout for 42 s siden"
+    return (f"{type(e).__name__}: {tekst}" if tekst else type(e).__name__)[:200]
 _INFLIGHT: dict[str, asyncio.Future] = {}
 # Connect-timeouten er kort, så en død vært ikke holder en semaforplads i 15 s.
 _TIMEOUT_GET = httpx.Timeout(15, connect=5)
@@ -631,7 +651,7 @@ async def get_feed_text(client, url: str, headers=None, body=None,
         return cached[1]
     if not bypass_neg:
         fejl = _FEED_FAIL.get(key)
-        if fejl and now - fejl[0] < FAIL_TTL:
+        if fejl and now - fejl[0] < _fail_ttl(fejl):
             raise RuntimeError(f"negativ cache: {fejl[1]} for {int(now - fejl[0])} s siden")
     igang = _INFLIGHT.get(key)
     if igang is not None:
@@ -665,7 +685,11 @@ async def get_feed_text(client, url: str, headers=None, body=None,
     except Exception as e:
         # Netværksfejl og for store svar huskes; alt andet er programfejl.
         if isinstance(e, (httpx.TransportError, ValueError)):
-            _FEED_FAIL[key] = (time.time(), type(e).__name__)
+            nu = time.time()
+            forrige = _FEED_FAIL.get(key)
+            # "I træk" = forrige fejl er under 30 min gammel; ældre fejl glemmes.
+            antal = forrige[2] + 1 if forrige and nu - forrige[0] < 3 * FAIL_TTL else 1
+            _FEED_FAIL[key] = (nu, type(e).__name__, antal)
         fut.set_exception(e)
         fut.exception()   # ellers logger asyncio "exception was never retrieved"
         raise
@@ -2225,8 +2249,9 @@ def _scor_udtraek(ud: dict, source, gruppe, query, limit, betroet=False) -> list
 
 async def scrape_news(client, source, url, gruppe, query, limit: int = 8, betroet: bool = False):
     """Scraper nyhedsartikler direkte fra hjemmeside HTML.
-    Returnerer None, hvis siden ikke kunne hentes (så /news/scrape kan tælle
-    sources_failed), og en liste - evt. tom - ellers."""
+    Returnerer fejlen (en Exception), hvis siden ikke kunne hentes (så
+    /news/scrape kan tælle sources_failed og vise fejl_aarsag), og en liste -
+    evt. tom - ellers."""
     try:
         now = time.time()
         cached = _UDTRAEK_CACHE.get(url)
@@ -2253,8 +2278,8 @@ async def scrape_news(client, source, url, gruppe, query, limit: int = 8, betroe
         return _scor_udtraek(ud, source, gruppe, query, limit, betroet)
 
     except Exception as e:
-        print(f"[feed-fejl] {url}: {e}")
-        return None
+        print(f"[feed-fejl] {url}: {_fejltekst(e)}")
+        return e
 
 
 SITEMAP_ANTAL = 12          # hvor mange af de nyeste artikler der hentes (meta "antal" overstyrer)
@@ -2441,7 +2466,7 @@ async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
     Der hentes kun de SITEMAP_ANTAL nyeste, så det koster et begrænset antal
     ekstra kald — og artiklerne caches i ARTIKEL_TTL.
 
-    Returnerer None, hvis sitemap'et ikke kunne hentes.
+    Returnerer fejlen (en Exception), hvis sitemap'et ikke kunne hentes.
     """
     now = time.time()
     graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
@@ -2455,8 +2480,8 @@ async def fetch_sitemap_news(client, source, meta, query, limit: int = 8):
             xml = await get_feed_text(client, meta["sitemap"],
                                       max_bytes=SITEMAP_MAX_BYTES, gem=False)
         except Exception as e:
-            print(f"[sitemap-fejl] {source}: {e}")
-            return None
+            print(f"[sitemap-fejl] {source}: {_fejltekst(e)}")
+            return e
         fundet = _sitemap_kandidater(xml or "", meta, graense)
         _SITEMAP_LISTE_CACHE[source] = (now, fundet)
 
@@ -2496,12 +2521,12 @@ def _json_poster(tekst: str, meta: dict) -> list:
 
 async def fetch_json_news(client, source, meta, query, limit: int = 8):
     """Nyheder fra et åbent JSON-endpoint, som sidens egen nyhedsliste
-    henter i browseren (Samn Forsyning). None = endpointet svarede ikke."""
+    henter i browseren (Samn Forsyning). En Exception = endpointet svarede ikke."""
     try:
         tekst = await get_feed_text(client, meta["json"])
     except Exception as e:
-        print(f"[json-fejl] {source}: {e}")
-        return None
+        print(f"[json-fejl] {source}: {_fejltekst(e)}")
+        return e
     graense = (datetime.now(timezone.utc) - timedelta(days=SITEMAP_DAGE)).strftime("%Y-%m-%d")
     ud = []
     for titel, url, dato, manchet in _json_poster(tekst or "", meta):
@@ -2540,9 +2565,17 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
     ]
     nested = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # None = kilden kunne ikke hentes. Før blev det til en tom liste, så en død
-    # kilde og en uge uden nyheder så ens ud - nu tælles og navngives de.
+    # En Exception = kilden kunne ikke hentes. Før blev det til en tom liste, så
+    # en død kilde og en uge uden nyheder så ens ud - nu tælles og navngives de.
     fejlede = [navn for navn, sub in zip(navne, nested) if not isinstance(sub, list)]
+    # Hvorfor: timeout, DNS/SSL eller negativ cache. Før stod typen kun i
+    # Render-loggen, så et sundhedstjek ikke kunne skelne en forbigående
+    # bølgefejl fra en død kilde. Årsagen følger med kaldets egne resultater,
+    # så samtidige /news/scrape-kald ikke kan overskrive hinandens.
+    fejl_aarsag = {
+        navn: (_fejltekst(sub) if isinstance(sub, BaseException) else "ukendt")
+        for navn, sub in zip(navne, nested) if not isinstance(sub, list)
+    }
     articles = [a for sub in nested if isinstance(sub, list) for a in sub]
     if (q or "").strip().lower() != STANDARD_Q:
         for a in articles:
@@ -2554,6 +2587,7 @@ async def get_scraped_news(request: Request, q: str = Query("klimatilpasning"), 
         "sources_checked": len(navne),
         "sources_failed": len(fejlede),
         "fejlede_kilder": fejlede,
+        "fejl_aarsag": fejl_aarsag,
         "query": q,
         "scanned_at": datetime.now(timezone.utc).isoformat()
     }
