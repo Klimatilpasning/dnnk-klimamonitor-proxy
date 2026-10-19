@@ -58,6 +58,10 @@ MIN_BODY = 2000
 
 def hent(url, max_bytes=prod.MAX_FEED_BYTES):
     """Returnér (status, body). Status er et tal eller en fejlstreng."""
+    # urllib tåler ikke tegn uden for ASCII i stien (MST-offentliggørelser har
+    # fx et typografisk citationstegn); httpx i produktionen koder dem selv.
+    from urllib.parse import quote
+    url = quote(url, safe=":/?&=%#+,;@~!$'()*[]")
     # Samme UA-undtagelse pr. vært som produktionen (Springer).
     vaert = url.split("/")[2] if "://" in url else ""
     headers = dict(prod.RSS_HEADERS)

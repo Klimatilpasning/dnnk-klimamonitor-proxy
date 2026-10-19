@@ -1546,6 +1546,247 @@ async def fetch_eu_nyheder(client):
             })
     return ud
 
+
+# ─────────────────────────────────────────────────────────────
+# ALLE 98 KOMMUNER - tværgående kanaler (tilføjet 19/10-2026)
+# ─────────────────────────────────────────────────────────────
+# KP vil have alle kommuners klimatilpasningsprojekter fanget. Kun 17 kommuner
+# har egen nyhedskilde; de øvrige dækkes af ugescanningen (fetch_kommunenyheder)
+# og af tre kanaler, der hver dækker mange kommuner i ét kald. Alle tre
+# filtreres strengt (TILPASNING_RE), fordi de ellers rummer alt muligt andet.
+KOMMUNE_DAGE = 120
+
+# Plandata kender kun kommunekoden for kommuneplantillæg. Hentet fra Plandatas
+# lokalplanlag 19/10-2026 (DAWA's kommune-API er lukket).
+KOMMUNEKODER = {
+    101: "København", 147: "Frederiksberg", 151: "Ballerup", 153: "Brøndby", 155: "Dragør", 157: "Gentofte",
+    159: "Gladsaxe", 161: "Glostrup", 163: "Herlev", 165: "Albertslund", 167: "Hvidovre", 169: "Høje-Taastrup",
+    173: "Lyngby-Taarbæk", 175: "Rødovre", 183: "Ishøj", 185: "Tårnby", 187: "Vallensbæk", 190: "Furesø",
+    201: "Allerød", 210: "Fredensborg", 217: "Helsingør", 219: "Hillerød", 223: "Hørsholm", 230: "Rudersdal",
+    240: "Egedal", 250: "Frederikssund", 253: "Greve", 259: "Køge", 260: "Halsnæs", 265: "Roskilde",
+    269: "Solrød", 270: "Gribskov", 306: "Odsherred", 316: "Holbæk", 320: "Faxe", 326: "Kalundborg",
+    329: "Ringsted", 330: "Slagelse", 336: "Stevns", 340: "Sorø", 350: "Lejre", 360: "Lolland",
+    370: "Næstved", 376: "Guldborgsund", 390: "Vordingborg", 400: "Bornholm", 410: "Middelfart", 420: "Assens",
+    430: "Faaborg-Midtfyn", 440: "Kerteminde", 450: "Nyborg", 461: "Odense", 479: "Svendborg", 480: "Nordfyns",
+    482: "Langeland", 492: "Ærø", 510: "Haderslev", 530: "Billund", 540: "Sønderborg", 550: "Tønder",
+    561: "Esbjerg", 563: "Fanø", 573: "Varde", 575: "Vejen", 580: "Aabenraa", 607: "Fredericia",
+    615: "Horsens", 621: "Kolding", 630: "Vejle", 657: "Herning", 661: "Holstebro", 665: "Lemvig",
+    671: "Struer", 706: "Syddjurs", 707: "Norddjurs", 710: "Favrskov", 727: "Odder", 730: "Randers",
+    740: "Silkeborg", 741: "Samsø", 746: "Skanderborg", 751: "Aarhus", 756: "Ikast-Brande", 760: "Ringkøbing-Skjern",
+    766: "Hedensted", 773: "Morsø", 779: "Skive", 787: "Thisted", 791: "Viborg", 810: "Brønderslev",
+    813: "Frederikshavn", 820: "Vesthimmerlands", 825: "Læsø", 840: "Rebild", 846: "Mariagerfjord", 849: "Jammerbugt",
+    851: "Aalborg", 860: "Hjørring",
+}
+
+# Plandata: nye kommuneplantillæg og lokalplaner med et tilpasningsord i
+# navnet (fx "Klimabånd øst for Randers Bro", "Køge Dige", "Regnvandsanlæg ved
+# Nejlinge") og kommuneplanernes retningslinjer for oversvømmelse og erosion.
+# Navnefiltret sker her og ikke med ILIKE, som gav "Nordkysthallen" og
+# "midlertidige arrangementer" (dige).
+PLANDATA_WFS = "https://geoserver.plandata.dk/geoserver/wfs"
+# Felterne angives, så geometrien ikke kommer med: retningslinjelaget var
+# ellers 17 MB for 120 dage.
+_PD_TILLAEG = "plannavn,plannr,komnr,doklink"
+_PD_LOKAL = "plannavn,plannr,kommunenavn,doklink"
+_PD_RETNING = "plannr,komnavn,doklink"
+PLANDATA_LAG = [
+    # (lag, datofelt, felter, art, kræver tilpasningsord i navnet)
+    ("pdk:theme_pdk_kommuneplantillaeg_forslag_v", "datoforsl", _PD_TILLAEG, "Kommuneplantillæg i høring", True),
+    ("pdk:theme_pdk_kommuneplantillaeg_vedtaget_v", "datovedt", _PD_TILLAEG, "Kommuneplantillæg vedtaget", True),
+    ("pdk:theme_pdk_lokalplan_forslag", "datoforsl", _PD_LOKAL, "Lokalplan i høring", True),
+    ("pdk:theme_pdk_lokalplan_vedtaget", "datovedt", _PD_LOKAL, "Lokalplan vedtaget", True),
+    ("pdk:theme_pdk_oversvoemerosion_forslag", "datoforsl", _PD_RETNING,
+     "Retningslinjer for oversvømmelse/erosion i høring", False),
+    ("pdk:theme_pdk_oversvoemerosion_vedtaget", "datovedt", _PD_RETNING,
+     "Retningslinjer for oversvømmelse/erosion vedtaget", False),
+]
+# Plannavne er korte, og stednavne som "Kystvejen" eller "saunaer langs
+# kysten" ramte TILPASNING_RE's kyst. Her kræves et egentligt anlægsord.
+PLAN_TILPASNING_RE = re.compile(
+    r"klimatilpas|klimabånd|klimabro|klimasø|klimabassin|skybrud|regnvand|oversvøm|stormflod|højvand"
+    r"|dige|digelag|kystbeskyt|kystsikr|erosion|vandhåndtering|forsinkelsesbassin|vådområde|lavbund"
+    r"|havvandsstig|terrænnær", re.I)
+
+
+def _yyyymmdd(tal) -> str:
+    t = str(tal or "")
+    return f"{t[:4]}-{t[4:6]}-{t[6:8]}" if len(t) == 8 and t.isdigit() else ""
+
+
+def _navn(s: str) -> str:
+    """'DIGELAGET I BREDE ÅDALEN' -> 'Digelaget I Brede Ådalen'; andet uændret."""
+    return s.title() if s.isupper() else s
+
+
+async def fetch_plandata(client):
+    import json as _json
+    graense = (datetime.now(timezone.utc) - timedelta(days=KOMMUNE_DAGE)).strftime("%Y%m%d")
+
+    async def lag(navn, felt, felter, art, kraev_ord):
+        url = (f"{PLANDATA_WFS}?service=WFS&version=1.0.0&request=GetFeature&typeName={navn}"
+               f"&outputFormat=application/json&maxFeatures=2000&propertyName={felter},{felt}"
+               f"&CQL_FILTER={felt}%3E={graense}")
+        try:
+            data = _json.loads(await get_feed_text(client, url, headers={"Accept": "application/json"}))
+        except Exception as e:
+            print(f"[plandata-fejl] {navn}: {_fejltekst(e)}")
+            return []
+        ud, sete = [], set()
+        for f in data.get("features") or []:
+            p = f.get("properties") or {}
+            kommune = p.get("komnavn") or p.get("kommunenavn") or KOMMUNEKODER.get(p.get("komnr"), "")
+            plannavn = (p.get("plannavn") or "").strip()
+            if kraev_ord and not PLAN_TILPASNING_RE.search(plannavn):
+                continue
+            # Retningslinjelaget har én række pr. delområde - én post pr. plan.
+            titel = (f"{kommune}: {plannavn}" if kraev_ord
+                     else f"{kommune}: retningslinjer for oversvømmelse og erosion")
+            link = p.get("doklink") or p.get("link") or ""
+            if (titel, link) in sete:
+                continue
+            sete.add((titel, link))
+            tekst = f"{titel} {art}"
+            ud.append({
+                "source": "plandata", "feedSource": f"{kommune} Kommune (Plandata)",
+                "org": f"{kommune} Kommune", "title": titel, "url": link,
+                "date": _yyyymmdd(p.get(felt)),
+                "summary": f"{art}" + (f" ({p['plannr']})" if p.get("plannr") else "") + ".",
+                "tags": find_tags(tekst), "relevance": max(score_article(tekst, 0)[0], 0.4),
+                "value": None,
+            })
+        return ud
+
+    dele = await asyncio.gather(*[lag(*l) for l in PLANDATA_LAG])
+    return [a for d in dele for a in d]
+
+
+# udbud.dk: alle offentlige udbud, også under EU-tærsklen, som TED ikke ser
+# (fx Digelaget i Brede Ådalen, Ballum Dige 15/10-2026). Åbent søge-API.
+UDBUD_DK_API = "https://udbud.dk/soegning/public/soegeresultat"
+UDBUD_DK_ORD = ["klimatilpasning", "kystbeskyttelse", "skybrud", "regnvandsbassin", "dige",
+                "oversvømmelse", "højvandsbeskyttelse", "stormflod", "vandløbsrestaurering"]
+
+
+async def fetch_udbud_dk(client):
+    import json as _json
+    graense = (datetime.now(timezone.utc) - timedelta(days=KOMMUNE_DAGE)).strftime("%Y-%m-%d")
+
+    async def soeg(ord_):
+        krop = {"fritekstQuery": ord_,
+                "pagineringDto": {"aktuelSide": 1, "maksElementer": 25,
+                                  "sorteringFelt": "PUBLIKATION_DATO", "retning": "Desc"},
+                "filterDto": {"formularType": [], "opgaveType": [], "procedureType": [], "smvVenligType": []},
+                "udbudStatusFilter": "ALLE"}
+        try:
+            return _json.loads(await get_feed_text(client, UDBUD_DK_API, body=krop,
+                                                   headers={**RSS_HEADERS, "Accept": "application/json"}))
+        except Exception as e:
+            print(f"[udbud.dk-fejl] {ord_}: {_fejltekst(e)}")
+            return {}
+
+    svar = await asyncio.gather(*[soeg(o) for o in UDBUD_DK_ORD])
+    ud, sete = [], set()
+    for s in svar:
+        for el in s.get("resultatElementDtoList") or []:
+            d = el.get("dataDa") or {}
+            nid = el.get("noticeId")
+            if not nid or nid in sete:
+                continue
+            sete.add(nid)
+            dato = normalize_date(d.get("publiceringsdato") or "")
+            if dato and dato < graense:
+                continue
+            titel = (d.get("titel") or "").strip()
+            beskr = re.sub(r"\s+", " ", d.get("beskrivelse") or "")[:400]
+            if not kun_tilpasning(f"{titel} {beskr}"):
+                continue
+            ordregiver = _navn((d.get("ordregiver") or "").strip())
+            ud.append({
+                "source": "udbud", "feedSource": "udbud.dk", "org": ordregiver,
+                "title": f"{ordregiver}: {titel}",
+                "url": f"https://udbud.dk/detaljevisning?noticeId={nid}", "date": dato,
+                "summary": f"{d.get('formulartype') or 'Udbud'}. {beskr}"[:300],
+                "tags": find_tags(f"{titel} {beskr}"),
+                "relevance": max(score_article(f"{titel} {beskr}", 0)[0], 0.4), "value": None,
+            })
+    return ud
+
+
+# Ritzau: ca. 26 kommuner og flere forsyninger udsender pressemeddelelser via
+# via.ritzau.dk (fx Kolding "RISIKO FOR FORHØJET VANDSTAND" 16/10-2026). Én
+# fritekstsøgning pr. ord dækker alle 991 afsendere; kun offentlige afsendere
+# (kommuner, forsyninger, digelag, beredskaber) beholdes.
+RITZAU_API = "https://via.ritzau.dk/public-website-api/releases"
+RITZAU_ORD = ["klimatilpasning", "oversvømmelse", "skybrud", "stormflod", "kystbeskyttelse",
+              "regnvand", "vandstand", "dige"]
+RITZAU_AFSENDER_RE = re.compile(r"kommune|forsyning|\bvand\b|vandcenter|spildevand|hofor|novafos"
+                                r"|\bfors\b|digelag|beredskab|\bregion\b", re.I)
+
+
+async def fetch_ritzau(client):
+    import json as _json
+    from urllib.parse import quote
+    graense = (datetime.now(timezone.utc) - timedelta(days=KOMMUNE_DAGE)).strftime("%Y-%m-%d")
+
+    async def soeg(ord_):
+        try:
+            return _json.loads(await get_feed_text(
+                client, f"{RITZAU_API}?page=0&size=40&search={quote(ord_)}",
+                headers={**RSS_HEADERS, "Accept": "application/json"}))
+        except Exception as e:
+            print(f"[ritzau-fejl] {ord_}: {_fejltekst(e)}")
+            return {}
+
+    svar = await asyncio.gather(*[soeg(o) for o in RITZAU_ORD])
+    ud, sete = [], set()
+    for s in svar:
+        for r in s.get("releases") or []:
+            afsender = ((r.get("publisher") or {}).get("name") or "").strip()
+            v = (r.get("versions") or {}).get("da") or {}
+            if r.get("id") in sete or not v or not RITZAU_AFSENDER_RE.search(afsender):
+                continue
+            sete.add(r.get("id"))
+            dato = (r.get("date") or "")[:10]
+            if dato and dato < graense:
+                continue
+            titel, beskr = (v.get("title") or "").strip(), (v.get("metadescription") or "").strip()
+            if not kun_tilpasning(f"{titel} {beskr}"):
+                continue
+            ud.append({
+                "source": "ritzau", "feedSource": f"{afsender} (Ritzau)", "org": afsender,
+                "title": titel.capitalize() if titel.isupper() else titel,
+                "url": "https://via.ritzau.dk" + (v.get("url") or ""), "date": dato,
+                "summary": beskr[:300], "tags": find_tags(f"{titel} {beskr}"),
+                "relevance": max(score_article(f"{titel} {beskr}", 0)[0], 0.3), "value": None,
+            })
+    return ud
+
+
+# Kommunenyheder: ugescanning af alle kommuners egne nyhedslister (sitemap,
+# scrape eller RSS) i .github/workflows/kommunenyheder.yml. Kun nyheder med
+# et tilpasningsord gemmes. Samme mønster som dagsordenerne: egen branch, så
+# main ikke får ugentlige data-commits.
+KOMMUNENYHEDER_URL = ("https://raw.githubusercontent.com/Klimatilpasning/"
+                      "dnnk-klimamonitor-proxy/kommune-data/kommunenyheder.json")
+
+
+async def fetch_kommunenyheder(client):
+    import json as _json
+    try:
+        data = _json.loads(await get_feed_text(client, KOMMUNENYHEDER_URL,
+                                               headers={"Accept": "application/json"}))
+    except Exception as e:
+        print(f"[kommunenyheder-fejl] {_fejltekst(e)}")
+        return []
+    ud = []
+    for a in data if isinstance(data, list) else []:
+        if for_gammel(a.get("date") or ""):
+            continue
+        a["tags"] = find_tags(f"{a.get('title', '')} {a.get('summary', '')}")
+        ud.append(a)
+    return ud
+
+
 @app.get("/news/full")
 async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gruppe: str = Query(None),
                         limit: int = Query(8), dyb: int = Query(0)):
@@ -1563,7 +1804,8 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
     feeds = ALL_FEEDS_FLAT
     if gruppe and gruppe in ALLE_FEEDS:
         feeds = {k: {"url": v, "gruppe": gruppe} for k, v in ALLE_FEEDS[gruppe].items()}
-    elif gruppe in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener"):
+    elif gruppe in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener",
+                    "Kommuner", "Kommuneplaner", "Udbud"):
         # Grupper uden RSS-feeds: spring hele feed-runden over i stedet for at
         # hente 78 feeds, som svaret alligevel ikke skal indeholde.
         feeds = {}
@@ -1689,6 +1931,29 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             a["gruppe"] = "Politiske dagsordener"
         articles.extend(dg)
 
+    # Alle 98 kommuner (19/10-2026): Plandata, udbud.dk, Ritzau og ugescanningen
+    # af kommunernes egne nyheder. Hentes samtidig - de er uafhængige.
+    if not gruppe or gruppe in ("Kommuner", "Kommuneplaner", "Udbud", "Forsyninger"):
+        navne = ["plandata", "udbud.dk", "ritzau", "kommunenyheder"]
+        resultater = await asyncio.gather(
+            fetch_plandata(app.state.client), fetch_udbud_dk(app.state.client),
+            fetch_ritzau(app.state.client), fetch_kommunenyheder(app.state.client),
+            return_exceptions=True)
+        for navn, res in zip(navne, resultater):
+            if isinstance(res, BaseException):
+                print(f"[{navn}-fejl] samlet: {_fejltekst(res)}")
+                continue
+            for a in res:
+                if navn == "plandata":
+                    a["gruppe"] = "Kommuneplaner"
+                elif navn == "udbud.dk":
+                    a["gruppe"] = "Udbud"
+                elif navn == "ritzau":
+                    a["gruppe"] = "Kommuner" if "kommune" in (a.get("org") or "").lower() else "Forsyninger"
+                else:
+                    a["gruppe"] = a.get("gruppe") or "Kommuner"
+            articles.extend(a for a in res if not gruppe or a["gruppe"] == gruppe)
+
     # Ved egen søgning: Lovstof, nævn og dagsordener har fast høj relevans (de
     # er udvalgt på forhånd), så de lå øverst i "Mest relevant" uanset søgning -
     # 65 poster, hvoraf ingen nævnte hedebølge, Grøn trepart eller Vejle Fjord.
@@ -1699,7 +1964,8 @@ async def get_news_full(request: Request, q: str = Query("klimatilpasning"), gru
             tekst = f"{a.get('title') or ''} {a.get('summary') or ''}"
             pt = q_point(q, tekst)
             a["q_traef"] = pt >= 3
-            if a.get("gruppe") in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener"):
+            if a.get("gruppe") in ("Lovstof", "Nævnsafgørelser", "Politiske dagsordener",
+                                   "Kommuneplaner", "Udbud"):
                 a["relevance"] = max(score_article(tekst, pt)[0], 0.4)
 
     # Berig hver artikel med relaterede DNNK-webinarer, så nyhedslæseren kan

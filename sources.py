@@ -267,6 +267,19 @@ RSS_HOERINGSPARTER = {
     "Bing News – digelag":               _BING_30D.format("digelag"),
 }
 
+# ── ALLE 98 KOMMUNER: tilladelser, høringer og forsyninger (19/10-2026) ──
+# Sønderborgs RSS er kommunens høringer og afgørelser (fx tilladelse til
+# kystbeskyttelse ved Sandagervej, 13/10-2026). Arwos (Aabenraa) og
+# Middelfart Spildevand har WordPress-feeds; Odsherred Forsyning og Aquadjurs
+# blev testet, men gav 0 klimatilpasningstræf.
+RSS_TILLADELSER = {
+    "Sønderborg Kommune - høringer og afgørelser": "https://sonderborgkommune.dk/rss.xml",
+}
+RSS_FORSYNINGER_EKSTRA = {
+    "Arwos (Aabenraa)":       "https://arwos.dk/feed/",
+    "Middelfart Spildevand":  "https://middelfartspildevand.dk/feed/",
+}
+
 # Kilder hvor en artikel KUN beholdes med et egentligt klimatilpasningsord
 # (TILPASNING_RE i main.py) - brede politiske kilder, hvor det normale filter
 # ellers lukker CO2-, kvælstof- og budgetstof ind.
@@ -276,6 +289,10 @@ STRENGE_KILDER = {
     "Bing News – trepart vandløb",
     # Høringsparter (19/10-2026)
     *RSS_HOERINGSPARTER,
+    # Alle 98 kommuner (19/10-2026)
+    *RSS_TILLADELSER,
+    *RSS_FORSYNINGER_EKSTRA,
+    "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
     "Danmarks Naturfredningsforening",
     "Friluftsrådet",
     "Plan- og Landdistriktsstyrelsen",
@@ -296,7 +313,7 @@ ALLE_FEEDS = {
     "Nyheder & fagblade":       RSS_NEWS,
     "Vidensinstitutioner":      RSS_VIDEN,
     "Rådgivere":                RSS_RAADGIVERE,
-    "Forsyninger":              RSS_FORSYNINGER_RSS,
+    "Forsyninger":              {**RSS_FORSYNINGER_RSS, **RSS_FORSYNINGER_EKSTRA},
     "Nordiske naboer":          RSS_NORDEN,
     "EU projekter":             RSS_EU,
     "Platforme & netværk":      RSS_PLATFORME,
@@ -308,6 +325,7 @@ ALLE_FEEDS = {
     "Jura & advokater":         RSS_JURA,
     "Videnskab & forskning":    RSS_VIDENSKAB,
     "Høringsparter":            RSS_HOERINGSPARTER,
+    "Tilladelser & høringer":   RSS_TILLADELSER,
     "Podcasts":                 RSS_PODCASTS,
 }
 
@@ -700,6 +718,16 @@ SITEMAP_SOURCES = {
         "moenster": "/alle-nyheder/nyheder/20",
         "dato_regex": r'class="date">\s*(\d{2}-\d{2}-\d{4})',
         "gruppe": "Høringsparter",
+    },
+    # Statens tilladelser og høringer om kystbeskyttelse og anlæg på
+    # søterritoriet, med kommunenavnet i titlen (fx højvandsbeskyttelse i
+    # Korsør, Kastrup-Vestamagerdiget). Samme sitemap som MST-nyhederne.
+    "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)": {
+        "sitemap": "https://mst.dk/sitemap.xml",
+        "moenster": "/offentliggoerelser/",
+        "moenster_re": "soeterritoriet|kystbeskyttelse",
+        "dato_fra_side": True,
+        "gruppe": "Tilladelser & høringer",
     },
     # Navngivet i vandløbsloven § 84, stk. 4. RSS'ens danske datoer ("tor, 15
     # okt. 2026") kan ikke parses, så sitemap'ets politiske nyheder bruges.
