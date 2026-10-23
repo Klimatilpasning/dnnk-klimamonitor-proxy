@@ -1,13 +1,138 @@
 {
- "hentet": "2026-10-19T11:45:52.719028+00:00",
- "antal": 557,
+ "hentet": "2026-10-23T08:46:39.545589+00:00",
+ "antal": 566,
  "fejlede_kilder": [
-  "Aarhus Vand Innovation",
-  "Aarhus Vand",
+  "Danva",
   "Næstved Forsyning",
   "Bornholms Forsyning"
  ],
  "articles": [
+  {
+   "source": "Retsinformation",
+   "feedSource": "Retsinformation",
+   "org": "Sundheds- og Kirkeministeriet",
+   "title": "Bekendtgørelse af lov om ioniserende stråling og strålebeskyttelse (strålebeskyttelsesloven)",
+   "url": "https://www.retsinformation.dk/eli/lta/2026/902",
+   "date": "2026-10-22",
+   "summary": "Lovbekendtgørelse · LBK nr 902 af 15/09/2026",
+   "tags": [
+    "oversvømmelse"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Lovstof",
+   "webinarer": []
+  },
+  {
+   "source": "Miljø- og Fødevareklagenævnet",
+   "feedSource": "Miljø- og Fødevareklagenævnet",
+   "org": "Miljø- og Fødevareklagenævnet",
+   "title": "Stadfæstelse i sag om klassificering af rørledning som privat vandløb i Horsens Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/f889385c-306b-4948-8a03-f8e563b892dc",
+   "date": "2026-10-15",
+   "summary": "Nævnsafgørelse · j.nr. 25/06105, 25/06106 · Vandløbsloven · afgjort 2026-10-15, offentliggjort 2026-10-20 · ejendom, ikke har været i brug i en årrække samt at vand vil føres til et regnvandsbassin",
+   "tags": [
+    "regnvandsbassin"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Nævnsafgørelser",
+   "webinarer": [
+    {
+     "title": "DAPP, scenarier og vand fra alle kilder - erfaringer fra LAVA",
+     "youtube_url": "https://youtube.com/watch?v=Z4-52YNHRz0",
+     "date": "2026-06-09"
+    },
+    {
+     "title": "Godmorgen med DNNK - Byerne og det stigende havvand 3: Erfaringer med brug af DAPP for involvering af aktører",
+     "youtube_url": "https://youtube.com/watch?v=vdBxSeS557E",
+     "date": "2023-02-28"
+    }
+   ]
+  },
+  {
+   "source": "Miljø- og Fødevareklagenævnet",
+   "feedSource": "Miljø- og Fødevareklagenævnet",
+   "org": "Miljø- og Fødevareklagenævnet",
+   "title": "Afvisning af klage over screeningsafgørelse om ikke at gennemføre miljøvurdering for lokalplan og kommuneplantillæg i Kolding Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/7a36aca3-8d23-49f6-b857-81c56cb76ba2",
+   "date": "2026-10-15",
+   "summary": "Nævnsafgørelse · j.nr. 26/08892 · Miljøvurdering af planer og programmer · afgjort 2026-10-15, offentliggjort 2026-10-21 · i boligdelområdet, som vil medføre ændringer i nedsivning og håndtering af overfladevand",
+   "tags": [
+    "overfladevand"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Nævnsafgørelser",
+   "webinarer": [
+    {
+     "title": "Anvendelse af RockFlow på Langelands Plads, Frederiksberg",
+     "youtube_url": "https://youtube.com/watch?v=rIsvg0nHu58",
+     "date": "2019-10-04"
+    },
+    {
+     "title": "Styring og regulering af klimatilpasningsprojekter",
+     "youtube_url": "https://youtube.com/watch?v=UBpqgUQzJas",
+     "date": "2025-06-26"
+    }
+   ]
+  },
+  {
+   "source": "Miljø- og Fødevareklagenævnet",
+   "feedSource": "Miljø- og Fødevareklagenævnet",
+   "org": "Miljø- og Fødevareklagenævnet",
+   "title": "Afvisning af klage i sag om klassificering af rørledning som privat vandløb i Horsens Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/62a74312-b617-4c2e-b3ac-c1acddc97b72",
+   "date": "2026-10-15",
+   "summary": "Nævnsafgørelse · j.nr. 26/11036 · Vandløbsloven · afgjort 2026-10-15, offentliggjort 2026-10-21 · vedligeholdelse og udskiftning af rørledningen til klager, og  kommunens tilledning af overfladevand",
+   "tags": [
+    "overfladevand"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Nævnsafgørelser",
+   "webinarer": [
+    {
+     "title": "Minikonference om rensning af regnvand: rammer for udledning af almindeligt belastet overfladevand",
+     "youtube_url": "https://youtube.com/watch?v=zL1iRIYgxz4",
+     "date": "2025-06-25"
+    }
+   ]
+  },
+  {
+   "source": "Miljø- og Fødevareklagenævnet",
+   "feedSource": "Miljø- og Fødevareklagenævnet",
+   "org": "Miljø- og Fødevareklagenævnet",
+   "title": "Ophævelse og hjemvisning af dispensation i sag om oprensning af regnvandsbassin i Ringkøbing-Skjern Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/8b8ae4d5-d8ba-43cd-916b-00e5bcb799d6",
+   "date": "2026-10-13",
+   "summary": "Nævnsafgørelse · j.nr. 25/09888 · NBL - beskyttede naturtyper · afgjort 2026-10-13, offentliggjort 2026-10-20 · Ophævelse og hjemvisning af dispensation i sag om oprensning af regnvandsbassin i",
+   "tags": [
+    "regnvandsbassin",
+    "overfladevand"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Nævnsafgørelser",
+   "webinarer": []
+  },
+  {
+   "source": "Miljø- og Fødevareklagenævnet",
+   "feedSource": "Miljø- og Fødevareklagenævnet",
+   "org": "Miljø- og Fødevareklagenævnet",
+   "title": "Ophævelse og hjemvisning af dispensation i sag om oprensning af regnvandsbassin i Ringkøbing-Skjern Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/b06edf5a-90db-493b-a2d2-199cbea920b2",
+   "date": "2026-10-13",
+   "summary": "Nævnsafgørelse · j.nr. 25/10736 · NBL - beskyttede naturtyper · afgjort 2026-10-13, offentliggjort 2026-10-20 · Ophævelse og hjemvisning af dispensation i sag om oprensning af regnvandsbassin i",
+   "tags": [
+    "regnvandsbassin",
+    "overfladevand"
+   ],
+   "relevance": 1.0,
+   "value": "",
+   "gruppe": "Nævnsafgørelser",
+   "webinarer": []
+  },
   {
    "source": "Retsinformation",
    "feedSource": "Retsinformation",
@@ -1406,128 +1531,6 @@
    ]
   },
   {
-   "source": "Miljø- og Fødevareklagenævnet",
-   "feedSource": "Miljø- og Fødevareklagenævnet",
-   "org": "Miljø- og Fødevareklagenævnet",
-   "title": "Ikke medhold i klage over forbud mod erhvervsmæssig anvendelse, håndtering, transport og opbevaring af pesticider inden for og omkring boringsnære beskyttelsesområde i Fredericia Kommune",
-   "url": "https://mfkn.naevneneshus.dk/afgoerelse/f1ab5c11-699a-428c-be34-d225ab9f546f",
-   "date": "2026-08-14",
-   "summary": "Nævnsafgørelse · j.nr. 25/08825 · Miljøbeskyttelsesloven · afgjort 2026-08-14, offentliggjort 2026-08-20 · ifølge klager omfattende tilstrømning og ophobning af voldsomt pesticidholdigt overfladevand",
-   "tags": [
-    "overfladevand"
-   ],
-   "relevance": 1.0,
-   "value": "",
-   "gruppe": "Nævnsafgørelser",
-   "webinarer": [
-    {
-     "title": "Anvendelse af RockFlow på Langelands Plads, Frederiksberg",
-     "youtube_url": "https://youtube.com/watch?v=rIsvg0nHu58",
-     "date": "2019-10-04"
-    },
-    {
-     "title": "Tech Talk: Rensning og håndtering af regn- og overfladevand. Et alternativ til vådbassiner",
-     "youtube_url": "https://youtube.com/watch?v=uLiX_MX5qA4",
-     "date": "2024-08-27"
-    }
-   ]
-  },
-  {
-   "source": "Miljø- og Fødevareklagenævnet",
-   "feedSource": "Miljø- og Fødevareklagenævnet",
-   "org": "Miljø- og Fødevareklagenævnet",
-   "title": "Afvisning af klage over indirekte afgørelse om at etablering af kontordomicil med køleanlæg i Aalborg Kommune ikke er omfattet af reglerne i miljøvurderingsloven",
-   "url": "https://mfkn.naevneneshus.dk/afgoerelse/914cecb3-2642-4bb4-ac99-d70d6d9beb5e",
-   "date": "2026-08-07",
-   "summary": "Nævnsafgørelse · j.nr. 25/06334 · Miljøvurdering af konkrete projekter · afgjort 2026-08-07, offentliggjort 2026-08-20 · nedkøles ved anvendelse af et fjordkøleanlæg, hvor der bliver indvundet og udledt overfladevand",
-   "tags": [
-    "overfladevand"
-   ],
-   "relevance": 1.0,
-   "value": "",
-   "gruppe": "Nævnsafgørelser",
-   "webinarer": [
-    {
-     "title": "Anvendelse af RockFlow på Langelands Plads, Frederiksberg",
-     "youtube_url": "https://youtube.com/watch?v=rIsvg0nHu58",
-     "date": "2019-10-04"
-    }
-   ]
-  },
-  {
-   "source": "Planklagenævnet",
-   "feedSource": "Planklagenævnet",
-   "org": "Planklagenævnet",
-   "title": "AFGØRELSE i klagesag om Gribskov Kommunes endelige vedtagelse af kommuneplan 2025-2037  med tilhørende miljørapport",
-   "url": "https://pkn.naevneneshus.dk/afgoerelse/3e60df8f-dc6e-47f4-b760-9de224431a16",
-   "date": "2026-08-07",
-   "summary": "Nævnsafgørelse · j.nr. 26/01071, 25/10176, 25/09904, 25/09811, 25/09804 · Miljøvurderingsloven · Planloven, retlig (efter 1. februar 2017) · afgjort 2026-08-07, offentliggjort 2026-08-20 · I lokalplanlægningen skal der reserveres arealer til håndtering af regnvand, hvor",
-   "tags": [
-    "regnvand",
-    "oversvømmelse"
-   ],
-   "relevance": 1.0,
-   "value": "",
-   "gruppe": "Nævnsafgørelser",
-   "webinarer": [
-    {
-     "title": "Styring og regulering af klimatilpasningsprojekter",
-     "youtube_url": "https://youtube.com/watch?v=UBpqgUQzJas",
-     "date": "2025-06-26"
-    },
-    {
-     "title": "Tech Talk: Rensning og håndtering af regn- og overfladevand. Et alternativ til vådbassiner",
-     "youtube_url": "https://youtube.com/watch?v=uLiX_MX5qA4",
-     "date": "2024-08-27"
-    }
-   ]
-  },
-  {
-   "source": "Planklagenævnet",
-   "feedSource": "Planklagenævnet",
-   "org": "Planklagenævnet",
-   "title": "Afgørelse i klagesag om Hillerød Kommunes endelige vedtagelse af lokalplan nr. 478, Generationernes Kvarter",
-   "url": "https://pkn.naevneneshus.dk/afgoerelse/414f3b14-3388-4061-a41b-235da06132db",
-   "date": "2026-08-07",
-   "summary": "Nævnsafgørelse · j.nr. 25/10054, 25/10024 · Planloven, retlig (efter 1. februar 2017) · afgjort 2026-08-07, offentliggjort 2026-08-20 · Det fremgår af en note til bestemmelsen, at håndtering af regnvand som regel kan",
-   "tags": [
-    "regnvand",
-    "skybrud"
-   ],
-   "relevance": 1.0,
-   "value": "",
-   "gruppe": "Nævnsafgørelser",
-   "webinarer": [
-    {
-     "title": "Styring og regulering af klimatilpasningsprojekter",
-     "youtube_url": "https://youtube.com/watch?v=UBpqgUQzJas",
-     "date": "2025-06-26"
-    },
-    {
-     "title": "Tech Talk: Rensning og håndtering af regn- og overfladevand. Et alternativ til vådbassiner",
-     "youtube_url": "https://youtube.com/watch?v=uLiX_MX5qA4",
-     "date": "2024-08-27"
-    }
-   ]
-  },
-  {
-   "source": "Miljø- og Fødevareklagenævnet",
-   "feedSource": "Miljø- og Fødevareklagenævnet",
-   "org": "Miljø- og Fødevareklagenævnet",
-   "title": "Stadfæstelse af § 25-tilladelse til etablering af solcelleanlæg med tilhørende kabel i Haderslev Kommune",
-   "url": "https://mfkn.naevneneshus.dk/afgoerelse/91ecea21-b3ec-4824-9629-5eaf6d70e101",
-   "date": "2026-08-05",
-   "summary": "Nævnsafgørelse · j.nr. 26/03071 · Miljøvurdering af konkrete projekter · afgjort 2026-08-05, offentliggjort 2026-08-20 · , at overfladevand nedsives på terræn som hidtil.",
-   "tags": [
-    "overfladevand",
-    "oversvømmelse"
-   ],
-   "relevance": 1.0,
-   "value": "",
-   "gruppe": "Nævnsafgørelser",
-   "webinarer": []
-  },
-  {
    "source": "ritzau",
    "feedSource": "HOFOR A/S (Ritzau)",
    "org": "HOFOR A/S",
@@ -2671,9 +2674,9 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – klimatilpasning",
+   "feedSource": "Bing News – klimatilpasningsplan",
    "title": "Bekymring i sommerhusområde: Nu skal der kigges på løsninger",
-   "org": "Bing News – klimatilpasning",
+   "org": "Bing News – klimatilpasningsplan",
    "date": "2026-10-12",
    "summary": "41 høringssvar har fået Sønderborg Kommune til at ændre sin nye klimatilpasningsplan. Især i Vemmingbund er der frygt for stigende havvand og stormflod.",
    "tags": [
@@ -2847,7 +2850,7 @@
    "title": "Ny renseløsning til regnvand",
    "org": "Middelfart Spildevand",
    "date": "2026-06-08",
-   "summary": "Udgivet d. 8. juni 2026 Ny renseløsning til regnvand Nyt anlæg er med til at sikre renere regnvand Middelfart Spildevand er ved at nå sin afslutning med separeringen af regn- og spildevand i og ved Hessgade området. Regnvand ledes nu i et selvstændigt system i stedet for til renseanlægget, hvilket giver mere kapacitet i spildevandskloakken […]",
+   "summary": "Ny renseløsning til regnvand Nyt anlæg er med til at sikre renere regnvand Middelfart Spildevand er ved at nå sin afslutning med separeringen af regn- og spildevand i og ved Hessgade området. Regnvand ledes nu i et selvstændigt system i stedet for til renseanlægget, hvilket giver mere kapacitet i spildevandskloakken og reducerer risikoen for overløb […]",
    "tags": [
     "regnvand",
     "spildevand",
@@ -2859,14 +2862,14 @@
    "gruppe": "Forsyninger",
    "webinarer": [
     {
-     "title": "Tech Talk: Rensning og håndtering af regn- og overfladevand. Et alternativ til vådbassiner",
-     "youtube_url": "https://youtube.com/watch?v=uLiX_MX5qA4",
-     "date": "2024-08-27"
-    },
-    {
      "title": "DNNKs virtuelle studietur - hydroseparatoren",
      "youtube_url": "https://youtube.com/watch?v=AsevUr50sDE",
      "date": "2020-11-19"
+    },
+    {
+     "title": "Udfordringer med overløb",
+     "youtube_url": "https://youtube.com/watch?v=wHSGQVYpDB8",
+     "date": "2025-06-30"
     }
    ]
   },
@@ -3980,9 +3983,9 @@
      "date": "2025-06-30"
     },
     {
-     "title": "Godmorgen med DNNK: Samskabelse af naturbaserede løsninger",
-     "youtube_url": "https://youtube.com/watch?v=O_W1EujI2AE",
-     "date": "2025-11-04"
+     "title": "Masterclass: Danmark som kontekst for naturbaserede løsninger - Fra ambition til handling: Hvad kræver god interessentinddragelse i naturbaserede løsninger?",
+     "youtube_url": "https://youtube.com/watch?v=9Pnmwnd0uJw",
+     "date": "2026-10-07"
     }
    ]
   },
@@ -4167,9 +4170,9 @@
      "date": "2025-06-30"
     },
     {
-     "title": "Godmorgen med DNNK: Samskabelse af naturbaserede løsninger",
-     "youtube_url": "https://youtube.com/watch?v=O_W1EujI2AE",
-     "date": "2025-11-04"
+     "title": "Masterclass: Danmark som kontekst for naturbaserede løsninger - Fra ambition til handling: Hvad kræver god interessentinddragelse i naturbaserede løsninger?",
+     "youtube_url": "https://youtube.com/watch?v=9Pnmwnd0uJw",
+     "date": "2026-10-07"
     }
    ]
   },
@@ -5896,34 +5899,6 @@
    ]
   },
   {
-   "source": "ritzau",
-   "feedSource": "HOFOR A/S (Ritzau)",
-   "org": "HOFOR A/S",
-   "title": "København vinder international pris for vandmiljø",
-   "url": "https://via.ritzau.dk/pressemeddelelse/15000147/kobenhavn-vinder-international-pris-for-vandmiljo?publisherId=13561759&lang=da",
-   "date": "2026-06-22",
-   "summary": "København og HOFOR vinder international pris for det langsigtede arbejde med at klimasikre hovedstaden og beskytte drikkevandet. Der er især ros for byens brug af banebrydende teknologier og naturbaserede løsninger som byparker, der til daglig rummer leg og nærvær, og ved skybrud indsamler de store ",
-   "tags": [
-    "vandmiljø",
-    "skybrud"
-   ],
-   "relevance": 0.67,
-   "value": null,
-   "gruppe": "Forsyninger",
-   "webinarer": [
-    {
-     "title": "Godmorgen med DNNK: NBS i byen - erfaringer fra Malmø",
-     "youtube_url": "https://youtube.com/watch?v=4tW5vPcfKNQ",
-     "date": "2025-12-09"
-    },
-    {
-     "title": "Før stormfloderne rammer",
-     "youtube_url": "https://youtube.com/watch?v=nthRIIYUEAE",
-     "date": "2025-02-03"
-    }
-   ]
-  },
-  {
    "source": "news",
    "feedSource": "HOFOR",
    "title": "Sæson for skybrud: Gør hus og hjem klar til vandmasserne",
@@ -6232,6 +6207,105 @@
   },
   {
    "source": "news",
+   "feedSource": "Høringsportalen",
+   "title": "Høring over udkast til vejledning om klimatilpasning i kommune- og lokalplaner",
+   "org": "Høringsportalen",
+   "date": "2026-10-21",
+   "summary": "Udkast til vejledning om klimatilpasning i kommune- og lokalplaner sendes hermed i offentlig høring.Bemærkninger bedes senest den 18. november 2026 sendt til hoeringplan@plst.dk med angivelse af j.nr. 2025-3621.Vejledningen omhandler både de kommende nye regler, som forventes at træde i kraft den 1. januar 2027, og de fortsat gældende regler om klimatilpasning i planloven. Vejledningen vil erstatt",
+   "tags": [
+    "klimatilpasning"
+   ],
+   "relevance": 0.58,
+   "url": "https://hoeringsportalen.dk/Hearing/Details/71667",
+   "value": null,
+   "gruppe": "Lovgivning & politik",
+   "webinarer": [
+    {
+     "title": "Godmorgen med DNNK - Klimatilpasning i Thyborøn",
+     "youtube_url": "https://youtube.com/watch?v=nD4CvPsWxCY",
+     "date": "2026-06-25"
+    },
+    {
+     "title": "Keynote fra DNNK sommermøde 2025",
+     "youtube_url": "https://youtube.com/watch?v=51hamTlsPoI",
+     "date": "2025-05-19"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Climatic Change",
+   "title": "Scaling climate adaptation planning: impacts and limitations of California’s Senate Bill 379 for local planning",
+   "org": "Climatic Change",
+   "date": "2026-10-21",
+   "summary": "This study examines the impact of the first state-level climate change adaptation planning mandate in the United States, California’s Senate Bill 379 (SB379). We analyze the content of local plans before and after the mandate and compare the quality of the mandated plans with a sample of voluntary climate change adaptation plans developed by local governments across the U.S. The research finds tha",
+   "tags": [
+    "climate adaptation",
+    "climate change adaptation"
+   ],
+   "relevance": 0.58,
+   "url": "https://link.springer.com/article/10.1007/s10584-026-04319-w",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": [
+    {
+     "title": "Social Dimensions of Climate Adaptation: Just Adaptation in Danish Coastal Planning",
+     "youtube_url": "https://youtube.com/watch?v=-9iAfpGkPQ4",
+     "date": "2026-06-12"
+    },
+    {
+     "title": "Social Dimensions of Climate Adaptation: Paneldebat",
+     "youtube_url": "https://youtube.com/watch?v=-qLfWkFJIyE",
+     "date": "2026-06-12"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – klimatilpasning",
+   "title": "Svensk rapport: Klimatilpasningen går for sakte",
+   "org": "Bing News – klimatilpasning",
+   "date": "2026-10-20",
+   "summary": "Klimaendringene er en stor trussel mot samfunnssikkerheten, men mens det satses stort på forsvar, har klimatilpasningene hengt etter. Det slår det svenske Klimatilpasningsrådet fast i en ny rapport.",
+   "tags": [
+    "klimatilpasning"
+   ],
+   "relevance": 0.58,
+   "url": "https://www.folkebladet.no/norgeogverden/n/9kL00l/svensk-rapport-klimatilpasningen-gaar-for-sakte",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – skybrud",
+   "title": "Nye forsøg overrasker: Gaffatape stopper vandet bedre end sandsække",
+   "org": "Bing News – skybrud",
+   "date": "2026-10-19",
+   "summary": "Hvis man vil undgå vand i hjemmet, er det afgørende at sætte tapen korrekt på. Byggemarkeder sælger sandsække som værn mod skybrud og stormflod, der stadigt oftere rammer Danmark. Husejere kan dog ifø ...",
+   "tags": [
+    "skybrud",
+    "stormflod"
+   ],
+   "relevance": 0.58,
+   "url": "https://ing.dk/artikel/nye-forsoeg-overrasker-gaffatape-stopper-vandet-bedre-end-sandsaekke",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": [
+    {
+     "title": "DAPP, scenarier og vand fra alle kilder - erfaringer fra LAVA",
+     "youtube_url": "https://youtube.com/watch?v=Z4-52YNHRz0",
+     "date": "2026-06-09"
+    },
+    {
+     "title": "Fra vand fra alle sider til en præcis typologi for oversvømmelser, deres årsager og mulige koblinger",
+     "youtube_url": "https://youtube.com/watch?v=WoJEDJKye-0",
+     "date": "2025-05-16"
+    }
+   ]
+  },
+  {
+   "source": "news",
    "feedSource": "Climatic Change",
    "title": "Assessing vegetable vulnerability to compound drought-heatwave events in northern grassland China- a vine copula based probabilistic framework",
    "org": "Climatic Change",
@@ -6530,23 +6604,6 @@
   },
   {
    "source": "news",
-   "feedSource": "SGI presse (SE)",
-   "title": "Var man bor påverkar oron för klimateffekter",
-   "org": "SGI presse (SE)",
-   "date": "2025-10-20",
-   "summary": "Allt fler kommuner drabbas av översvämningar, torka och stormar. Vad tänker de som bor i kommunerna om detta? En studie från SGI visar att fyra personer av tio oroar sig för översvämning – och att man i framtiden föredrar att hus och infrastruktur flyttas från kusten om översvämningar inträffar en gång per år.",
-   "tags": [
-    "översvämning",
-    "torka"
-   ],
-   "relevance": 0.58,
-   "url": "https://press.sgi.se/posts/pressreleases/var-man-bor-paverkar-oron-for-klimateffekter",
-   "value": null,
-   "gruppe": "Nordiske naboer",
-   "webinarer": []
-  },
-  {
-   "source": "news",
    "feedSource": "Urban Climate",
    "title": "An integrated planning framework for assessing stormwater runoff and non-point source pollution impacts of vacant-lot buyouts and green infrastructure",
    "org": "Urban Climate",
@@ -6575,6 +6632,57 @@
   },
   {
    "source": "news",
+   "feedSource": "Bing News – oversvømmelse",
+   "title": "Oversvømmelser trods milliondyr sluse: Nu peger borgmesteren på en læring",
+   "org": "Bing News – oversvømmelse",
+   "date": "2026-10-20",
+   "summary": "Danmarks største pumpesluseanlæg var i aktion, men en lokal havn blev alligevel oversvømmet. Borgmester siger, der er plads til justeringer.",
+   "tags": [
+    "oversvømmelse",
+    "oversvøm"
+   ],
+   "relevance": 0.5,
+   "url": "https://www.tvsyd.dk/kolding/milliondyr-sluse-holdt-ikke-alt-vandet-ude-nu-peger-borgmesteren-pa-en-laering-e2dac",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "VA-guiden (SE)",
+   "title": "Vägledning hjälper kommuner hitta ytor för dagvattenhantering vid skyfall",
+   "org": "VA-guiden (SE)",
+   "date": "2026-10-20",
+   "summary": "Den nya metoden bygger på att först kartlägga områden som riskerar att översvämmas och därefter identifiera närliggande ytor som kan ta hand om vattenöverskottet.\nThe post Vägledning hjälper kommuner hitta ytor för dagvattenhantering vid skyfall appeared first on VA-guiden.",
+   "tags": [
+    "dagvatten",
+    "skyfall"
+   ],
+   "relevance": 0.5,
+   "url": "https://vaguiden.se/2026/10/vagledning-hjalper-kommuner-hitta-ytor-for-dagvattenhantering-vid-skyfall/",
+   "value": null,
+   "gruppe": "Nordiske naboer",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "VA-guiden (SE)",
+   "title": "Kan en detaljplan antas trots kända dagvatten- och skyfallsproblem?",
+   "org": "VA-guiden (SE)",
+   "date": "2026-10-19",
+   "summary": "Vilka krav ställs på kommunen när ett redan utbyggt område med dagvatten- och skyfallsproblem detaljplaneläggs? Johanna Lundgren, Advokatfirman Lindahl, svarar.\nThe post Kan en detaljplan antas trots kända dagvatten- och skyfallsproblem? appeared first on VA-guiden.",
+   "tags": [
+    "dagvatten",
+    "skyfall"
+   ],
+   "relevance": 0.5,
+   "url": "https://vaguiden.se/2026/10/kan-en-detaljplan-antas-trots-kanda-dagvatten-och-skyfallsproblem/",
+   "value": null,
+   "gruppe": "Nordiske naboer",
+   "webinarer": []
+  },
+  {
+   "source": "news",
    "feedSource": "Bing News – skybrud",
    "title": "Er denne bjerglandsby sikker mod skybrud og oversvømmelser?",
    "org": "Bing News – skybrud",
@@ -6585,7 +6693,7 @@
     "oversvømmelse"
    ],
    "relevance": 0.5,
-   "url": "https://www.msn.com/da-dk/vejr/meteorologi/er-denne-bjerglandsby-sikker-mod-skybrud-og-oversvømmelser/vi-AA2fy86I",
+   "url": "https://www.msn.com/da-dk/nyheder/other/er-denne-bjerglandsby-sikker-mod-skybrud-og-oversvømmelser/vi-AA2fy86I",
    "value": null,
    "gruppe": "Brede søgninger",
    "webinarer": [
@@ -6598,29 +6706,6 @@
      "title": "Fra vand fra alle sider til en præcis typologi for oversvømmelser, deres årsager og mulige koblinger",
      "youtube_url": "https://youtube.com/watch?v=WoJEDJKye-0",
      "date": "2025-05-16"
-    }
-   ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – stormflod",
-   "title": "Stormfloden udeblev – men beredskabet bestod sin prøve",
-   "org": "Bing News – stormflod",
-   "date": "2026-10-18",
-   "summary": "500 sandsække blev hentet i Flensborg, mens brandfolk og borgere gjorde sig klar til højvande. Denne gang slap byen med forskrækkelsen. Men weekenden viste også, hvor meget der skal til, når Østersø..",
-   "tags": [
-    "stormflod",
-    "højvand"
-   ],
-   "relevance": 0.5,
-   "url": "https://www.fla.de/sydslesvig/nyheder/96879/-se-flere-billeder-stormfloden-udeblev-men-beredskabet-bestod",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Tech Talk - Dynamisk beredskabsplanlægning mod stormfloden",
-     "youtube_url": "https://youtube.com/watch?v=uko6uc4MMag",
-     "date": "2024-01-24"
     }
    ]
   },
@@ -6667,23 +6752,6 @@
      "date": "2025-05-08"
     }
    ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – spildevand",
-   "title": "Venstres Søren Gade har stillet 12 spørgsmål om spildevandsoverløb, måleudstyr og kontrol med renseanlæggene",
-   "org": "Bing News – spildevand",
-   "date": "2026-10-14",
-   "summary": "BORNHOLM – Hvor meget urenset spildevand bliver der udledt på Bornholm, og hvor godt bliver udledningerne kontrolleret? Det vil folketingsmedlem Søren Gade (V) have miljøminister Maria Reumert Gjerdin ...",
-   "tags": [
-    "spildevand",
-    "renseanlæg"
-   ],
-   "relevance": 0.5,
-   "url": "https://bornholm.nu/?Id=142210",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
   },
   {
    "source": "news",
@@ -7105,6 +7173,33 @@
   },
   {
    "source": "news",
+   "feedSource": "SMHI Sverige",
+   "title": "Erik Kjellström om arbetet med IPCC:s rapport om effekter, anpassning och sårbarhet",
+   "org": "SMHI Sverige",
+   "date": "2026-10-22",
+   "summary": "Hur leds arbetet med ett IPCC-kapitel som handlar om klimatförändringens effekter och klimatanpassning i Europa? Det arbetar Erik Kjellström, professor i klimatologi vid SMHI, med. Han är en av två koordinerande huvudförfattare för Europakapitlet i IPCC:s kommande rapport  Climate Change: Impacts, Adaptation and Vulnerability  . Nu är det första utkastet ute på expertgranskning.",
+   "tags": [
+    "klimatanpassning"
+   ],
+   "relevance": 0.42,
+   "url": "https://www.smhi.se/nyheter/nyheter/2026-10-22-erik-kjellstrom-om-arbetet-med-ipccs-rapport-om-effekter-anpassning-och-sarbarhet",
+   "value": null,
+   "gruppe": "Nordiske naboer",
+   "webinarer": [
+    {
+     "title": "Climate Adaptation Summit 2024 - Blaz Kurnik",
+     "youtube_url": "https://youtube.com/watch?v=xDdOgmmFbYA",
+     "date": "2025-01-21"
+    },
+    {
+     "title": "Climate Adaptation Summit 2024 - Markku Rummukainen",
+     "youtube_url": "https://www.youtube.com/watch?v=CSqivu6Cdmw",
+     "date": "2025-01-21"
+    }
+   ]
+  },
+  {
+   "source": "news",
    "feedSource": "Ingeniøren Klimatilpasning",
    "title": "Nye klimatal overrasker: 140.000 danske huse reddet fra vandmasser",
    "org": "Ingeniøren Klimatilpasning",
@@ -7379,6 +7474,22 @@
    "webinarer": []
   },
   {
+   "source": "plandata",
+   "feedSource": "Læsø Kommune (Plandata)",
+   "org": "Læsø Kommune",
+   "title": "Læsø: retningslinjer for oversvømmelse og erosion",
+   "url": "https://dokument.plandata.dk/11_11425954_1792407660145.pdf",
+   "date": "2026-08-31",
+   "summary": "Retningslinjer for oversvømmelse/erosion i høring (1165_1).",
+   "tags": [
+    "oversvømmelse"
+   ],
+   "relevance": 0.4,
+   "value": null,
+   "gruppe": "Kommuneplaner",
+   "webinarer": []
+  },
+  {
    "source": "udbud",
    "feedSource": "udbud.dk",
    "org": "Odsherred Kommune",
@@ -7524,87 +7635,169 @@
    "webinarer": []
   },
   {
-   "source": "plandata",
-   "feedSource": "Randers Kommune (Plandata)",
-   "org": "Randers Kommune",
-   "title": "Randers: Klimabånd øst for Randers Bro",
-   "url": "https://dokument.plandata.dk/12_12181587_1782292325255.pdf",
-   "date": "2026-06-22",
-   "summary": "Kommuneplantillæg i høring (1.02.T.11(T3)).",
-   "tags": [],
-   "relevance": 0.4,
-   "value": null,
-   "gruppe": "Kommuneplaner",
-   "webinarer": []
-  },
-  {
-   "source": "plandata",
-   "feedSource": "Randers Kommune (Plandata)",
-   "org": "Randers Kommune",
-   "title": "Randers: Rammer for klimatilpasning af Randers midtby",
-   "url": "https://dokument.plandata.dk/20_12190881_1782300304219.pdf",
-   "date": "2026-06-22",
-   "summary": "Lokalplan i høring (768).",
-   "tags": [
-    "klimatilpasning"
-   ],
-   "relevance": 0.4,
-   "value": null,
-   "gruppe": "Kommuneplaner",
-   "webinarer": [
-    {
-     "title": "Flodbyen Randers: Offentligt-privat samarbejde om klimatilpasning af en by",
-     "youtube_url": "https://youtube.com/watch?v=_FOnu5SwXvE",
-     "date": "2026-05-21"
-    },
-    {
-     "title": "Før stormfloderne rammer",
-     "youtube_url": "https://youtube.com/watch?v=nthRIIYUEAE",
-     "date": "2025-02-03"
-    }
-   ]
-  },
-  {
    "source": "news",
    "feedSource": "Ingeniøren",
-   "title": "Thomas fra kommunen brugte månedsvis på at stoppe forurening af vandløb: Nu overvejer han om det er indsatsen værd",
+   "title": "Vandekspert: Billigt grundvand bremser industriens omstilling til teknisk vand",
    "org": "Ingeniøren",
-   "date": "2026-10-18",
-   "summary": "Flere medarbejdere i danske kommuner fortæller til Ingeniøren, at de oplever, at sager om ulovlige vandløb strander i et kafkask system. Thomas er en af dem. Og han orker snart ikke mere.",
+   "date": "2026-10-23",
+   "summary": "I Danmark er vi alt for vant til, at drikkevand kan hentes op i uudtømmelige mængder. Men den tankegang skal vi til at ændre, og særligt de industrier, der kræver meget vand, skal lære at tænke i nye retninger.",
    "tags": [
-    "vandløb"
+    "grundvand"
    ],
    "relevance": 0.33,
-   "url": "https://ing.dk/artikel/thomas-fra-kommunen-brugte-maanedsvis-paa-stoppe-forurening-af-vandloeb-nu-overvejer-han-om-det-er",
+   "url": "https://ing.dk/artikel/vandekspert-billigt-grundvand-bremser-industriens-omstilling-til-teknisk-vand",
    "value": null,
    "gruppe": "Nyheder & fagblade",
    "webinarer": [
     {
-     "title": "Workshop om oversvømmelser: skader og økonomi: oplæg 7",
-     "youtube_url": "https://youtube.com/watch?v=YV7kyRcXJnk",
-     "date": "2024-06-19"
+     "title": "Fra vand fra alle sider til en præcis typologi for oversvømmelser, deres årsager og mulige koblinger",
+     "youtube_url": "https://youtube.com/watch?v=WoJEDJKye-0",
+     "date": "2025-05-16"
+    },
+    {
+     "title": "Terræn og grundvand",
+     "youtube_url": "https://youtube.com/watch?v=GNayfIboS6w",
+     "date": "2025-06-25"
     }
    ]
   },
   {
    "source": "news",
-   "feedSource": "Bing News – stormflod",
-   "title": "Gigantisk pumpe-sluse kan få premiere i nat",
-   "org": "Bing News – stormflod",
-   "date": "2026-10-17",
-   "summary": "Den forhøjede vandstand, der er varslet i den kommende nat, kan give premiere til den gigantiske pumpe-sluse i Kolding, der er blevet bygget, efter store dele af kommunen blev ramt af stormflod i okto ...",
+   "feedSource": "Bing News – spildevand",
+   "title": "Danskerne sparer på vandet – alligevel stiger regningen: Så meget betaler en familie nu",
+   "org": "Bing News – spildevand",
+   "date": "2026-10-22",
+   "summary": "Selvom danskerne bruger rekordlidt vand, bliver det dyrere at have vand i hanen og komme af med spildevandet. Nye tal viser, at en gennemsnitlig familie nu betaler næsten 6.600 kroner om året.",
    "tags": [
-    "stormflod"
+    "spildevand"
    ],
    "relevance": 0.33,
-   "url": "https://www.dr.dk/nyheder/seneste/gigantisk-pumpe-sluse-kan-faa-premiere-i-nat",
+   "url": "https://fjordavisen.nu/danskerne-sparer-paa-vandet-alligevel-stiger-regningen-saa-meget-betaler-en-familie-nu/",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Ingeniøren",
+   "title": "Kan renset spildevand sikre flere grønne fisk på din tallerken?",
+   "org": "Ingeniøren",
+   "date": "2026-10-22",
+   "summary": "Landbaseret fiskeopdræt sparer vand og foder, men lange godkendelsesprocesser risikerer at spænde ben for teknologien, før fiskene overhovedet når at komme i vandet, mener ekspert. Derfor har han et forslag.",
+   "tags": [
+    "spildevand"
+   ],
+   "relevance": 0.33,
+   "url": "https://ing.dk/artikel/kan-renset-spildevand-sikre-flere-groenne-fisk-paa-din-tallerken",
+   "value": null,
+   "gruppe": "Nyheder & fagblade",
+   "webinarer": [
+    {
+     "title": "Tech Talk: Klimatilpasning i Danmark med blik for det grønne",
+     "youtube_url": "https://youtube.com/watch?v=YQLbuKfPvzQ",
+     "date": "2025-10-09"
+    },
+    {
+     "title": "Blue Green Innovation Challenge",
+     "youtube_url": "https://youtube.com/watch?v=epcmFB3xmsg",
+     "date": null
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – vandløbsrestaurering",
+   "title": "Har vi spildt millioner i Vidåen og Gelsåen? Genslyngning af åer gavner ikke biodiversiteten som forventet",
+   "org": "Bing News – vandløbsrestaurering",
+   "date": "2026-10-21",
+   "summary": "Når danske vandløb genslynges og får lagt grus tilbage på bunden, er målet at skabe bedre forhold fornaturen. Men genopretningen gavner ikke alle arter ...",
+   "tags": [
+    "vandløb"
+   ],
+   "relevance": 0.33,
+   "url": "https://sydnyt.dk/har-vi-spildt-millioner-i-vidaaen-og-gelsaaen-genslyngning-af-aaer-gavner-ikke-biodiversiteten-som-forventet/",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Herning Vand",
+   "title": "Vi behøver ikke være enige om overløb. Men lad os tale ud fra samme viden",
+   "org": "Herning Vand",
+   "date": "2026-10-21",
+   "summary": "Overløb fylder i den offentlige debat om tilstanden på vores vandmiljøer. Der bliver delt tal, stillet spørgsmål og udtrykt bekymring for overløbs indflydelse. For os som forsyning er overløb en del af hverdagen. Og vi kan derfor godt komme til at tale om dem, som om de også er det hos alle andre. Men langt […]",
+   "tags": [
+    "vandmiljø"
+   ],
+   "relevance": 0.33,
+   "url": "https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/",
+   "value": null,
+   "gruppe": "Forsyninger",
+   "webinarer": [
+    {
+     "title": "Godmorgen med DNNK: Svanemøllens Skybrudstunnel",
+     "youtube_url": "https://youtube.com/watch?v=wiA38PWQBGs",
+     "date": "2026-02-27"
+    },
+    {
+     "title": "Tech Talk 018 - Konstruerede vådområder i Danmark: nyeste erfaringer",
+     "youtube_url": "https://youtube.com/watch?v=sbh2YqucMys",
+     "date": "2021-11-17"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Gate 21",
+   "title": "Nye og erfarne kræfter vil sikre kysterne med naturens materialer",
+   "org": "Gate 21",
+   "date": "2026-10-21",
+   "summary": "I det nye projekt Kystklar står 10 danske og svenske kommuner sammen om at finde nye, naturlige veje til at klimatilpasse kysterne. En af styrkerne i projektet er, at flere af kommunerne før har arbejdet med naturbaserede løsninger. Ved kick-off på projektet fik partnerne blandt andet set etablerede klitter med beplantning ved Ystad Saltsjöbad.",
+   "tags": [
+    "klimatilpas"
+   ],
+   "relevance": 0.33,
+   "url": "https://gate21.dk/klimatilpasning/nye-og-erfarne-kraefter-vil-sikre-kysterne-med-naturens-materialer/",
+   "value": null,
+   "gruppe": "Platforme & netværk",
+   "webinarer": [
+    {
+     "title": "Mød de nye elever i LAR-klassen: Regndiget: Regnbakken og de andre",
+     "youtube_url": "https://youtube.com/watch?v=4AGa2Tu7k4g",
+     "date": "2025-06-19"
+    },
+    {
+     "title": "Godmorgen med DNNK: Klimatilpasning og naturbaserede løsninger i Tampere - City Blues som case",
+     "youtube_url": "https://youtube.com/watch?v=agCuRbhxX3k",
+     "date": "2026-02-20"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – grundvand",
+   "title": "- Det er fair at kalde budgettet for det grønneste i Hillerøds historie",
+   "org": "Bing News – grundvand",
+   "date": "2026-10-19",
+   "summary": "- Når man ser på summen af investeringerne i natur, klima, grundvand, biodiversitet, solceller, genbrug, cykelstier og grøn mobilitet, mener vi, at det er fair at kalde det det grønneste budget i Hill ...",
+   "tags": [
+    "grundvand"
+   ],
+   "relevance": 0.33,
+   "url": "https://www.sn.dk/art6664026/hilleroed-kommune/debat/politikere-det-er-fair-at-kalde-budgettet-for-det-groenneste-i-hilleroeds-historie/",
    "value": null,
    "gruppe": "Brede søgninger",
    "webinarer": [
     {
-     "title": "Godmorgen med DNNK: Kolding Å - fra opland til fjord",
-     "youtube_url": "https://youtube.com/watch?v=wwwgM_3ONqw",
-     "date": "2025-10-24"
+     "title": "Hvad skal der til for at lykkes: Succesfulde forandringsprocesser",
+     "youtube_url": "https://youtube.com/watch?v=Qug2NCWX4Aw",
+     "date": "2025-06-30"
+    },
+    {
+     "title": "Langsom hydrologi: et alternativ til klassisk vandparkering i ådalene",
+     "youtube_url": "https://youtube.com/watch?v=KT8Sg9ro60E",
+     "date": "2025-06-25"
     }
    ]
   },
@@ -7665,35 +7858,8 @@
   {
    "source": "news",
    "feedSource": "Bing News – oversvømmelse",
-   "title": "Kommune står klar med grus og sandsække efter varsling om forhøjet vandstand",
-   "org": "Bing News – oversvømmelse",
-   "date": "2026-10-17",
-   "summary": "Beboere i Lolland Kommune kan nu hente grus og sandsække til beskyttelse imod oversvømmelse i aften og i morgen. - Vi følger situationen og er i løbende kontakt med Lolland-Falster Brandvæsen og det l ...",
-   "tags": [
-    "oversvømmelse"
-   ],
-   "relevance": 0.33,
-   "url": "https://www.tv2east.dk/lolland/kommune-star-klar-med-grus-og-sandsaekke-efter-varsling-om-forhojet-vandstand-0cc5e",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Tech Talk 010: IoT og vand nær terræn",
-     "youtube_url": "https://youtube.com/watch?v=dGf3Ud37L_w",
-     "date": "2021-05-05"
-    },
-    {
-     "title": "Oversvømmelser kræver samarbejde - styrk beredskabet på tværs af sektorer",
-     "youtube_url": "https://youtube.com/watch?v=iEfRoyJ9-Cs",
-     "date": "2025-05-16"
-    }
-   ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – stormflod",
    "title": "Nu skal sommerhusejerne i sving med sandsække: Risiko for oversvømmelse i weekenden",
-   "org": "Bing News – stormflod",
+   "org": "Bing News – oversvømmelse",
    "date": "2026-10-16",
    "summary": "Kolding Kommune er på vej med lastbiler fyldt med sække og sand, så sommerhusejerne kan beskytte deres ejendomme, inden vandet stiger i fjorden og Lillebælt natten til søndag.",
    "tags": [
@@ -7761,30 +7927,19 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – spildevand",
-   "title": "DMI og kommuner advarer om oversvømmelser: Beredskabet er allerede aktiveret",
-   "org": "Bing News – spildevand",
+   "feedSource": "Bing News – regnvandsbassin",
+   "title": "Større fisk spræller rundt i næsten intet vand",
+   "org": "Bing News – regnvandsbassin",
    "date": "2026-10-16",
-   "summary": "Vandstanden kan stige op til 135 centimeter over normalen i weekenden. Nu har Haderslev Kommune aktiveret beredskabet og sendt advarsler til borgerne. Det samme gør sig gældende i Sønderborg og Aabenr ...",
+   "summary": "En opsigtsvækkende \"redningsaktion\" fandt sted i et næsten tomt regnvandsbassin i Grejs fredag. Et større antal karper og karusser svømmede rundt i det næsten tomme bassin. Du kan blive klogere på det ...",
    "tags": [
-    "oversvømmelse"
+    "regnvandsbassin"
    ],
    "relevance": 0.33,
-   "url": "https://jv.dk/haderslev/dmi-og-kommune-advarer-om-oversvoemmelser-beredskabet-er-allerede-aktiveret",
+   "url": "https://www.tvsyd.dk/vejle/storre-fisk-spraeller-rundt-i-naesten-intet-vand-246e7",
    "value": null,
    "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Godmorgen med DNNK: Når jorden skrider: landskred som oversete klimarisici",
-     "youtube_url": "https://youtube.com/watch?v=AHqOLmOaqzg",
-     "date": "2025-09-17"
-    },
-    {
-     "title": "Oversvømmelser kræver samarbejde - styrk beredskabet på tværs af sektorer",
-     "youtube_url": "https://youtube.com/watch?v=iEfRoyJ9-Cs",
-     "date": "2025-05-16"
-    }
-   ]
+   "webinarer": []
   },
   {
    "source": "news",
@@ -7832,38 +7987,6 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – skybrud",
-   "title": "Arkæologer graver over 1.000 skeletter op i København",
-   "org": "Bing News – skybrud",
-   "date": "2026-10-15",
-   "summary": "Under græsset i Hans Tavsens Park på Nørrebro fortæller knogler om 1800-tallets fattige, mens området snart skal omdannes til en klimatilpasset park ...",
-   "tags": [
-    "klimatilpas"
-   ],
-   "relevance": 0.33,
-   "url": "https://www.dr.dk/nyheder/indland/arkaeologer-graver-over-1-000-skeletter-op-i-koebenhavn",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – regnvand",
-   "title": "Togbusser til og fra Helsingør fortsætter længere tid end planlagt: Her er overblikket",
-   "org": "Bing News – regnvand",
-   "date": "2026-10-15",
-   "summary": "Arbejdet med det store klimasikringsprojekt i Helsingørs bymidte er stødt på uventede udfordringer. Det får nu konsekvenser for passagererne på Hornbækbanen, der må væbne sig med yderligere tålmodighe ...",
-   "tags": [
-    "klimasikring"
-   ],
-   "relevance": 0.33,
-   "url": "https://helsingordagblad.dk/helsingoer/togbusser-til-og-fra-helsingoer-fortsaetter-laengere-tid-end-planlagt-her-er-overblikket",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
    "feedSource": "Bing News – kystsikring",
    "title": "Løkkes parti opruster på Østfyn: Går til angreb på flere fronter",
    "org": "Bing News – kystsikring",
@@ -7880,9 +8003,9 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – klimatilpasning",
+   "feedSource": "Bing News – klimasikring",
    "title": "Korruptionsskandale om klimasikring ryster Filippinerne",
-   "org": "Bing News – klimatilpasning",
+   "org": "Bing News – klimasikring",
    "date": "2026-10-14",
    "summary": "Einer Lyduch er historiker og har skrevet speciale om Filippinerne. Han har foretaget utallige rejser og studier i landet gennem 40 år. Han er stifter og fo ...",
    "tags": [
@@ -7985,9 +8108,31 @@
      "date": "2025-06-30"
     },
     {
-     "title": "Godmorgen med DNNK: Samskabelse af naturbaserede løsninger",
-     "youtube_url": "https://youtube.com/watch?v=O_W1EujI2AE",
-     "date": "2025-11-04"
+     "title": "Masterclass: Danmark som kontekst for naturbaserede løsninger - Fra ambition til handling: Hvad kræver god interessentinddragelse i naturbaserede løsninger?",
+     "youtube_url": "https://youtube.com/watch?v=9Pnmwnd0uJw",
+     "date": "2026-10-07"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – kystsikring",
+   "title": "Ny aftale skal sikre flere mod vandmasser: Men liebhavere og sommerhusejere taber",
+   "org": "Bing News – kystsikring",
+   "date": "2026-10-08",
+   "summary": "Sommerhuse og liebhaverboliger får lavere vægt, når penge skal fordeles til kystsikring Det skal være lettere at få statslig støtte til at beskytte sin bolig mod vandmasserne.  Det et bredt politisk f ...",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.33,
+   "url": "https://borsen.dk/nyheder/finans/ny-aftale-skal-sikre-flere-mod-vandmasser-men-liebhavere-og-sommerhusejere-taber",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": [
+    {
+     "title": "Tech Talk 015 - Når klimatilpasning skal tænkes sammen med flere formål",
+     "youtube_url": "https://youtube.com/watch?v=z2gAXSuesg4",
+     "date": "2021-09-01"
     }
    ]
   },
@@ -8028,22 +8173,6 @@
    "tags": [
     "klimasikring"
    ],
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – klimasikring",
-   "title": "Her er de grønne boligforbedringer, som du kan trække direkte fra skatteregningen",
-   "org": "Bing News – klimasikring",
-   "date": "2026-10-05",
-   "summary": "Det grønne håndværkerfradrag giver boligejere mulighed for at trække lønudgifter til blandt andet isolering, klimasikring og grøn energiforsyning fra i skat.",
-   "tags": [
-    "klimasikring"
-   ],
-   "relevance": 0.33,
-   "url": "https://fyens.dk/bolig/her-er-de-groenne-boligforbedringer-som-du-nu-kan-traekke-direkte-fra-skatteregningen",
-   "value": null,
-   "gruppe": "Brede søgninger",
    "webinarer": []
   },
   {
@@ -8149,33 +8278,6 @@
     "klimasikring"
    ],
    "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Climatic Change",
-   "title": "Urban heat island amplification of density altitude at a coastal airport: attribution, sea-breeze modulation, and operational impacts",
-   "org": "Climatic Change",
-   "date": "2026-09-15",
-   "summary": "Global warming reduces surface air density, degrading aircraft performance and necessitating payload restrictions. At humid coastal airports, concurrent warming and moisture trends interact in ways often overlooked by temperature-centric analyses. Using multi-source datasets, we quantify and attribute long-term density altitude (DA) trends at Xiamen Gaoqi International Airport (ZSAM). Annual mean ",
-   "tags": [
-    "urban heat island"
-   ],
-   "relevance": 0.33,
-   "url": "https://link.springer.com/article/10.1007/s10584-026-04292-4",
-   "value": null,
-   "gruppe": "Videnskab & forskning",
-   "webinarer": [
-    {
-     "title": "Tech Talk - Regnvandshåndtering i byerne kan løses med træer",
-     "youtube_url": "https://youtube.com/watch?v=oi96D53cs00",
-     "date": "2024-01-10"
-    },
-    {
-     "title": "Godmorgen med DNNK: Trædata som redskab i klimatilpasning",
-     "youtube_url": "https://youtube.com/watch?v=3vDCEUgOs4U",
-     "date": "2025-05-15"
-    }
-   ]
   },
   {
    "source": "news",
@@ -8462,6 +8564,33 @@
   {
    "source": "news",
    "feedSource": "Urban Climate",
+   "title": "Seasonal surface urban heat island clustering and thermal hotspot mapping: Dual-scale spatial diagnostics and planning implications for Colombo, Sri Lanka",
+   "org": "Urban Climate",
+   "date": "",
+   "summary": "Publication date: December 2026Source: Urban Climate, Volume 70Author(s): H.S.R. Hettikankanama, Sandun M. Dassanayake, I. Mahakalanda, T.S. De Silva",
+   "tags": [
+    "urban heat island"
+   ],
+   "relevance": 0.33,
+   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526004189?dgcid=rss_sd_all",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": [
+    {
+     "title": "Tech Talk - Regnvandshåndtering i byerne kan løses med træer",
+     "youtube_url": "https://youtube.com/watch?v=oi96D53cs00",
+     "date": "2024-01-10"
+    },
+    {
+     "title": "Godmorgen med DNNK: Trædata som redskab i klimatilpasning",
+     "youtube_url": "https://youtube.com/watch?v=3vDCEUgOs4U",
+     "date": "2025-05-15"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Urban Climate",
    "title": "Climate change integrated intensity-duration-frequency analysis for the coastal cities of Kochi and Kozhikode, India",
    "org": "Urban Climate",
    "date": "",
@@ -8543,6 +8672,22 @@
    "url": "https://www.sciencedirect.com/science/article/pii/S0043135426018191?dgcid=rss_sd_all",
    "value": null,
    "gruppe": "Videnskab & forskning",
+   "webinarer": []
+  },
+  {
+   "source": "ritzau",
+   "feedSource": "Guldborgsund Kommune (Ritzau)",
+   "org": "Guldborgsund Kommune",
+   "title": "Vigtig milepæl: Tilladelse til ny cykel-gangbro i Nykøbing Falster",
+   "url": "https://via.ritzau.dk/pressemeddelelse/15241166/vigtig-milepael-tilladelse-til-ny-cykel-gangbro-i-nykobing-falster?publisherId=11287667&lang=da",
+   "date": "2026-10-22",
+   "summary": "Kystdirektoratet har nu givet grønt lys til realiseringen af en ny cykel-gangbro over Guldborg Sund mellem Nykøbing Falster og Sundby. Tilladelsen betyder, at et mangeårigt lokalt ønske kan blive til virkelighed. Derudover kan der laves et svømmeområde i havnen, en boardwalk og en solnedgangstrappe.",
+   "tags": [
+    "kystdirektorat"
+   ],
+   "relevance": 0.3,
+   "value": null,
+   "gruppe": "Kommuner",
    "webinarer": []
   },
   {
@@ -8641,6 +8786,215 @@
   },
   {
    "source": "news",
+   "feedSource": "Bing News – stormflod",
+   "title": "Efter tre år: Afklaring om ny stormflodsordning kan være på trapperne",
+   "org": "Bing News – stormflod",
+   "date": "2026-10-22",
+   "summary": "Ordningen blev kritiseret for at have store mangler efter stormfloden for tre år siden. Først nu nærmer en løsning sig.",
+   "tags": [
+    "stormflod"
+   ],
+   "relevance": 0.25,
+   "url": "https://jyllands-posten.dk/erhverv/ECE19758767/efter-tre-aar-afklaring-om-ny-stormflodsordning-kan-vaere-paa-trapperne/",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – oversvømmelse",
+   "title": "Vi er skræmt fra vid og sans. Men hvad koster det egentlig, når nettet går ned?",
+   "org": "Bing News – oversvømmelse",
+   "date": "2026-10-22",
+   "summary": "Forskerne har regnet på, hvad it-nedbrud koster, blandt andet efter en oversvømmelse i York. Økonomien tåler meget, men enkelte virksomheder rammes hårdt.",
+   "tags": [
+    "oversvømmelse"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.berlingske.dk/kommentar/vi-er-skraemt-fra-vid-og-sans-men-hvad-koster-det-egentlig-naar-nettet-gaar-ned",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – kystsikring",
+   "title": "Charlotte er klar til at ofre sin havudsigt: - Ellers har vi pludselig ikke noget hus",
+   "org": "Bing News – kystsikring",
+   "date": "2026-10-22",
+   "summary": "Mens flere sommerhusejere i Kerteminde er skeptiske over for planerne om kystsikring, er Charlotte Gierahn klar til at gå på kompromis med udsigten fra sit sommerhus. Hun har allerede oplevet, hvad ha ...",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://avisendanmark.dk/danmark/charlotte-er-klar-til-at-ofre-sin-havudsigt-ellers-har-vi-pludselig-ikke-noget-hus",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – stormflod",
+   "title": "Tre år efter stormflod venter Per stadig på ministerløfte: 'Det er noget lort'",
+   "org": "Bing News – stormflod",
+   "date": "2026-10-21",
+   "summary": "Den tidligere erhvervsminister lovede, at erstatningsordningen for stormfloden skulle rumme flere. Tre år efter stormfloden er intet sket.",
+   "tags": [
+    "stormflod"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.dr.dk/nyheder/indland/tre-aar-efter-stormflod-venter-per-stadig-paa-ministerloefte-det-er-noget-lort",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": [
+    {
+     "title": "Tech Talk - Dynamisk beredskabsplanlægning mod stormfloden",
+     "youtube_url": "https://youtube.com/watch?v=uko6uc4MMag",
+     "date": "2024-01-24"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – stormflod",
+   "title": "Tre år efter katastrofen er Danmark stadig ikke klar til den næste stormflod",
+   "org": "Bing News – stormflod",
+   "date": "2026-10-21",
+   "summary": "Politikerne bør ændre dækningskriteriet, f.eks. til en 10-årshændelse, så stormflodsordningen også udgør et sikkerhedsnet for danskerne på sigt, skriver Helene Ibsen. Arkivfoto: Nichlas Pollier Dette ...",
+   "tags": [
+    "stormflod"
+   ],
+   "relevance": 0.25,
+   "url": "https://jyllands-posten.dk/debat/breve/ECE19747430/tre-aar-efter-katastrofen-er-danmark-stadig-ikke-klar-til-den-naeste-stormflod/",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": [
+    {
+     "title": "Godmorgen med DNNK: Havniveauændringer i Danmark",
+     "youtube_url": "https://youtube.com/watch?v=IDETmAf32mU",
+     "date": "2026-03-18"
+    },
+    {
+     "title": "Tech Talk: Finansiering af kystbeskyttelsesprojekter i Danmark",
+     "youtube_url": "https://youtube.com/watch?v=c_hJluY22do",
+     "date": "2023-04-19"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – spildevand",
+   "title": "Søren Gade har ikke fortrudt, at han overdængede miljøministeren med spørgsmål",
+   "org": "Bing News – spildevand",
+   "date": "2026-10-21",
+   "summary": "Kort før Søren Gades exit fra dansk politik, stillede han knap 1200 spørgsmål om spildevand. Nu forklarer han for første gang hvorfor.",
+   "tags": [
+    "spildevand"
+   ],
+   "relevance": 0.25,
+   "url": "https://avisendanmark.dk/politik/soeren-gade-har-ikke-fortrudt-at-han-overdaengede-miljoeministeren-med-spoergsmaal",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Ingeniøren",
+   "title": "Leder: Sort galskab i Nordsøen skal komme danske borgere til gavn",
+   "org": "Ingeniøren",
+   "date": "2026-10-21",
+   "summary": "Hver eneste time døgnet rundt hiver det danske olieplatform Tyra II tusindvis af kubikmeter naturgas op af Nordsøen. Platformen er med sine 50.000 ton stål en tung sag - og let er det bestemt heller ikke at skulle tage stilling til, om Danmark skal forlænge indvindingstilladelserne til den franske oliegigant Total, så de - som de har spurgt om - kan fortsætte produktionen på Tyra II ud over den nu",
+   "tags": [
+    "indvindingstilladelse"
+   ],
+   "relevance": 0.25,
+   "url": "https://ing.dk/holdning/sort-galskab-i-nordsoeen-skal-komme-danske-borgere-til-gavn",
+   "value": null,
+   "gruppe": "Nyheder & fagblade",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Science Advances",
+   "title": "Observations show increased nitrate in coastal cloud droplet residuals from large-particle activation and N2O5 hydrolysis",
+   "org": "Science Advances",
+   "date": "2026-10-21",
+   "summary": "Science Advances, Volume 12, Issue 43, October 2026. ",
+   "tags": [
+    "nitrat"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aei3465?af=R",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Science Advances",
+   "title": "Submesoscale feedback suppresses marine heatwaves",
+   "org": "Science Advances",
+   "date": "2026-10-21",
+   "summary": "Science Advances, Volume 12, Issue 43, October 2026. ",
+   "tags": [
+    "heatwave"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aei4624?af=R",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Science Advances",
+   "title": "A phosphorylation-gated GAPDH-MAPK6-LBD1 module controls drought-responsive transcription",
+   "org": "Science Advances",
+   "date": "2026-10-21",
+   "summary": "Science Advances, Volume 12, Issue 43, October 2026. ",
+   "tags": [
+    "drought"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aek0125?af=R",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Env. Agency (UK)",
+   "title": "Water company bosses update National Drought Group on resilience",
+   "org": "Env. Agency (UK)",
+   "date": "2026-10-20",
+   "summary": "Water companies ordered to protect customer supplies as severe drought persists across parts of England",
+   "tags": [
+    "drought"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.gov.uk/government/news/water-company-bosses-update-national-drought-group-on-resilience",
+   "value": null,
+   "gruppe": "Int. vandmyndigheder",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "Bing News – skybrud",
+   "title": "Forbavsende forsøg: Gaffatape slår sandsække under skybrud",
+   "org": "Bing News – skybrud",
+   "date": "2026-10-19",
+   "summary": "Du kan modtage notifikationer, når der er aktivitet i de debatter, du følger, eller når nogen skriver et svar til en kommentar, du har skrevet. Du kan modtage notifikationer, når et job der matcher ...",
+   "tags": [
+    "skybrud"
+   ],
+   "relevance": 0.25,
+   "url": "https://ing.dk/artikel/forbavsende-forsoeg-gaffatape-slaar-sandsaekke-under-skybrud",
+   "value": null,
+   "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
    "feedSource": "Bing News – regnvand",
    "title": "Av - det var længe: Fra torsdag spærres central vej i næsten fire måneder",
    "org": "Bing News – regnvand",
@@ -8653,6 +9007,22 @@
    "url": "https://jv.dk/esbjerg/av-det-var-laenge-fra-torsdag-spaerres-central-vej-i-naesten-fire-maaneder",
    "value": null,
    "gruppe": "Brede søgninger",
+   "webinarer": []
+  },
+  {
+   "source": "news",
+   "feedSource": "DR Vejret",
+   "title": "Voldsomt uvejr rammer Spanien og Frankrig - mindst to er døde",
+   "org": "DR Vejret",
+   "date": "2026-10-19",
+   "summary": "Helikoptere redder mennesker fra hustage i Spanien, hvor voldsomme regnskyl har oversvømmet flere byer. Nu bevæger uvejret sig videre mod Frankrig.",
+   "tags": [
+    "oversvøm"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.dr.dk/nyheder/vejret/voldsomt-uvejr-rammer-spanien-og-frankrig-mindst-er-doede",
+   "value": null,
+   "gruppe": "Nyheder & fagblade",
    "webinarer": []
   },
   {
@@ -8705,79 +9075,9 @@
   },
   {
    "source": "news",
-   "feedSource": "Ingeniøren",
-   "title": "Synspunkt: AI kommer til at fejle: Vi opnår ikke resiliens uden at studere hverdagens fadæser",
-   "org": "Ingeniøren",
-   "date": "2026-10-18",
-   "summary": "CPR-skandalen bliver behandlet som en enkeltsag. Men i takt med, at teknologi spiller en stadig større rolle i samfundet – ikke mindst med AI’s indtog, må vi skabe rammerne for, at praktikere kan lære af hverdagens fejl og erfaringer.",
-   "tags": [
-    "resiliens"
-   ],
-   "relevance": 0.25,
-   "url": "https://ing.dk/holdning/ai-kommer-til-fejle-vi-opnaar-ikke-resiliens-uden-studere-hverdagens-fadaeser",
-   "value": null,
-   "gruppe": "Nyheder & fagblade",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – oversvømmelse",
-   "title": "Makkerpar har en særlig evne til at skaffe hjælp, når det brænder på",
-   "org": "Bing News – oversvømmelse",
-   "date": "2026-10-17",
-   "summary": "Kloakministeriet er en bevægelse af frivillige håndværkere og hjælpere. Den er drevet af Tobias Jørgensen og Thomas Harley Poulsen. De hjælper mennesker, som står med et problem, de ikke kan løse selv ...",
-   "tags": [
-    "kloak"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.tvsyd.dk/kolding/makkerpar-har-en-saerlig-evne-til-at-skaffe-hjaelp-nar-det-braender-pa-2522e",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Tech Talk 024: Tænk hvis skybrud ikke var et problem, men bare en slags vejr",
-     "youtube_url": "https://youtube.com/watch?v=XkQpOdVMzE4",
-     "date": "2022-04-13"
-    }
-   ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – spildevand",
-   "title": "Stort kloakarbejde vækker opsigt: Derfor er der rejst 'triumfbuer' i central bydel",
-   "org": "Bing News – spildevand",
-   "date": "2026-10-17",
-   "summary": "De flere meter høje konstruktioner syner af meget i kvarteret, men er blot en lille del af et stort renoveringsarbejde. Og havde det ikke været for dem, havde det ført til trafikalt bøvl.",
-   "tags": [
-    "kloak"
-   ],
-   "relevance": 0.25,
-   "url": "https://fyens.dk/odense/stort-kloakarbejde-vaekker-opsigt-derfor-er-der-rejst-triumfbuer-i-central-bydel",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – skybrud",
-   "title": "Når virksomhederne bliver ramt, rammer det også vores hverdag",
-   "org": "Bing News – skybrud",
-   "date": "2026-10-16",
-   "summary": "Et cyberangreb, oversvømmelse af varelager, it-nedbrud eller problemer med at få varer frem fra udlandet. Det kan umiddelbart lyde som noget, der hører hjemme på direktionsgangen i en stor virksomhed.",
-   "tags": [
-    "oversvømmelse"
-   ],
-   "relevance": 0.25,
-   "url": "https://avisendanmark.dk/debat/naar-virksomhederne-bliver-ramt-rammer-det-ogsaa-vores-hverdag",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – spildevand",
+   "feedSource": "Bing News – regnvandsbassin",
    "title": "Se videoerne: Drenge redder store fisk strandet i næsten tomt regnvandsbassin",
-   "org": "Bing News – spildevand",
+   "org": "Bing News – regnvandsbassin",
    "date": "2026-10-16",
    "summary": "Efterårsferien tog fredag en overraskende drejning for de to venner Sebastian Gram Skovlund og Karl Emil Nordentoft Thygesen.",
    "tags": [
@@ -8819,108 +9119,6 @@
    "url": "https://www.nature.com/articles/s44221-026-00731-9",
    "value": null,
    "gruppe": "Videnskab & forskning",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – skybrud",
-   "title": "Teenager dies as heavy rain floods Istanbul",
-   "org": "Bing News – skybrud",
-   "date": "2026-10-14",
-   "summary": "Roads collapse and hospitals take in water as floods swamp Turkiye’s largest city, shutting schools and halting traffic.",
-   "tags": [
-    "flood"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.msn.com/en-us/news/world/teenager-dies-as-heavy-rain-floods-istanbul/ar-AA2egd5K",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "DNNK-Fremtidsværksted: Re-design af byer og bosætning - velfærd inden for de planetære grænser",
-     "youtube_url": "https://youtube.com/watch?v=aQepKpHghU4",
-     "date": "2026-02-03"
-    },
-    {
-     "title": "Tech Talk 005 - Digitale tvillinger for afløbssystem og rensningsanlæg",
-     "youtube_url": "https://youtube.com/watch?v=oeUQmiidh9o",
-     "date": "2021-01-29"
-    }
-   ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – grundvand",
-   "title": "Kommunen vil have mere økologisk landbrug: Otte marker udbydes til forpagtning",
-   "org": "Bing News – grundvand",
-   "date": "2026-10-14",
-   "summary": "Økologisk drift af landbrugsarealer skal beskytte grundvand og styrke biodiversiteten. Økologiske landmænd har mulighed for at forpagte en række landbrugsarealer ved Hadsten og Hadbjerg. Foto: Favrsko ...",
-   "tags": [
-    "grundvand"
-   ],
-   "relevance": 0.25,
-   "url": "https://dinavis.dk/samfund/ECE19735476/kommunen-vil-have-mere-oekologisk-landbrug-otte-marker-udbydes-til-forpagtning/",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Hvad skal der til for at lykkes: Succesfulde forandringsprocesser",
-     "youtube_url": "https://youtube.com/watch?v=Qug2NCWX4Aw",
-     "date": "2025-06-30"
-    },
-    {
-     "title": "DNNKs virtuelle studietur til Skibhuskvarteret i Odense",
-     "youtube_url": "https://youtube.com/watch?v=4h-LgQEW98M",
-     "date": "2020-11-19"
-    }
-   ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – spildevand",
-   "title": "Samråd: Udledning af urenset spildevand",
-   "org": "Bing News – spildevand",
-   "date": "2026-10-14",
-   "summary": "Folketingets Miljø- og Fødevareudvalg har kaldt miljøminister Maria Reumert Gjerding (SF) i åbent samråd om udledning af urenset spildevand.",
-   "tags": [
-    "spildevand"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.altinget.dk/foedevarer/kalender/62035",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "VA-guiden (SE)",
-   "title": "Var kan gröna väggar fungera som dagvattenåtgärd?",
-   "org": "VA-guiden (SE)",
-   "date": "2026-10-14",
-   "summary": "I tätbebyggda områden kan gröna väggar bidra till att fördröja och minska dagvattenavrinningen. En ny skandinavisk rapport visar betydelsen av utformning och skötsel.\nThe post Var kan gröna väggar fungera som dagvattenåtgärd? appeared first on VA-guiden.",
-   "tags": [
-    "dagvatten"
-   ],
-   "relevance": 0.25,
-   "url": "https://vaguiden.se/2026/10/var-kan-grona-vaggar-fungera-som-dagvattenatgard/",
-   "value": null,
-   "gruppe": "Nordiske naboer",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – klimatilpasning",
-   "title": "Lokal virksomhed har scoret millionordre på Ringkøbing Renseanlæg",
-   "org": "Bing News – klimatilpasning",
-   "date": "2026-10-13",
-   "summary": "VAM A/S med hovedkontor i Vester Alling har fået en stor ordre i Ringkøbing. Virksomheden har vundet totalentreprisen på moderniseringen af Ringkøbing Renseanlæg.",
-   "tags": [
-    "renseanlæg"
-   ],
-   "relevance": 0.25,
-   "url": "https://dinavis.dk/samfund/ECE19731510/lokal-virksomhed-har-scoret-millionordre-paa-ringkoebing-renseanlaeg/",
-   "value": null,
-   "gruppe": "Brede søgninger",
    "webinarer": []
   },
   {
@@ -8980,22 +9178,6 @@
    "url": "https://www.gov.uk/government/news/major-flood-defence-upgrade-completed-at-keyhaven-ahead-of-winter",
    "value": null,
    "gruppe": "Int. vandmyndigheder",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Sønderborg Kommune - høringer og afgørelser",
-   "title": "Tilladelse til kystbeskyttelse ved Sandagervej 32, Sandager, 6300 Gråsten",
-   "org": "Sønderborg Kommune - høringer og afgørelser",
-   "date": "2026-10-13",
-   "summary": "Tilladelse til kystbeskyttelse ved Sandagervej 32, Sandager, 6300 Gråsten\n\nlrto@sonderborg.dk\ntir, 10/13/2026 - 12:41\n\n  \n  \n    \n                        \n          \n  \n    \n      \n      \n            Afgørelse\n      \n    \n  \n\n  \n    \n      \n      Tilladelse til kystbeskyttelse ved Sandagervej 32, Sandager, 6300 Gråsten\n\n\n    \n  \n\n  \n    \n      \n      \n  \n    Hørings- eller afgørelseskategori\n     ",
-   "tags": [
-    "kystbeskyttelse"
-   ],
-   "relevance": 0.25,
-   "url": "https://sonderborgkommune.dk/tilladelse-til-kystbeskyttelse-ved-sandagervej-32-sandager-6300-graasten",
-   "value": null,
-   "gruppe": "Tilladelser & høringer",
    "webinarer": []
   },
   {
@@ -9060,33 +9242,6 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – kystbeskyttelse",
-   "title": "Forskning afslører stor social ulighed i risikoen for oversvømmelser",
-   "org": "Bing News – kystbeskyttelse",
-   "date": "2026-10-09",
-   "summary": "De mest socialt sårbare danskere er næsten tre gange så udsatte ved oversvømmelser som de mindst sårbare, viser ny kortlægning.",
-   "tags": [
-    "oversvømmelse"
-   ],
-   "relevance": 0.25,
-   "url": "https://nyheder.tv2.dk/2026-10-08-forskning-afsloerer-stor-social-ulighed-i-risikoen-for-oversvoemmelser",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Godmorgen med DNNK: Forstå de sociale konsekvenser af oversvømmelser i Danmark",
-     "youtube_url": "https://youtube.com/watch?v=tFT2VjSIC3c",
-     "date": "2024-09-25"
-    },
-    {
-     "title": "Social Dimensions of Climate Adaptation: Paneldebat",
-     "youtube_url": "https://youtube.com/watch?v=-qLfWkFJIyE",
-     "date": "2026-06-12"
-    }
-   ]
-  },
-  {
-   "source": "news",
    "feedSource": "Env. Agency (UK)",
    "title": "Environment Agency declares drought status in Yorkshire",
    "org": "Env. Agency (UK)",
@@ -9120,33 +9275,6 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – kystbeskyttelse",
-   "title": "Flere områder kan få støtte til kystsikring: Her håber de på del af statens millioner",
-   "org": "Bing News – kystbeskyttelse",
-   "date": "2026-10-08",
-   "summary": "Huspriser skal ikke længere afgøre adgangen til støtte til kystsikring. Til gengæld vægtes boliger, borgere og natur højere.",
-   "tags": [
-    "kystsikring"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.tvsyd.dk/syd-og-soenderjylland/flere-omrader-kan-fa-stotte-til-kystsikring-her-haber-de-pa-del-af-statens-millioner-3d19b",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Hvad skal der til for at lykkes: Succesfulde forandringsprocesser",
-     "youtube_url": "https://youtube.com/watch?v=Qug2NCWX4Aw",
-     "date": "2025-06-30"
-    },
-    {
-     "title": "Byudvikling i forbindelse med stormflods- og kystsikring af byer 4",
-     "youtube_url": "https://youtube.com/watch?v=rnL8O4Stv70",
-     "date": "2022-12-06"
-    }
-   ]
-  },
-  {
-   "source": "news",
    "feedSource": "Env. Agency (UK)",
    "title": "Drought permit granted to support Wimbleball Reservoir",
    "org": "Env. Agency (UK)",
@@ -9166,134 +9294,6 @@
      "date": "2021-01-29"
     }
    ]
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – klimasikring",
-   "title": "Frederik Münster vil have ministeren på banen efter oversvømmelse",
-   "org": "Bing News – klimasikring",
-   "date": "2026-10-07",
-   "summary": "Frederik Münster vil tage sagen om Hjarup Bæks gamle regler op med ministeren og efterlyser klare retningslinjer.",
-   "tags": [
-    "oversvømmelse"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.tvsyd.dk/vi-fixer-det/frederik-munster-vil-have-ministeren-pa-banen-efter-oversvommelse-5d325",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Altinget Miljø",
-   "title": "Debatten om drikkevand handler ikke kun om nitrat",
-   "org": "Altinget Miljø",
-   "date": "2026-10-07",
-   "summary": "Drikkevandsdebatten fyldte enormt meget under valgkampen i foråret og er stadig et vigtigt emne på den politiske dagsorden. Dagens afsnit af Det handler ikke om penge ser nærmere på, hvor slemt det står til med drikkevandet, og hvilke konsekvenser det kan have for vores sundhed.",
-   "tags": [
-    "nitrat"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.altinget.dk/miljoe/artikel/debatten-om-drikkevand-handler-ikke-kun-om-nitrat",
-   "value": null,
-   "gruppe": "Nyheder & fagblade",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Env. Agency (UK)",
-   "title": "Major improvements to Lymington flood defences completed",
-   "org": "Env. Agency (UK)",
-   "date": "2026-10-07",
-   "summary": "New tidal flaps have been installed to improve reliability and reduce maintenance, and the flood gate has been refurbished with new seals.",
-   "tags": [
-    "flood"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.gov.uk/government/news/major-improvements-to-lymington-flood-defences-completed",
-   "value": null,
-   "gruppe": "Int. vandmyndigheder",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Env. Agency (UK)",
-   "title": "Getting winter ready: Northwich defences put to the test",
-   "org": "Env. Agency (UK)",
-   "date": "2026-10-07",
-   "summary": "The Environment Agency will run a large-scale training exercise in Northwich on the weekend of 11 to 12 October, testing its flood defence scheme.",
-   "tags": [
-    "flood"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.gov.uk/government/news/getting-winter-ready-northwich-defences-put-to-the-test",
-   "value": null,
-   "gruppe": "Int. vandmyndigheder",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Altinget Miljø",
-   "title": "Regeringen har 17 miljølove på programmet: Få overblikket her",
-   "org": "Altinget Miljø",
-   "date": "2026-10-06",
-   "summary": "Sprøjteforbud, skovlov, jagtlov og spildevandsafgifter. Regeringens lovprogram byder på en lang række ændringer på miljøområdet. Altinget giver dig overblikket her.",
-   "tags": [
-    "spildevand"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.altinget.dk/miljoe/artikel/regeringen-har-17-miljoelove-paa-programmet-faa-overblikket-her",
-   "value": null,
-   "gruppe": "Nyheder & fagblade",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – dige",
-   "title": "Historisk skib trukket over hollandsk dige",
-   "org": "Bing News – dige",
-   "date": "2026-10-05",
-   "summary": "En 646 ton tung rekonstruktion af det hollandske 1600-talsskib Batavia er blevet flyttet på land efter en usædvanlig heavy-lift-operation i Lelystad.",
-   "tags": [
-    "dige"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.maritimedanmark.dk/historisk-skib-trukket-over-hollandsk-dige",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Env. Agency (UK)",
-   "title": "England’s reservoirs continue to feel drought strain after sixth dry month of 2026",
-   "org": "Env. Agency (UK)",
-   "date": "2026-10-02",
-   "summary": "Below average September rainfall compounds drought issues in southern and central England",
-   "tags": [
-    "drought"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.gov.uk/government/news/englands-reservoirs-continue-to-feel-drought-strain-after-sixth-dry-month-of-2026",
-   "value": null,
-   "gruppe": "Int. vandmyndigheder",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Env. Agency (UK)",
-   "title": "Drought permit granted to help Ardingly Reservoir",
-   "org": "Env. Agency (UK)",
-   "date": "2026-10-02",
-   "summary": "The Environment Agency has given a drought permit to South East Water to help secure the public water supply at Ardingly Reservoir.",
-   "tags": [
-    "drought"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.gov.uk/government/news/drought-permit-granted-to-help-ardingly-reservoir",
-   "value": null,
-   "gruppe": "Int. vandmyndigheder",
-   "webinarer": []
   },
   {
    "source": "news",
@@ -9326,33 +9326,6 @@
    "value": null,
    "gruppe": "Internationale inst.",
    "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – kystsikring",
-   "title": "Vestjysk surferby får hjælp til kystsikring",
-   "org": "Bing News – kystsikring",
-   "date": "2026-09-24",
-   "summary": "De 25 millioner kroner, som Thisted Kommune sender mod Vorupør, skal bruges til sandfodring og en høfde, der skal bremse Vesterhavets indhug i klitterne. Som en del af Verdensbogugen bliver bogen ...",
-   "tags": [
-    "kystsikring"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.dr.dk/nyheder/seneste/vestjysk-surferby-faar-hjaelp-til-kystsikring",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": [
-    {
-     "title": "Godmorgen med DNNK: Når jorden skrider: landskred som oversete klimarisici",
-     "youtube_url": "https://youtube.com/watch?v=AHqOLmOaqzg",
-     "date": "2025-09-17"
-    },
-    {
-     "title": "Byudvikling i forbindelse med stormflods- og kystsikring af byer 2 og 3",
-     "youtube_url": "https://youtube.com/watch?v=TF8C8Udk1tA",
-     "date": "2022-12-06"
-    }
-   ]
   },
   {
    "source": "news",
@@ -9415,54 +9388,6 @@
   },
   {
    "source": "news",
-   "feedSource": "Bing News – kystsikring",
-   "title": "25 millioner til kystsikring: Her er punkterne i Thisteds nye budget",
-   "org": "Bing News – kystsikring",
-   "date": "2026-09-22",
-   "summary": "Seks partier i Thisteds kommunalbestyrelse er enige om et budgettet for 2027-30. Der afsættes blandt andet millioner til turismeindsats og minimumsnormeringer. Borgmester Niels Jørgen Pedersen (V) har ...",
-   "tags": [
-    "kystsikring"
-   ],
-   "relevance": 0.25,
-   "url": "https://nordjyske.dk/nyheder/thisted/25-millioner-til-kystsikring-her-er-punkterne-i-thisteds-nye-budget/6183923",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Bing News – kystsikring",
-   "title": "Kystsikring af nordsjællandske boliger kan ødelægge østjysk havmiljø",
-   "org": "Bing News – kystsikring",
-   "date": "2026-09-20",
-   "summary": "I alt 241.000 kubikmeter havbund i østjysk farvand kan, såfremt Miljøstyrelsen godkender det, blive suget op for at blive brugt til at beskytte huse og sommerhuse langs med Nordsjællands kyst mod ...",
-   "tags": [
-    "kystsikring"
-   ],
-   "relevance": 0.25,
-   "url": "https://ekstrabladet.dk/nyheder/politik/danskpolitik/kystsikring-af-nordsjaellandske-boliger-kan-oedelaegge-oestjysk-havmiljoe/11295563",
-   "value": null,
-   "gruppe": "Brede søgninger",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Climatic Change",
-   "title": "Heatwaves and cold waves: the dual impact of temperature on crime",
-   "org": "Climatic Change",
-   "date": "2026-09-16",
-   "summary": "Based on Chinese judicial documents and daily meteorological data, this paper systematically examines the impact of temperature fluctuations on criminal activity. The baseline results show that, relative to the optimal temperature range, lower temperatures significantly suppress criminal activity, whereas higher temperatures significantly increase crime rates. The distributed lag estimates suggest",
-   "tags": [
-    "heatwave"
-   ],
-   "relevance": 0.25,
-   "url": "https://link.springer.com/article/10.1007/s10584-026-04295-1",
-   "value": null,
-   "gruppe": "Videnskab & forskning",
-   "webinarer": []
-  },
-  {
-   "source": "news",
    "feedSource": "Ingeniøren Klimatilpasning",
    "title": "Brøler i København: Hævede fortov og sendte regnvand ned i kældrene",
    "org": "Ingeniøren Klimatilpasning",
@@ -9475,38 +9400,6 @@
    "url": "https://ing.dk/artikel/broeler-i-koebenhavn-haevede-fortov-og-sendte-regnvand-ned-i-kaeldrene",
    "value": null,
    "gruppe": "Nyheder & fagblade",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "SMHI Sverige",
-   "title": "Exceptionellt svår torka har drabbat Europa under   sommaren 2026",
-   "org": "SMHI Sverige",
-   "date": "2026-09-11",
-   "summary": "Södra Sverige har haft en längre period med mindre nederbörd än normalt som lett till risk för vattenbrist i många grundvattenmagasin och vattendrag. Samtidigt har det i delar av Europa varit en allvarlig torka, den värsta på många år.",
-   "tags": [
-    "torka"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.smhi.se/nyheter/nyheter/2026-09-11-exceptionellt-svar-torka-har-drabbat-europa-under---sommaren-2026",
-   "value": null,
-   "gruppe": "Nordiske naboer",
-   "webinarer": []
-  },
-  {
-   "source": "news",
-   "feedSource": "Circle of Blue",
-   "title": "The Nepal Flood Looked Fake. It Wasn’t",
-   "org": "Circle of Blue",
-   "date": "2026-09-10",
-   "summary": "An avalanche of rock and ice that originated in Nepal’s Langtang National Park on August 26, 2026, caused catastrophic flooding in the Trishuli River valley. To date, more than 1,400 people are confirmed dead and thousands more are missing. Photo © Jitendra Raj Bajracharya/ICIMOD. Published under a Creative Commons 4.0 license.\n\" data-large-file=\"https://i0.wp.com/www.circleofblue.org/wp-content/u",
-   "tags": [
-    "flood"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.circleofblue.org/2026/water-climate/climate-change/the-nepal-flood-looked-fake-it-wasnt/",
-   "value": null,
-   "gruppe": "Vandkredsløb & grundvand",
    "webinarer": []
   },
   {
@@ -9877,6 +9770,33 @@
   {
    "source": "news",
    "feedSource": "Urban Climate",
+   "title": "Rain-driven floods in New York City: An investigation using text-based data products",
+   "org": "Urban Climate",
+   "date": "",
+   "summary": "Publication date: December 2026Source: Urban Climate, Volume 70Author(s): Rachel Lo, Bernice R. Rosenzweig, Mobin Rahimi-Golkhandan, Matina Shakya, Art T. DeGaetano, Franco A. Montalto, Philip M. Orton, Joshua Rapp, Timon McPhearson",
+   "tags": [
+    "flood"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526004098?dgcid=rss_sd_all",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": [
+    {
+     "title": "Climate Adaptation Summit 2024 - Alan Cohn",
+     "youtube_url": "https://youtube.com/watch?v=qIyqX6OD96Y",
+     "date": "2025-01-23"
+    },
+    {
+     "title": "Climate Adaptation Summit 2024 - Jennifer Cherrier",
+     "youtube_url": "https://youtube.com/watch?v=fifdWf02UK4",
+     "date": "2025-01-22"
+    }
+   ]
+  },
+  {
+   "source": "news",
+   "feedSource": "Urban Climate",
    "title": "Cooling-resource mismatch and residual heat exposure among vulnerable populations in high-density Singapore: an equity-oriented diagnostic framework",
    "org": "Urban Climate",
    "date": "",
@@ -9900,6 +9820,20 @@
      "date": "2025-05-15"
     }
    ]
+  },
+  {
+   "source": "news",
+   "feedSource": "ArchDaily",
+   "title": "Shenzhen Bay MixC Phase II / Ippolito Fleitz Group",
+   "org": "ArchDaily",
+   "date": "2026-10-23",
+   "summary": "Where Infrastructure Becomes Experience - As retail environments continue to evolve globally, shopping malls are increasingly shifting from consumption-driven destinations into mixed-use social and cultural ecosystems. In this context, Shenzhen Bay MixC Phase II positions itself as an exemplary next-generation retail development—one that prioritises experience, connectivity, and urban integration ",
+   "tags": [],
+   "relevance": 0.17,
+   "url": "https://www.archdaily.com/1184408/shenzhen-bay-mixc-phase-ii-ippolito-fleitz-group",
+   "value": null,
+   "gruppe": "Kreative vinkler",
+   "webinarer": []
   },
   {
    "source": "news",
@@ -10112,6 +10046,20 @@
    ]
   },
   {
+   "source": "news",
+   "feedSource": "Journal Water Research",
+   "title": "Making waves: Benefits of “Big Science” - mobilising research infrastructures for urban drainage",
+   "org": "Journal Water Research",
+   "date": "",
+   "summary": "Publication date: 15 January 2027Source: Water Research, Volume 309, Part AAuthor(s): Abigail Legge, Simon Tait, Francois Clemens-Meyer, Jose Anta, Andy Nichols",
+   "tags": [],
+   "relevance": 0.17,
+   "url": "https://www.sciencedirect.com/science/article/pii/S0043135426018300?dgcid=rss_sd_all",
+   "value": null,
+   "gruppe": "Videnskab & forskning",
+   "webinarer": []
+  },
+  {
    "source": "scrape",
    "feedSource": "Samn Forsyning (tidl. Horsens Vand)",
    "org": "Samn Forsyning (tidl. Horsens Vand)",
@@ -10214,6 +10162,22 @@
   },
   {
    "source": "scrape",
+   "feedSource": "Plan- og Landdistriktsstyrelsen",
+   "org": "Plan- og Landdistriktsstyrelsen",
+   "title": "Udkast til vejledning om planlovens regler om klimatilpasning er sendt i høring",
+   "url": "https://www.plst.dk/nyheder-paa-planinfo/2026/okt/vejledning-om-klimatilpasning-sendt-i-hoering",
+   "date": "2026-10-21",
+   "summary": "Vejledningen giver overblik over planlovens regler for kommunernes arbejde med at forebygge skader fra oversvømmelser og erosion. Høringsfristen er den 18.11.2026.",
+   "tags": [
+    "klimatilpasning",
+    "oversvømmelse"
+   ],
+   "relevance": 0.83,
+   "value": null,
+   "gruppe": "Høringsparter"
+  },
+  {
+   "source": "scrape",
    "feedSource": "BlueKolding (tidl. Kolding Spildevand)",
    "org": "BlueKolding (tidl. Kolding Spildevand)",
    "title": "Pumpeslusen nomineret til klimapris",
@@ -10227,40 +10191,6 @@
    "relevance": 0.83,
    "value": null,
    "gruppe": "Forsyninger"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "DMI",
-   "title": "DMI’s Klimaatlas bliver model for nyt græsk klimaatlas",
-   "org": "DMI",
-   "date": "2026-09-25",
-   "summary": "25.\n                    september\n                    2026.Grækenland ligger i et europæisk klimahotspot, hvor hedebølger, tørke, naturbrande og…",
-   "tags": [
-    "klimaatlas",
-    "hedebølge",
-    "tørke"
-   ],
-   "relevance": 0.83,
-   "url": "https://www.dmi.dk/nyheder/2026/dmis-klimaatlas-bliver-model-for-nyt-graesk-klimaatlas",
-   "value": null,
-   "gruppe": "Vidensinstitutioner"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "Naturskaderådet",
-   "org": "Naturskaderådet",
-   "title": "Umiddelbar vurdering af kraftig regn den 31. august 2026",
-   "url": "https://naturskaderaadet.dk/nyheder/2026/20260904-umiddelbar-vurdering-af-kraftig-regn-den-31-august-2026",
-   "date": "2026-09-04",
-   "summary": "Skader efter oversvømmelser fra vandløb og søer som følge af den store mængde nedbør den 31. august er ikke omfattet af oversvømmelsesordningen.",
-   "tags": [
-    "oversvømmelse",
-    "vandløb",
-    "nedbør"
-   ],
-   "relevance": 0.83,
-   "value": null,
-   "gruppe": "Myndigheder"
   },
   {
    "source": "scrape",
@@ -10284,8 +10214,25 @@
    "feedSource": "Naturskaderådet",
    "org": "Naturskaderådet",
    "title": "Umiddelbar vurdering af kraftig regn den 31. august 2026",
+   "url": "https://naturskaderaadet.dk/nyheder/2026/20260904-umiddelbar-vurdering-af-kraftig-regn-den-31-august-2026",
+   "date": "2026-07-20",
+   "summary": "Skader efter oversvømmelser fra vandløb og søer som følge af den store mængde nedbør den 31. august er ikke omfattet af oversvømmelsesordningen.",
+   "tags": [
+    "oversvømmelse",
+    "vandløb",
+    "nedbør"
+   ],
+   "relevance": 0.83,
+   "value": null,
+   "gruppe": "Myndigheder"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "Naturskaderådet",
+   "org": "Naturskaderådet",
+   "title": "Umiddelbar vurdering af kraftig regn den 4.-5. august 2026",
    "url": "https://naturskaderaadet.dk/nyheder/2026/20260807-umiddelbar-vurdering-af-kraftig-regn-den-4-5-august-2026",
-   "date": "2026-08-07",
+   "date": "2026-07-20",
    "summary": "Skader efter oversvømmelser fra vandløb og søer som følge af den store mængde nedbør nær Vejle i døgnet mellem 4. og 5. august 2026 kan være omfattet af oversvømmelsesordningen.",
    "tags": [
     "oversvømmelse",
@@ -10345,6 +10292,23 @@
    "url": "https://www.dnnk.dk/klimahandlingsplan-ii/",
    "value": null,
    "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "BlueKolding (tidl. Kolding Spildevand)",
+   "org": "BlueKolding (tidl. Kolding Spildevand)",
+   "title": "Pumpeslusen virkede – Kolding Havn var IKKE oversvømmet",
+   "url": "https://bluekolding.dk/nws/pumpeslusen-virkede-kolding-havn-var-ikke-oversvoemmet/",
+   "date": "2026-10-20",
+   "summary": "Koldings nye pumpesluseanlæg bestod sin første prøve, og både byen og havnen kom gennem weekendens højvande uden oversvømmelser. Kun et mindre område med meget lavtliggende lystfiskerhytter var kortvarigt påvirket. ”Anlægget stod sin prøve. Nu går vi i gang med at finjustere det.” Sådan opsummerer c",
+   "tags": [
+    "oversvøm",
+    "højvand",
+    "oversvømmelse"
+   ],
+   "relevance": 0.75,
+   "value": null,
+   "gruppe": "Forsyninger"
   },
   {
    "source": "scrape",
@@ -10460,22 +10424,6 @@
    "url": "https://novafos.dk/nyheder/din-mening-om-os-er-vigtig-0",
    "value": null,
    "gruppe": "Forsyninger"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "DMI",
-   "title": "Marine hedebølger kan ramme danske farvande 250 dage om året",
-   "org": "DMI",
-   "date": "2026-09-17",
-   "summary": "17.\n                    september\n                    2026.Nye tal i DMI’s Klimaatlas viser, at havet omkring Danmark bliver varmere i fremtiden.…",
-   "tags": [
-    "hedebølge",
-    "klimaatlas"
-   ],
-   "relevance": 0.58,
-   "url": "https://www.dmi.dk/nyheder/2026/marine-hedeboelger-kan-ramme-danske-farvande-250-dage-om-aaret",
-   "value": null,
-   "gruppe": "Vidensinstitutioner"
   },
   {
    "source": "scrape",
@@ -10620,22 +10568,6 @@
   },
   {
    "source": "scrape",
-   "feedSource": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
-   "org": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
-   "title": "Sådan sagsbehandler vi tilsagnsforhøjelser til vådområder og lavbundsprojekter",
-   "url": "https://sgav.dk/alle-nyheder/nyheder/2026/okt/saadan-sagsbehandler-vi-tilsagnsforhoejelser-til-vaadomraader-og-lavbundsprojekter",
-   "date": "2026-10-06",
-   "summary": "Flere kommuner har kontaktet styrelsen med spørgsmål til ansøgning om tilsagnsforhøjelser til vådområder og lavbundsprojekter. For at skabe klarhed over praksis informerer vi her om, hvordan ansøgninger om tilsagnsforhøjelser administreres.",
-   "tags": [
-    "vådområde",
-    "lavbund"
-   ],
-   "relevance": 0.5,
-   "value": null,
-   "gruppe": "Høringsparter"
-  },
-  {
-   "source": "scrape",
    "feedSource": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
    "org": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
    "title": "2026 - 87684 - Høring - Ansøgning - Geoteknisk forundersøgelse  - Lejre Vig - Roskilde Fjord",
@@ -10732,18 +10664,33 @@
   },
   {
    "source": "scrape",
-   "feedSource": "klimamonitor.dk",
-   "title": "De menneskeskabte klimaforandringer giver flere franske hedebølger. Og det er vanskeligt at dyrke vin i",
-   "org": "klimamonitor.dk",
-   "date": "2026-10-19",
-   "summary": "",
+   "feedSource": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
+   "org": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
+   "title": "Screening af visse projekter efter miljøvurderingsloven lettes",
+   "url": "https://sgav.dk/alle-nyheder/nyheder/2026/okt/screening-af-visse-projekter-efter-miljoevurderingsloven-lettes",
+   "date": "2026-10-22",
+   "summary": "En ændring i ordlyden i den danske version af VVM-direktivet forventes at lette kommunernes screeningsarbejde af mindre anlægsprojekter i byzone, og projekter som har karakter af vandløbsregulering.",
    "tags": [
-    "hedebølge"
+    "vandløb"
    ],
    "relevance": 0.33,
-   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19747955.ece",
    "value": null,
-   "gruppe": "Vidensinstitutioner"
+   "gruppe": "Høringsparter"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
+   "org": "Styrelsen for Grøn Arealomlægning og Vandmiljø",
+   "title": "Regelforenkling gavner klima og natur",
+   "url": "https://sgav.dk/alle-nyheder/nyheder/2026/okt/regelforenkling-gavner-klima-og-natur",
+   "date": "2026-10-22",
+   "summary": "Et nyt forslag om indførelse af bagatelgrænser for miljøscreeninger vil betyde, at mange nye skove og vådområder kan etableres hurtigere.",
+   "tags": [
+    "vådområde"
+   ],
+   "relevance": 0.33,
+   "value": null,
+   "gruppe": "Høringsparter"
   },
   {
    "source": "scrape",
@@ -10987,6 +10934,66 @@
   },
   {
    "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "De menneskeskabte klimaforandringer giver flere franske hedebølger. Og det er vanskeligt at dyrke vin i",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "hedebølge"
+   ],
+   "relevance": 0.33,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19747955.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Skrotter støtte til klimasikring:»Jeg troede faktisk, at den her regering gik op i klimaforandringer«",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "klimasikring"
+   ],
+   "relevance": 0.33,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19725018.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Regeringen sløjfer millioner til klimasikring af ejendomme",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "klimasikring"
+   ],
+   "relevance": 0.33,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19721964.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Ny analyse:Klimaforandringerne oversvømmer Vestjylland og udtørrer Sydhavsøerne",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "oversvøm"
+   ],
+   "relevance": 0.33,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19707201.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
    "feedSource": "EnviDan",
    "title": "Vi bygger nyt vandværk for Glostrup Forsyning",
    "org": "EnviDan",
@@ -11027,6 +11034,36 @@
    "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/arrangement/invitation-til-konference-om-naturbaserede-loesninger-i-kystvande",
    "value": null,
    "gruppe": "Platforme & netværk"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
+   "org": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
+   "title": "2025 - 55996 - Tilladelse til en cykel- og gangbro, et svømmeområde, en opholds-trappe samt en boardwalk i Nykøbing F. Havn, Guldborgsund Kommune",
+   "url": "https://mst.dk/offentliggoerelser/soeterritoriet/2026/oktober/2025-55996-tilladelse-til-en-cykel-og-gangbro-et-svoemmeomraade-en-opholds-trappe-samt-en-boardwalk-i-nykoebing-f-havn-guldborgsund-kommune",
+   "date": "2026-10-22",
+   "summary": "Tilladelsen indeholder afgørelse efter kystbeskyttelsesloven, kysthabitatbekendt-gørelsen og miljøvurderingsloven.",
+   "tags": [
+    "kystbeskyttelse"
+   ],
+   "relevance": 0.25,
+   "value": null,
+   "gruppe": "Tilladelser & høringer"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
+   "org": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
+   "title": "2025 - 4479 - Tilladelse til etableringen af et multifunktionelt broanlæg ved Klintebjerg Efterskole, Nordfyns Kommune",
+   "url": "https://mst.dk/offentliggoerelser/soeterritoriet/2026/oktober/2025-4479-tilladelse-til-etableringen-af-et-multifunktionelt-broanlaeg-ved-klintebjerg-efterskole-nordfyns-kommune",
+   "date": "2026-10-19",
+   "summary": "Tilladelsen indeholder afgørelse efter kystbeskyttelsesloven, kysthabitatbekendtgørelsen og miljøvurderingsloven.",
+   "tags": [
+    "kystbeskyttelse"
+   ],
+   "relevance": 0.25,
+   "value": null,
+   "gruppe": "Tilladelser & høringer"
   },
   {
    "source": "scrape",
@@ -11135,36 +11172,6 @@
   },
   {
    "source": "scrape",
-   "feedSource": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
-   "org": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
-   "title": "2025 - 109051 - Tilladelse til genopretning af stenrev nord for Skovshoved Havn, Gentofte Kommune",
-   "url": "https://mst.dk/offentliggoerelser/soeterritoriet/2026/september/2025-109051-tilladelse-til-genopretning-af-stenrev-nord-for-skovshoved-havn-gentofte-kommune",
-   "date": "2026-09-22",
-   "summary": "Tilladelsen indeholder afgørelse efter kystbeskyttelsesloven, kysthabitatbekendtgø-relsen og miljøvurderingsloven.",
-   "tags": [
-    "kystbeskyttelse"
-   ],
-   "relevance": 0.25,
-   "value": null,
-   "gruppe": "Tilladelser & høringer"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
-   "org": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
-   "title": "2025 - 109046 - Tilladelse til genopretning af stenrev, samt etablering af formidlingsrev, syd for Skovshoved Havn, Gentofte Kommune",
-   "url": "https://mst.dk/offentliggoerelser/soeterritoriet/2026/september/2025-109046-tilladelse-til-genopretning-af-stenrev-samt-etablering-af-formidlingsrev-syd-for-skovshoved-havn-gentofte-kommune",
-   "date": "2026-09-22",
-   "summary": "Tilladelsen indeholder afgørelse efter kystbeskyttelsesloven, kysthabitatbekendtgø-relsen og miljøvurderingsloven.",
-   "tags": [
-    "kystbeskyttelse"
-   ],
-   "relevance": 0.25,
-   "value": null,
-   "gruppe": "Tilladelser & høringer"
-  },
-  {
-   "source": "scrape",
    "feedSource": "BIOFOS",
    "title": "Samlet beslutningsgrundlag om fremtidens renseanlæg på plads",
    "org": "BIOFOS",
@@ -11180,6 +11187,19 @@
   },
   {
    "source": "scrape",
+   "feedSource": "KTC Kystnetværk Sjælland",
+   "title": "Tilladelse til forsøgsprojekt",
+   "org": "KTC Kystnetværk Sjælland",
+   "date": "2026-09-16",
+   "summary": "",
+   "tags": [],
+   "relevance": 0.25,
+   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/tilladelse-til-forsoegsprojekt",
+   "value": null,
+   "gruppe": "Platforme & netværk"
+  },
+  {
+   "source": "scrape",
    "feedSource": "BIOFOS",
    "title": "Pumpeforsøg på Tranestien 2 i Brøndby",
    "org": "BIOFOS",
@@ -11192,19 +11212,6 @@
    "url": "https://www.biofos.dk/om-biofos/nyheder/pumpeforsoeg-paa-tranestien-2-broendby",
    "value": null,
    "gruppe": "Forsyninger"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "KTC Kystnetværk Sjælland",
-   "title": "Tilladelse til forsøgsprojekt",
-   "org": "KTC Kystnetværk Sjælland",
-   "date": "2026-09-14",
-   "summary": "",
-   "tags": [],
-   "relevance": 0.25,
-   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/tilladelse-til-forsoegsprojekt",
-   "value": null,
-   "gruppe": "Platforme & netværk"
   },
   {
    "source": "scrape",
@@ -11292,6 +11299,19 @@
   },
   {
    "source": "scrape",
+   "feedSource": "KTC Kystnetværk Sjælland",
+   "title": "Tilladelse til nyttiggørelse af havbundsmateriale fra havneoprensning",
+   "org": "KTC Kystnetværk Sjælland",
+   "date": "2026-05-19",
+   "summary": "",
+   "tags": [],
+   "relevance": 0.25,
+   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/tilladelse-til-nyttiggoerelse-af-havbundsmateriale-fra-havneoprensning",
+   "value": null,
+   "gruppe": "Platforme & netværk"
+  },
+  {
+   "source": "scrape",
    "feedSource": "Scalgo",
    "title": "How stormwater moves through cities during rainfall – integrating pipe networks into analysis",
    "org": "Scalgo",
@@ -11304,19 +11324,6 @@
    "url": "https://scalgo.com/da/blog/how-stormwater-moves-through-cities-during-rainfall-integrating-pipe-networks-into-analysis",
    "value": null,
    "gruppe": "Rådgivere"
-  },
-  {
-   "source": "scrape",
-   "feedSource": "KTC Kystnetværk Sjælland",
-   "title": "Tilladelse til nyttiggørelse af havbundsmateriale fra havneoprensning",
-   "org": "KTC Kystnetværk Sjælland",
-   "date": "2026-05-18",
-   "summary": "",
-   "tags": [],
-   "relevance": 0.25,
-   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/tilladelse-til-nyttiggoerelse-af-havbundsmateriale-fra-havneoprensning",
-   "value": null,
-   "gruppe": "Platforme & netværk"
   },
   {
    "source": "scrape",
@@ -11353,7 +11360,7 @@
    "feedSource": "KTC Kystnetværk Sjælland",
    "title": "Erfaringer med nedlæggelse af pumpe/dige/landvindingslag ?",
    "org": "KTC Kystnetværk Sjælland",
-   "date": "2026-03-02",
+   "date": "2026-02-25",
    "summary": "",
    "tags": [
     "dige"
@@ -11380,21 +11387,6 @@
   },
   {
    "source": "scrape",
-   "feedSource": "KTC Kystnetværk Sjælland",
-   "title": "Hvordan håndteret I lovliggørelse af kystbeskyttelse?",
-   "org": "KTC Kystnetværk Sjælland",
-   "date": "2026-02-14",
-   "summary": "",
-   "tags": [
-    "kystbeskyttelse"
-   ],
-   "relevance": 0.25,
-   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/hvordan-haandteret-i-lovliggoerelse-af-kystbeskyttelse",
-   "value": null,
-   "gruppe": "Platforme & netværk"
-  },
-  {
-   "source": "scrape",
    "feedSource": "HOFOR",
    "title": "HOFORs drikkevand overholder nye anbefalinger om nitrat",
    "org": "HOFOR",
@@ -11407,6 +11399,21 @@
    "url": "https://www.hofor.dk/nyhed/hofors-drikkevand-overholder-nye-anbefalinger-om-nitrat/",
    "value": null,
    "gruppe": "Forsyninger"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "KTC Kystnetværk Sjælland",
+   "title": "Hvordan håndteret I lovliggørelse af kystbeskyttelse?",
+   "org": "KTC Kystnetværk Sjælland",
+   "date": "2026-02-11",
+   "summary": "",
+   "tags": [
+    "kystbeskyttelse"
+   ],
+   "relevance": 0.25,
+   "url": "https://www.ktc.dk/netvaerk-kystbeskyttelse-region-sjaelland/diskussion/hvordan-haandteret-i-lovliggoerelse-af-kystbeskyttelse",
+   "value": null,
+   "gruppe": "Platforme & netværk"
   },
   {
    "source": "scrape",
@@ -11426,7 +11433,7 @@
    "feedSource": "KTC Kystnetværk Sjælland",
    "title": "Roskilde Kommune søger en medarbejder til kystbeskyttelse og badebroer",
    "org": "KTC Kystnetværk Sjælland",
-   "date": "2025-12-18",
+   "date": "2025-12-20",
    "summary": "",
    "tags": [
     "kystbeskyttelse"
@@ -11456,7 +11463,7 @@
    "feedSource": "KTC Kystnetværk Sjælland",
    "title": "Ændring af bidragsfordeling for et § 1a kystbeskyttelsesprojekt",
    "org": "KTC Kystnetværk Sjælland",
-   "date": "2025-11-09",
+   "date": "2025-11-13",
    "summary": "",
    "tags": [
     "kystbeskyttelse"
@@ -11480,6 +11487,126 @@
    "url": "https://www.hofor.dk/nyhed/nu-begynder-den-stoerste-skybrudssikring-af-hovedstadsomraadet/",
    "value": null,
    "gruppe": "Forsyninger"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Nu er det ikke din ejendomsværdi, der skal bestemme, om du kan få kystsikring",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19719327.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Kommune spenderer 25 mio. kr. for at gøre kystsikring til udflugtsmål",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19712083.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Mariannes hus blev oversvømmet, men ifølge lovgivningen har hun »aldrig haft et krav på at gå tørskoet i seng«",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "oversvøm"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19706339.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Mens kystsikring gavner en kommune, kan det ødelægge havet i den anden",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19694140.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Borgere tog sagen i egen hånd. Nu skal kystsikring rives ned",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19692951.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Syv kommuner går sammen om at mindske ødelæggelser ved kystsikring",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19692711.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "Kystsikring af nordsjællandske boliger kan ødelægge østjysk havmiljø",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "kystsikring"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19660739.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
+  },
+  {
+   "source": "scrape",
+   "feedSource": "klimamonitor.dk",
+   "title": "»Ekstremt i dag, normalt i fremtiden«DMI forudser mangedobling af dage med marin hedebølge i danske farvande",
+   "org": "klimamonitor.dk",
+   "date": "",
+   "summary": "",
+   "tags": [
+    "hedebølge"
+   ],
+   "relevance": 0.25,
+   "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19651744.ece",
+   "value": null,
+   "gruppe": "Vidensinstitutioner"
   },
   {
    "source": "scrape",
