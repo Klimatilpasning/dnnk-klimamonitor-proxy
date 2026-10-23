@@ -1,207 +1,231 @@
 {
- "dato": "2026-10-20",
- "periode": "12/10-20/10",
- "opsummering": "25 nye fund. Ugens bedste er Jomfrustien i Haderslev, en regnvandspark til 100-årshændelser. Resten er mest akademiske artikler og leverandørnyt; fire kilder (Aarhus Vand, Aarhus Vand Innovation, Næstved Forsyning, Bornholms Forsyning) kunne ikke hentes.",
+ "dato": "2026-10-23",
+ "periode": "15/10-23/10",
+ "opsummering": "Ugens vigtigste: Kystklar (10 danske og svenske kommuner om naturbaserede kystløsninger), udkast til vejledning om klimatilpasning i kommune- og lokalplaner i høring til 18/11, og Kolding-pumpeslusen, hvor en havn alligevel blev oversvømmet. Siderne kunne ikke hentes, så vurderingen bygger på titel og resumé. Datakilde: proxyen (ugedata.json var 4 dage gammel); kommunenyheder og dagsordener indgår ikke.",
  "punkter": [
   {
    "farve": "groen",
-   "titel": "Visionær klimatilpasning: Jomfrustien forener vand, by og natur",
-   "url": "https://www.envidan.com/da/projekt/klimatilpasning-jomfrustien/",
-   "kilde": "EnviDan",
-   "dato": "2026-10-19",
-   "begrundelse": "Konkret regnvandspark i Haderslev (ca. 10.000 m3 tilbageholdelse, 100-årshændelse, beskytter bymidten). Mulig afsender: Haderslev Kommune/Haderslev Forsyning sammen med EnviDan. Vinkel: omdannelse af parkeringsareal til klimatilpasning i bymidten."
+   "titel": "Høring over udkast til vejledning om klimatilpasning i kommune- og lokalplaner",
+   "url": "https://hoeringsportalen.dk/Hearing/Details/71667",
+   "kilde": "Høringsportalen",
+   "dato": "2026-10-21",
+   "begrundelse": "Udkast til vejledning om klimatilpasning i kommune- og lokalplaner i høring, frist 18/11. DNNK afgiver ikke høringssvar, men en ny regel/vejledning er webinarstof for kommuner og rådgivere (afsender: ministeriet)."
+  },
+  {
+   "farve": "groen",
+   "titel": "Oversvømmelser trods milliondyr sluse: Nu peger borgmesteren på en læring",
+   "url": "https://www.tvsyd.dk/kolding/milliondyr-sluse-holdt-ikke-alt-vandet-ude-nu-peger-borgmesteren-pa-en-laering-e2dac",
+   "kilde": "Bing News – oversvømmelse",
+   "dato": "2026-10-20",
+   "begrundelse": "Kolding: Danmarks største pumpesluseanlæg var i aktion, men en havn blev alligevel oversvømmet, og borgmesteren peger på læring. Konkret erfaring fra et stort anlæg, god webinarcase med kommune og forsyning som mulige oplægsholdere."
+  },
+  {
+   "farve": "groen",
+   "titel": "Nye og erfarne kræfter vil sikre kysterne med naturens materialer",
+   "url": "https://gate21.dk/klimatilpasning/nye-og-erfarne-kraefter-vil-sikre-kysterne-med-naturens-materialer/",
+   "kilde": "Gate 21",
+   "dato": "2026-10-21",
+   "begrundelse": "Kystklar: 10 danske og svenske kommuner søger naturbaserede kystløsninger. Stærk webinarvinkel (Gate 21 som afsender), hænger sammen med KTC-konferencen om naturbaserede løsninger i kystvande, som KP tog op 19/10. Dækket delvist af webinaren om NBS og City Blues."
   },
   {
    "farve": "gul",
-   "titel": "Tracking urban climate change adaptation over time: Evidence from indicator-based monitoring systems of ten major cities",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003925?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Forskningsartikel om indikatorbaseret monitorering af klimatilpasning i ti store byer. Relevant for kommuner, der skal følge op på handleplaner. Relaterede DNNK-webinarer om social dimension i kystplanlægning findes allerede."
+   "titel": "Stadfæstelse i sag om klassificering af rørledning som privat vandløb i Horsens Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/f889385c-306b-4948-8a03-f8e563b892dc",
+   "kilde": "Miljø- og Fødevareklagenævnet",
+   "dato": "2026-10-15",
+   "begrundelse": "Miljø- og Fødevareklagenævnet stadfæster klassificering af rørledning som privat vandløb i Horsens. Praksis om vandløb og afvanding; kan vise retlig ramme, men enkeltsag."
   },
   {
    "farve": "gul",
-   "titel": "Beyond resolution: An integrated framework for selecting climate data for urban heat-risk assessment",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003810?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Valg af klimadata til hederisikovurdering. Relevant for rådgivere, men teknisk og akademisk."
+   "titel": "Scaling climate adaptation planning: impacts and limitations of California’s Senate Bill 379 for local planning",
+   "url": "https://link.springer.com/article/10.1007/s10584-026-04319-w",
+   "kilde": "Climatic Change",
+   "dato": "2026-10-21",
+   "begrundelse": "Studie af Californiens lovkrav om klimatilpasning i kommunale planer (SB 379). Relevant sammenligning til den danske vejledning i kommuneplaner."
   },
   {
    "farve": "gul",
-   "titel": "Cooling-resource mismatch and residual heat exposure among vulnerable populations in high-density Singapore: an equity-oriented diagnostic framework",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003858?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Singapore-studie af manglende kølingsressourcer for sårbare grupper. Overførbar vinkel på hedetilpasning og social sårbarhed."
+   "titel": "Svensk rapport: Klimatilpasningen går for sakte",
+   "url": "https://www.folkebladet.no/norgeogverden/n/9kL00l/svensk-rapport-klimatilpasningen-gaar-for-sakte",
+   "kilde": "Bing News – klimatilpasning",
+   "dato": "2026-10-20",
+   "begrundelse": "Svensk rapport (via norsk avis) om at klimatilpasningen halter efter forsvarsinvesteringer. Nordisk perspektiv, ingen konkret case."
   },
   {
    "farve": "gul",
-   "titel": "A predictive framework for urban climate risk: Mapping heat Hazard and socioeconomic vulnerability at high resolution scenarios",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003871?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Metode til kortlægning af hedefare og social sårbarhed i høj opløsning. Kan inspirere kommunale hedekort."
+   "titel": "Vägledning hjälper kommuner hitta ytor för dagvattenhantering vid skyfall",
+   "url": "https://vaguiden.se/2026/10/vagledning-hjalper-kommuner-hitta-ytor-for-dagvattenhantering-vid-skyfall/",
+   "kilde": "VA-guiden (SE)",
+   "dato": "2026-10-20",
+   "begrundelse": "Svensk vejledning til at finde arealer til regnvandshåndtering ved skybrud via kortlægning af oversvømmelsesrisiko. Interessant metode til nordisk webinar, men afsender og modenhed uklar."
   },
   {
    "farve": "gul",
-   "titel": "FRAME-PS: a typology-specific method for assessing climate resilience in urban public spaces",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526004049?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Metode til vurdering af klimarobusthed i byrum efter typologi. Kan give kommuner et redskab, men er akademisk og tidligt stadie."
+   "titel": "Erik Kjellström om arbetet med IPCC:s rapport om effekter, anpassning och sårbarhet",
+   "url": "https://www.smhi.se/nyheter/nyheter/2026-10-22-erik-kjellstrom-om-arbetet-med-ipccs-rapport-om-effekter-anpassning-och-sarbarhet",
+   "kilde": "SMHI Sverige",
+   "dato": "2026-10-22",
+   "begrundelse": "SMHI: Erik Kjellström om arbejdet med IPCC-kapitlet om effekter, tilpasning og sårbarhed i Europa. Mulig faglig oplægsvinkel, men indirekte."
   },
   {
    "farve": "gul",
-   "titel": "Vi arbejder på bedre vandforsyning i Nakskov",
-   "url": "https://lollandforsyning.dk/vi-arbejder-paa-bedre-vandforsyning-i-nakskov/",
-   "kilde": "Lolland Forsyning",
-   "dato": "2026-10-19",
-   "begrundelse": "Lolland Forsyning arbejder med bedre vandforsyning i Nakskov. Uklar klimatilpasningsvinkel, tjek om forsyningssikkerhed/klima er en del af sagen."
+   "titel": "Læsø: retningslinjer for oversvømmelse og erosion",
+   "url": "https://dokument.plandata.dk/11_11425954_1792407660145.pdf",
+   "kilde": "Læsø Kommune (Plandata)",
+   "dato": "2026-08-31",
+   "begrundelse": "Læsø Kommune: retningslinjer for oversvømmelse og erosion i kommuneplanhøring. Konkret planlægning for en ø, kan være case for klimatilpasning i kommuneplan."
   },
   {
    "farve": "gul",
-   "titel": "DynamicFlood goes global: Ready-to-run flood modelling anywhere in the world",
-   "url": "https://scalgo.com/da/blog/dynamicflood-goes-global-ready-to-run-flood-modelling-anywhere-in-the-world",
-   "kilde": "Scalgo",
-   "dato": "2026-10-19",
-   "begrundelse": "Scalgo lancerer global oversvømmelsesmodellering (DynamicFlood). Leverandørnyhed, men relevant for rådgivere og kommuner som værktøjsvinkel."
+   "titel": "Har vi spildt millioner i Vidåen og Gelsåen? Genslyngning af åer gavner ikke biodiversiteten som forventet",
+   "url": "https://sydnyt.dk/har-vi-spildt-millioner-i-vidaaen-og-gelsaaen-genslyngning-af-aaer-gavner-ikke-biodiversiteten-som-forventet/",
+   "kilde": "Bing News – vandløbsrestaurering",
+   "dato": "2026-10-21",
+   "begrundelse": "Genslyngning af Vidåen og Gelsåen gavner ikke biodiversiteten som forventet. Vandløbsrestaurering er kun delvist klimatilpasning; evt. vinkel om effektevaluering."
   },
   {
    "farve": "gul",
-   "titel": "Interactive runoff modelling: A new way to explore watersheds",
-   "url": "https://scalgo.com/da/blog/runoff-modelling-made-easy",
-   "kilde": "Scalgo",
-   "dato": "2026-10-19",
-   "begrundelse": "Scalgo-værktøj til interaktiv afstrømningsmodellering. Leverandørnyhed med mulig værktøjsvinkel til et webinar."
+   "titel": "Vi behøver ikke være enige om overløb. Men lad os tale ud fra samme viden",
+   "url": "https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/",
+   "kilde": "Herning Vand",
+   "dato": "2026-10-21",
+   "begrundelse": "Herning Vand om overløb og fælles videngrundlag i debatten. Forsyningsvinkel, kan blive webinar om overløb og kommunikation; uklart om klimatilpasning i snæver forstand."
   },
   {
    "farve": "gul",
-   "titel": "Sommeren er over os og en hedebølge er på vej",
-   "url": "https://lollandforsyning.dk/sommeren-er-over-os-og-en-hedeboelge-er-paa-vej/",
-   "kilde": "Lolland Forsyning",
-   "dato": "2026-10-19",
-   "begrundelse": "Lolland Forsyning om hedebølge på vej. Sandsynligvis generel varsling, men kan have forsyningsvinkel på hedetilpasning."
+   "titel": "Vigtig milepæl: Tilladelse til ny cykel-gangbro i Nykøbing Falster",
+   "url": "https://via.ritzau.dk/pressemeddelelse/15241166/vigtig-milepael-tilladelse-til-ny-cykel-gangbro-i-nykobing-falster?publisherId=11287667&lang=da",
+   "kilde": "Guldborgsund Kommune (Ritzau)",
+   "dato": "2026-10-22",
+   "begrundelse": "Kystdirektoratet har givet tilladelse til ny cykel-gangbro over Guldborg Sund. Kystdirektoratets tilladelse er sagsgang; tvivlsom klimavinkel."
+  },
+  {
+   "farve": "gul",
+   "titel": "Efter tre år: Afklaring om ny stormflodsordning kan være på trapperne",
+   "url": "https://jyllands-posten.dk/erhverv/ECE19758767/efter-tre-aar-afklaring-om-ny-stormflodsordning-kan-vaere-paa-trapperne/",
+   "kilde": "Bing News – stormflod",
+   "dato": "2026-10-22",
+   "begrundelse": "Afklaring om ny stormflodsordning kan være på trapperne efter tre år. Politisk emne, hold det fagligt; relevant for kystkommuner. Webinar om dynamisk beredskab mod stormfloden findes."
+  },
+  {
+   "farve": "gul",
+   "titel": "Tre år efter stormflod venter Per stadig på ministerløfte: 'Det er noget lort'",
+   "url": "https://www.dr.dk/nyheder/indland/tre-aar-efter-stormflod-venter-per-stadig-paa-ministerloefte-det-er-noget-lort",
+   "kilde": "Bing News – stormflod",
+   "dato": "2026-10-21",
+   "begrundelse": "Tre år efter stormfloden venter borgere stadig på udvidet erstatningsordning. Samme sag som stormflodsordningen; mest politisk, men kontekst for kystklimatilpasning."
   },
   {
    "farve": "roed",
-   "titel": "An integrated planning framework for assessing stormwater runoff and non-point source pollution impacts of vacant-lot buyouts and green infrastructure",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003718?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Bekendtgørelse af lov om ioniserende stråling og strålebeskyttelse (strålebeskyttelsesloven)",
+   "url": "https://www.retsinformation.dk/eli/lta/2026/902",
+   "kilde": "Retsinformation",
+   "dato": "2026-10-22",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Corrigendum to “Automatic mapping of urban heat islands based on high-resolution climate simulations with application to French cities” [Urban Clim. 69 (2026) 103117]",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526004128?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Afvisning af klage over screeningsafgørelse om ikke at gennemføre miljøvurdering for lokalplan og kommuneplantillæg i Kolding Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/7a36aca3-8d23-49f6-b857-81c56cb76ba2",
+   "kilde": "Miljø- og Fødevareklagenævnet",
+   "dato": "2026-10-15",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Mapping the urban heat island and climate risk in Padua (Italy): Trends in extremes and perspectives for climate justice in adaptation planning",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003743?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Afvisning af klage i sag om klassificering af rørledning som privat vandløb i Horsens Kommune",
+   "url": "https://mfkn.naevneneshus.dk/afgoerelse/62a74312-b617-4c2e-b3ac-c1acddc97b72",
+   "kilde": "Miljø- og Fødevareklagenævnet",
+   "dato": "2026-10-15",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Spectrally resolved radiative properties of roofing materials for urban heat mitigation and building energy assessment",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526004001?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Er denne bjerglandsby sikker mod skybrud og oversvømmelser?",
+   "url": "https://www.msn.com/da-dk/nyheder/other/er-denne-bjerglandsby-sikker-mod-skybrud-og-oversvømmelser/vi-AA2fy86I",
+   "kilde": "Bing News – skybrud",
+   "dato": "2026-10-18",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Spatially distributed modeling of urban runoff temperature under surface temperature forcing",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003937?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Danskerne sparer på vandet – alligevel stiger regningen: Så meget betaler en familie nu",
+   "url": "https://fjordavisen.nu/danskerne-sparer-paa-vandet-alligevel-stiger-regningen-saa-meget-betaler-en-familie-nu/",
+   "kilde": "Bing News – spildevand",
+   "dato": "2026-10-22",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Heat, water, and hillsides: An integrated diagnosis of compounded climate risks for coastal adaptation in Brazil",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003950?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Kan renset spildevand sikre flere grønne fisk på din tallerken?",
+   "url": "https://ing.dk/artikel/kan-renset-spildevand-sikre-flere-groenne-fisk-paa-din-tallerken",
+   "kilde": "Ingeniøren",
+   "dato": "2026-10-22",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Climate change integrated intensity-duration-frequency analysis for the coastal cities of Kochi and Kozhikode, India",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003949?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Større fisk spræller rundt i næsten intet vand",
+   "url": "https://www.tvsyd.dk/vejle/storre-fisk-spraeller-rundt-i-naesten-intet-vand-246e7",
+   "kilde": "Bing News – regnvandsbassin",
+   "dato": "2026-10-16",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Local climate zone-based heat risk assessment of the coastal zone in Guangdong-Hong Kong-Macao Greater Bay Area",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003901?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Vi er skræmt fra vid og sans. Men hvad koster det egentlig, når nettet går ned?",
+   "url": "https://www.berlingske.dk/kommentar/vi-er-skraemt-fra-vid-og-sans-men-hvad-koster-det-egentlig-naar-nettet-gaar-ned",
+   "kilde": "Bing News – oversvømmelse",
+   "dato": "2026-10-22",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Scale-dependent shifts in urban park cooling performance, spatial associations, and area thresholds",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003809?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Søren Gade har ikke fortrudt, at han overdængede miljøministeren med spørgsmål",
+   "url": "https://avisendanmark.dk/politik/soeren-gade-har-ikke-fortrudt-at-han-overdaengede-miljoeministeren-med-spoergsmaal",
+   "kilde": "Bing News – spildevand",
+   "dato": "2026-10-21",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Leaching, photodegradation, and field occurrence of tire-derived chemicals and their transformation products: LC-HRMS-based target and suspect screening from laboratory to urban road runoff",
-   "url": "https://www.sciencedirect.com/science/article/pii/S0043135426018191?dgcid=rss_sd_all",
-   "kilde": "Journal Water Research",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Leder: Sort galskab i Nordsøen skal komme danske borgere til gavn",
+   "url": "https://ing.dk/holdning/sort-galskab-i-nordsoeen-skal-komme-danske-borgere-til-gavn",
+   "kilde": "Ingeniøren",
+   "dato": "2026-10-21",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Spatially heterogeneous associations between the built environment and heatwave-related changes in leisure activity",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003834?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Observations show increased nitrate in coastal cloud droplet residuals from large-particle activation and N2O5 hydrolysis",
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aei3465?af=R",
+   "kilde": "Science Advances",
+   "dato": "2026-10-21",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Corrigendum to “Physics-guided modeling reveals contrasting latent heat flux responses across urban local climate zones under extreme heat” [Urban Clim., Volume 69 (2026) 103136]",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003986?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "Submesoscale feedback suppresses marine heatwaves",
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aei4624?af=R",
+   "kilde": "Science Advances",
+   "dato": "2026-10-21",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Scale-dependent effects and thresholds in urban climate regulation: The roles of local and surrounding environmental influences",
-   "url": "https://www.sciencedirect.com/science/article/pii/S2212095526003846?dgcid=rss_sd_all",
-   "kilde": "Urban Climate",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: akademisk artikel uden dansk vinkel."
+   "titel": "A phosphorylation-gated GAPDH-MAPK6-LBD1 module controls drought-responsive transcription",
+   "url": "https://www.science.org/doi/abs/10.1126/sciadv.aek0125?af=R",
+   "kilde": "Science Advances",
+   "dato": "2026-10-21",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   },
   {
    "farve": "roed",
-   "titel": "Vi bygger nyt vandværk for Glostrup Forsyning",
-   "url": "https://www.envidan.com/da/nyheder/vi-bygger-nyt-vandvaerk-for-glostrup-forsyning/",
-   "kilde": "EnviDan",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: rutinesag, mitigering eller ikke klimatilpasning."
-  },
-  {
-   "farve": "roed",
-   "titel": "Nyt MUDP-projekt: Udvinding af biopolymerer fra spildevandsslam til cirkulær genanvendelse",
-   "url": "https://www.envidan.com/da/nyheder/mudp-extract/",
-   "kilde": "EnviDan",
-   "dato": "2026-10-19",
-   "begrundelse": "Støj: rutinesag, mitigering eller ikke klimatilpasning."
+   "titel": "Water company bosses update National Drought Group on resilience",
+   "url": "https://www.gov.uk/government/news/water-company-bosses-update-national-drought-group-on-resilience",
+   "kilde": "Env. Agency (UK)",
+   "dato": "2026-10-20",
+   "begrundelse": "Støj eller uden klimatilpasningsvinkel."
   }
  ],
  "sete": [
@@ -504,6 +528,34 @@
   "https://www.sciencedirect.com/science/article/pii/S2212095526003986?dgcid=rss_sd_all",
   "https://www.sciencedirect.com/science/article/pii/S2212095526003846?dgcid=rss_sd_all",
   "https://www.envidan.com/da/nyheder/vi-bygger-nyt-vandvaerk-for-glostrup-forsyning/",
-  "https://www.envidan.com/da/nyheder/mudp-extract/"
+  "https://www.envidan.com/da/nyheder/mudp-extract/",
+  "https://www.retsinformation.dk/eli/lta/2026/902",
+  "https://mfkn.naevneneshus.dk/afgoerelse/f889385c-306b-4948-8a03-f8e563b892dc",
+  "https://mfkn.naevneneshus.dk/afgoerelse/7a36aca3-8d23-49f6-b857-81c56cb76ba2",
+  "https://mfkn.naevneneshus.dk/afgoerelse/62a74312-b617-4c2e-b3ac-c1acddc97b72",
+  "https://hoeringsportalen.dk/Hearing/Details/71667",
+  "https://link.springer.com/article/10.1007/s10584-026-04319-w",
+  "https://www.folkebladet.no/norgeogverden/n/9kL00l/svensk-rapport-klimatilpasningen-gaar-for-sakte",
+  "https://www.tvsyd.dk/kolding/milliondyr-sluse-holdt-ikke-alt-vandet-ude-nu-peger-borgmesteren-pa-en-laering-e2dac",
+  "https://vaguiden.se/2026/10/vagledning-hjalper-kommuner-hitta-ytor-for-dagvattenhantering-vid-skyfall/",
+  "https://www.msn.com/da-dk/nyheder/other/er-denne-bjerglandsby-sikker-mod-skybrud-og-oversvømmelser/vi-AA2fy86I",
+  "https://www.smhi.se/nyheter/nyheter/2026-10-22-erik-kjellstrom-om-arbetet-med-ipccs-rapport-om-effekter-anpassning-och-sarbarhet",
+  "https://dokument.plandata.dk/11_11425954_1792407660145.pdf",
+  "https://fjordavisen.nu/danskerne-sparer-paa-vandet-alligevel-stiger-regningen-saa-meget-betaler-en-familie-nu/",
+  "https://ing.dk/artikel/kan-renset-spildevand-sikre-flere-groenne-fisk-paa-din-tallerken",
+  "https://sydnyt.dk/har-vi-spildt-millioner-i-vidaaen-og-gelsaaen-genslyngning-af-aaer-gavner-ikke-biodiversiteten-som-forventet/",
+  "https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/",
+  "https://gate21.dk/klimatilpasning/nye-og-erfarne-kraefter-vil-sikre-kysterne-med-naturens-materialer/",
+  "https://www.tvsyd.dk/vejle/storre-fisk-spraeller-rundt-i-naesten-intet-vand-246e7",
+  "https://via.ritzau.dk/pressemeddelelse/15241166/vigtig-milepael-tilladelse-til-ny-cykel-gangbro-i-nykobing-falster?publisherId=11287667&lang=da",
+  "https://jyllands-posten.dk/erhverv/ECE19758767/efter-tre-aar-afklaring-om-ny-stormflodsordning-kan-vaere-paa-trapperne/",
+  "https://www.berlingske.dk/kommentar/vi-er-skraemt-fra-vid-og-sans-men-hvad-koster-det-egentlig-naar-nettet-gaar-ned",
+  "https://www.dr.dk/nyheder/indland/tre-aar-efter-stormflod-venter-per-stadig-paa-ministerloefte-det-er-noget-lort",
+  "https://avisendanmark.dk/politik/soeren-gade-har-ikke-fortrudt-at-han-overdaengede-miljoeministeren-med-spoergsmaal",
+  "https://ing.dk/holdning/sort-galskab-i-nordsoeen-skal-komme-danske-borgere-til-gavn",
+  "https://www.science.org/doi/abs/10.1126/sciadv.aei3465?af=R",
+  "https://www.science.org/doi/abs/10.1126/sciadv.aei4624?af=R",
+  "https://www.science.org/doi/abs/10.1126/sciadv.aek0125?af=R",
+  "https://www.gov.uk/government/news/water-company-bosses-update-national-drought-group-on-resilience"
  ]
 }
