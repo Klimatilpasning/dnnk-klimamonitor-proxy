@@ -1,6 +1,45 @@
 [
  {
   "source": "kommune",
+  "feedSource": "Guldborgsund Kommune",
+  "org": "Guldborgsund Kommune",
+  "kommune": "Guldborgsund",
+  "title": "Vigtig milepæl: Tilladelse til ny cykel-gangbro i Nykøbing Falster",
+  "url": "https://www.guldborgsund.dk/nyheder-og-pressemeddelelser/ritzau/vigtig-milepael-tilladelse-til-ny-cykel-gangbro-i-nykoebing-falster",
+  "date": "2026-10-22",
+  "summary": "Kystdirektoratet har nu givet grønt lys til realiseringen af en ny cykel-gangbro over Guldborg Sund mellem Nykøbing Falster og Sundby. Tilladelsen betyder, at et mangeårigt lokalt ønske kan blive til virkelighed. Derudover kan der laves et svømmeområde i havnen, en boardwalk og en solnedgangstrappe.",
+  "relevance": 0.25,
+  "value": null,
+  "gruppe": "Kommuner"
+ },
+ {
+  "source": "kommune",
+  "feedSource": "Rudersdal Kommune",
+  "org": "Rudersdal Kommune",
+  "kommune": "Rudersdal",
+  "title": "Ny kampagne: Regnvand er en fælles opgave",
+  "url": "https://rudersdal.dk/nyheder/ny-kampagne-regnvand-er-en-faelles-opgave",
+  "date": "2026-10-22",
+  "summary": "Nedbør i stigende mængder, som optræder oftere og mere voldsomme, er en stor udfordring for både Rudersdal Kommune og boligejere. Ny kampagne sætter fokus på det fælles ansvar....",
+  "relevance": 0.5,
+  "value": null,
+  "gruppe": "Kommuner"
+ },
+ {
+  "source": "kommune",
+  "feedSource": "Assens Kommune",
+  "org": "Assens Kommune",
+  "kommune": "Assens",
+  "title": "Vil du gøre din bolig robust mod øgede vandmasser?",
+  "url": "https://www.assens.dk/om-os/nyt-fra-assens-kommune/nyheder-og-pressemeddelelser/vil-du-goere-din-bolig-robust-mod-oegede-vandmasser",
+  "date": "2026-10-20",
+  "summary": "Så kom til KLIMAPARAT og få råd og vejledning om, hvordan du sikrer din bolig og få viden om rettigheder, muligheder og ansvar ved eksempelvis skybrud, stormflod eller ved stigende grundvand.",
+  "relevance": 0.92,
+  "value": null,
+  "gruppe": "Kommuner"
+ },
+ {
+  "source": "kommune",
   "feedSource": "Middelfart Kommune",
   "org": "Middelfart Kommune",
   "kommune": "Middelfart",
