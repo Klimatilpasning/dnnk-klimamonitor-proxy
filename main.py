@@ -2412,6 +2412,15 @@ def _udtraek_side(text, url, source, gruppe) -> dict:
         # Find link — søg i titel først, derefter hele elementet
         title_el = _titel_element(el)
         link_el = (title_el.find("a") if title_el else None) or el.find("a", href=True)
+        if not (link_el and link_el.get("href")):
+            # Hele kortet er selv linket (Frederiksberg Forsyning:
+            # <a class="card">, Fors: <a class="newslist-item">), eller kortet
+            # ligger inde i et <a>. find() søger kun i efterkommere, så
+            # artiklerne kom med uden URL og blev sprunget over af rutinen.
+            if el.name == "a" and el.get("href"):
+                link_el = el
+            else:
+                link_el = el.find_parent("a", href=True)
         article_url = ""
         if link_el and link_el.get("href"):
             href = link_el["href"]
