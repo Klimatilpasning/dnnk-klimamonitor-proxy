@@ -615,10 +615,12 @@ SITEMAP_SOURCES = {
     # er fravalgt: kun sjældne pressemeddelelser. NB: DMI og Klimadatastyrelsen
     # sammenlægges (nyhed 1/9-2026) - genbesøg både denne kilde og DMI-scrapen,
     # når den nye styrelse får eget site.
+    # 30/10-2026: Handlers/Sitemap.ashx giver 404; /sitemap.xml (fra robots.txt)
+    # har nyhederne under /om-klimadatastyrelsen/. Datoen står nu i data-date.
     "Klimadatastyrelsen (tidl. SDFE)": {
-        "sitemap": "https://www.klimadatastyrelsen.dk/Handlers/Sitemap.ashx",
+        "sitemap": "https://www.klimadatastyrelsen.dk/sitemap.xml",
         "moenster": "/nyheder/nyhedsarkiv/20",
-        "dato_regex": r'class="date">\s*Publiceret\s+(\d{2}-\d{2}-\d{4})',
+        "dato_regex": r'data-date="(\d{4}-\d{2}-\d{2})',
         "antal": 8,
         "gruppe": "Myndigheder",
     },
@@ -711,12 +713,13 @@ SITEMAP_SOURCES = {
         "gruppe": "Høringsparter",
     },
     # SGAV (vandmiljø, lavbund, Grøn trepart) høres som statslig myndighed
-    # (planloven § 25, stk. 1). sgav.dk er JS-renderet, og /sitemap.xml står
-    # stille, men CMS'ets egen Sitemap.ashx er frisk.
+    # (planloven § 25, stk. 1). sgav.dk er JS-renderet. 30/10-2026: siden er
+    # flyttet til www (sgav.dk har forkert SSL-certifikat), Sitemap.ashx giver
+    # 404, og /sitemap.xml er nu den friske. Datoen står i data-date.
     "Styrelsen for Grøn Arealomlægning og Vandmiljø": {
-        "sitemap": "https://sgav.dk/Handlers/Sitemap.ashx",
+        "sitemap": "https://www.sgav.dk/sitemap.xml",
         "moenster": "/alle-nyheder/nyheder/20",
-        "dato_regex": r'class="date">\s*(\d{2}-\d{2}-\d{4})',
+        "dato_regex": r'data-date="(\d{4}-\d{2}-\d{2})',
         "gruppe": "Høringsparter",
     },
     # Statens tilladelser og høringer om kystbeskyttelse og anlæg på
