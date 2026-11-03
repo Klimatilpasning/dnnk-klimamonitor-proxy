@@ -86,22 +86,29 @@ def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_f
     # Fund
     if vurdering:
         punkter = vurdering.get("punkter") or []
-        dele.append(f"<h2>Ugens fund ({_e(vurdering.get('periode'))})</h2>")
-        if vurdering.get("opsummering"):
-            dele.append(f"<p>{_e(vurdering['opsummering'])}</p>")
-        for farve in ("groen", "gul"):
-            valgt = [p for p in punkter if p.get("farve") == farve]
-            if not valgt:
-                continue
-            titel = "Værd at forfølge" if farve == "groen" else "Værd et kig"
-            li = "".join(
-                f"<li>{FARVE[farve]} <a href=\"{_e(p.get('url'))}\">{_e(p.get('titel'))}</a>"
-                f" <span style='color:#777'>- {_e(p.get('kilde'))}, {_e(p.get('dato'))}</span>"
-                f"<br>{_e(p.get('begrundelse'))}</li>" for p in valgt)
-            dele.append(f"<h3>{titel}</h3><ul>{li}</ul>")
+        groen = [p for p in punkter if p.get("farve") == "groen"]
+        gul = [p for p in punkter if p.get("farve") == "gul"]
         roede = sum(1 for p in punkter if p.get("farve") == "roed")
-        if roede:
-            dele.append(f"<p style='color:#777'>🔴 {roede} fund sorteret fra som støj.</p>")
+        dele.append(f"<h2 style='margin-bottom:4px'>Ugens fund ({_e(vurdering.get('periode'))})</h2>")
+        dele.append(f"<p style='color:#555;margin:0 0 10px'>{FARVE['groen']} {len(groen)} værd at forfølge &nbsp; "
+                    f"{FARVE['gul']} {len(gul)} værd et kig &nbsp; 🔴 {roede} støj</p>")
+        if vurdering.get("opsummering"):
+            dele.append(f"<p style='background:#eef5f9;border-left:4px solid #1a4d6e;padding:10px 12px;margin:0 0 14px'>{_e(vurdering['opsummering'])}</p>")
+        if groen:
+            dele.append(f"<h3 style='color:#1b7a3a;border-bottom:2px solid #1b7a3a;padding-bottom:3px'>{FARVE['groen']} Værd at forfølge</h3>")
+            for p in groen:
+                dele.append(
+                    f"<div style='border-left:4px solid #1b7a3a;background:#f6fbf7;padding:8px 12px;margin:0 0 8px'>"
+                    f"<a href=\"{_e(p.get('url'))}\" style='font-weight:bold;color:#1a4d6e;text-decoration:none'>{_e(p.get('titel'))}</a>"
+                    f"<div style='color:#777;font-size:12px;margin:2px 0 4px'>{_e(p.get('kilde'))} - {_e(p.get('dato'))}</div>"
+                    f"<div style='font-size:14px'>{_e(p.get('begrundelse'))}</div></div>")
+        if gul:
+            dele.append(f"<h3 style='color:#a15c00;border-bottom:2px solid #d9a200;padding-bottom:3px'>{FARVE['gul']} Værd et kig</h3>"
+                        "<p style='color:#777;font-size:12px;margin:0 0 6px'>Kun titel og kilde. Åbn klimamonitoren for begrundelse.</p>")
+            li = "".join(
+                f"<li style='margin:0 0 4px;font-size:14px'><a href=\"{_e(p.get('url'))}\" style='color:#1a4d6e'>{_e(p.get('titel'))}</a>"
+                f" <span style='color:#777;font-size:12px'>- {_e(p.get('kilde'))}</span></li>" for p in gul)
+            dele.append(f"<ul style='padding-left:18px;margin:0'>{li}</ul>")
     else:
         dele.append("<h2>Ugens fund (uden vurdering)</h2>"
                     "<p style='color:#a15c00'>Ugens vurdering mangler (cloud-rutinen har ikke leveret), "
