@@ -7,7 +7,7 @@ uden at en pc står tændt. Alt kører online:
 - En cloud-rutine hos Anthropic vurderer ugens fund (🟢/🟡/🔴) og lægger
   ugevurdering.json på branchen claude/ugevurdering. Mangler den (eller er den
   over 8 dage gammel), får mailen i stedet en sorteret liste uden vurdering.
-- Mailen sendes via Brevo til DIGEST_EMAIL_TO (kp@dnnk.dk), samme opsætning
+- Mailen sendes via Brevo til UGEMAIL_TO (kp@dnnk.dk og sv@dnnk.dk; alarmen kun til ALARM_EMAIL_TO), samme opsætning
   som den gamle digest.
 """
 import asyncio
@@ -125,17 +125,24 @@ Sendt automatisk hver fredag fra GitHub Actions via Brevo. <a href="{MONITOR_URL
     return emne, krop
 
 
-async def send(emne: str, krop: str) -> dict:
+def _modtagere(raa: str) -> list:
+    return [a.strip() for a in raa.split(",") if a.strip()]
+
+
+async def send(emne: str, krop: str, alarm: bool = False) -> dict:
     from scheduler import BREVO_API_KEY, DIGEST_EMAIL_TO, DIGEST_EMAIL_FROM, DIGEST_EMAIL_FROM_NAME
+    # Ugemailen går til flere (UGEMAIL_TO, kommasepareret). Systemalarmen går kun til ALARM_EMAIL_TO (standard: DIGEST_EMAIL_TO).
+    til = _modtagere(os.environ.get("ALARM_EMAIL_TO", DIGEST_EMAIL_TO) if alarm
+                     else os.environ.get("UGEMAIL_TO", "kp@dnnk.dk,sv@dnnk.dk"))
     if not BREVO_API_KEY:
         return {"sendt": False, "fejl": "BREVO_API_KEY er ikke sat på Render"}
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post("https://api.brevo.com/v3/smtp/email",
                          headers={"api-key": BREVO_API_KEY, "Content-Type": "application/json"},
                          json={"sender": {"name": DIGEST_EMAIL_FROM_NAME, "email": DIGEST_EMAIL_FROM},
-                               "to": [{"email": DIGEST_EMAIL_TO}], "subject": emne, "htmlContent": krop})
+                               "to": [{"email": a} for a in til], "subject": emne, "htmlContent": krop})
     ok = r.status_code in (200, 201)
-    return {"sendt": ok, "brevo_status": r.status_code, "til": DIGEST_EMAIL_TO,
+    return {"sendt": ok, "brevo_status": r.status_code, "til": til,
             **({} if ok else {"fejl": r.text[:300]})}
 
 
@@ -148,7 +155,7 @@ async def koer(client, sundhed: list, test: bool = False, kun_alarm: bool = Fals
         li = "".join(f"<li><b>{_e(s.get('navn'))}</b>: {_e(s.get('tekst'))}</li>" for s in fejl)
         krop = (f"<html><body style='font-family:Arial'><h2>{emne}</h2><ul>{li}</ul>"
                 f"<p>Daglig kontrol fra GitHub Actions. Den samlede status kommer i fredagsmailen.</p></body></html>")
-        return await send(emne, krop)
+        return await send(emne, krop, alarm=True)
     vurdering = await hent_vurdering(client)
     raa = [] if vurdering else await raa_fund(client)
     emne, krop = byg_html(sundhed, vurdering, raa, test)
