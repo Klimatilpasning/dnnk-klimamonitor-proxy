@@ -1473,7 +1473,7 @@
   {
    "titel": "Hvem betaler for kystbeskyttelsen?",
    "vinkel": "Mange kommuner er i beslutningsfasen på samme tid, og finansiering, bidragsmodeller og grundejeres modstand går igen. En temadag kunne samle kommuner, der står midt i det, med dem, der er nået længere.",
-   "vidensbank": "Delvist dækket: <a href=\"https://youtube.com/watch?v=c_hJluY22do\">Tech Talk: Finansiering af kystbeskyttelsesprojekter</a> (2023) og <a href=\"https://youtube.com/watch?v=VhqwsCBh1pU\">Kystjura og klimaaspekter</a> (2023). Begge er tre år gamle, og de nye cases er ikke med.",
+   "vidensbank": "Delvist dækket: \"Tech Talk: Finansiering af kystbeskyttelsesprojekter\" (2023) og \"Kystjura og klimaaspekter\" (2023). Begge er tre år gamle, og de nye cases er ikke med.",
    "fund": [
     {
      "titel": "Frederikssund: nye digeprojekter ved Kignæs og Dalby Huse",
@@ -1525,12 +1525,22 @@
      "url": "https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=187",
      "vurderet": "2026-10-19"
     }
+   ],
+   "vidensbank_links": [
+    {
+     "titel": "Tech Talk: Finansiering af kystbeskyttelsesprojekter",
+     "url": "https://youtube.com/watch?v=c_hJluY22do"
+    },
+    {
+     "titel": "Kystjura og klimaaspekter",
+     "url": "https://youtube.com/watch?v=VhqwsCBh1pU"
+    }
    ]
   },
   {
    "titel": "Naturbaserede kystløsninger",
    "vinkel": "Naturbaserede løsninger dukker op fra flere sider: konference, nye aktører, Dragørs naturmur, der inspirerer Trelleborg, og træbaseret kystbeskyttelse i Hjørring. KP spurgte selv ind til KTC-konferencen 19/10.",
-   "vidensbank": "Delvist dækket: <a href=\"https://youtube.com/watch?v=rRMkpYpnkWk\">Muligheder og dilemmaer ved naturbaseret kystbeskyttelse</a> (2023) og <a href=\"https://youtube.com/watch?v=mvx1dZTtyX8\">Realiseringsprojekter fra Byerne og det stigende havvand</a> (2023, bl.a. Dragør).",
+   "vidensbank": "Delvist dækket: \"Muligheder og dilemmaer ved naturbaseret kystbeskyttelse\" (2023) og \"Realiseringsprojekter fra Byerne og det stigende havvand\" (2023, bl.a. Dragør).",
    "fund": [
     {
      "titel": "Dragørs naturmur inspirerer Trelleborg",
@@ -1557,12 +1567,22 @@
      "url": "https://nordsoeposten.dk/pilebyg-foreslaar-traebaseret-kystbeskyttelse-udbredt-i-hele-hjoerring-kommune/",
      "vurderet": "2026-10-19"
     }
+   ],
+   "vidensbank_links": [
+    {
+     "titel": "Muligheder og dilemmaer ved naturbaseret kystbeskyttelse",
+     "url": "https://youtube.com/watch?v=rRMkpYpnkWk"
+    },
+    {
+     "titel": "Realiseringsprojekter fra Byerne og det stigende havvand",
+     "url": "https://youtube.com/watch?v=mvx1dZTtyX8"
+    }
    ]
   },
   {
    "titel": "Terrænnært grundvand: fra regler til kommunecases",
    "vinkel": "Kommunerne skal udpege områder inden 1. juli 2027, og flere er nu i gang med spildevandsplanstillæg. Næste skridt er at vise, hvordan kommunerne konkret har gjort.",
-   "vidensbank": "Reglerne er dækket: <a href=\"https://youtube.com/watch?v=r3mkSTF4cug\">Nyt tillæg til spildevandsvejledningen</a> (feb 2026), <a href=\"https://youtube.com/watch?v=FZI27NBsJi4\">Samfundsøkonomi ved grundvandssænkning</a> (sep 2026) og Gladsaxe-casen (2025). Kommunecases mangler.",
+   "vidensbank": "Reglerne er dækket: \"Nyt tillæg til spildevandsvejledningen\" (feb 2026), \"Samfundsøkonomi ved grundvandssænkning\" (sep 2026) og Gladsaxe-casen (2025). Kommunecases mangler.",
    "fund": [
     {
      "titel": "Fredensborg og Esbjerg: spildevandsplanstillæg om terrænnært grundvand",
@@ -1583,6 +1603,16 @@
      "titel": "Holstebro: Forslag til Tillæg nr. 9 til Spildevandsplan - implementering af ny lovgivning om terrænnært grundvand",
      "url": "https://dagsordener.holstebro.dk/vis?id=30b1c9f9-16a6-4dfa-a861-4650e5fe3567&punktid=015d9b0b-e1e3-491e-86c3-55dd204f9f7b",
      "vurderet": "2026-10-19"
+    }
+   ],
+   "vidensbank_links": [
+    {
+     "titel": "Nyt tillæg til spildevandsvejledningen",
+     "url": "https://youtube.com/watch?v=r3mkSTF4cug"
+    },
+    {
+     "titel": "Samfundsøkonomi ved grundvandssænkning",
+     "url": "https://youtube.com/watch?v=FZI27NBsJi4"
     }
    ]
   },
@@ -1626,12 +1656,13 @@
      "url": "https://udbud.dk/detaljevisning?noticeId=1423e8a7-57a0-4abc-850c-4810883eea3c",
      "vurderet": "2026-10-19"
     }
-   ]
+   ],
+   "vidensbank_links": []
   },
   {
    "titel": "Nye klimatilpasnings- og risikostyringsplaner",
    "vinkel": "En ny runde planer er i gang samtidig med en ny vejledning om klimatilpasning i kommune- og lokalplaner. En temadag kunne sammenligne planerne og give kommunerne vejledningen.",
-   "vidensbank": "Delvist dækket: <a href=\"https://youtube.com/watch?v=qar89H6b2Qs\">Ny klimatilpasningsplan i Aarhus Kommune</a> (2024) og Holbæks <a href=\"https://youtube.com/watch?v=HQRq2cgHreE\">risikokortlægning</a> (2022).",
+   "vidensbank": "Delvist dækket: \"Ny klimatilpasningsplan i Aarhus Kommune\" (2024) og Holbæks \"risikokortlægning\" (2022).",
    "fund": [
     {
      "titel": "Sønderborg: forslag til Klimatilpasningsplan 2026",
@@ -1682,6 +1713,16 @@
      "titel": "Haderslev: Klimatilpasningsanalyse for Haderslev Kommune",
      "url": "https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=179",
      "vurderet": "2026-10-19"
+    }
+   ],
+   "vidensbank_links": [
+    {
+     "titel": "Ny klimatilpasningsplan i Aarhus Kommune",
+     "url": "https://youtube.com/watch?v=qar89H6b2Qs"
+    },
+    {
+     "titel": "risikokortlægning",
+     "url": "https://youtube.com/watch?v=HQRq2cgHreE"
     }
    ]
   }
