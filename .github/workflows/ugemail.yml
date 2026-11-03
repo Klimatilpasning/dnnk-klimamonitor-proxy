@@ -4,12 +4,13 @@ name: Ugemail og systemalarm
 # Dagligt: tools/sundhedstjek.py - alarmmail til kp@dnnk.dk, KUN hvis noget fejler.
 # Fredag: ugemail med ugens vurderede fund (fra cloud-rutinen) + systemstatus.
 # Mailen sendes af Render (/send-ugemail) via Brevo, som den gamle digest.
-# Tider i UTC: 05:20 = 7:20 dansk vintertid / 6:20 sommertid.
+# Tider i UTC: alarm 05:20 = 6:20 dansk vintertid / 7:20 sommertid.
+# Fredagsmail 07:20 = 8:20 dansk vintertid / 9:20 sommertid (rutinen kører 7:10 dansk tid).
 
 on:
   schedule:
     - cron: '20 5 * * 1-4,6,0'   # alle dage undtagen fredag: kun alarm ved fejl
-    - cron: '20 5 * * 5'         # fredag: ugemail (efter cloud-rutinens vurdering kl. ca. 5)
+    - cron: '20 7 * * 5'         # fredag: ugemail (efter cloud-rutinens vurdering kl. 7:10 dansk tid)
   workflow_dispatch:
     inputs:
       tilstand:
@@ -43,7 +44,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "tilstand=${{ inputs.tilstand }}" >> $GITHUB_OUTPUT
             echo "test=${{ inputs.test }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.schedule }}" = "20 5 * * 5" ]; then
+          elif [ "${{ github.event.schedule }}" = "20 7 * * 5" ]; then
             echo "tilstand=uge" >> $GITHUB_OUTPUT; echo "test=false" >> $GITHUB_OUTPUT
           else
             echo "tilstand=alarm" >> $GITHUB_OUTPUT; echo "test=false" >> $GITHUB_OUTPUT
