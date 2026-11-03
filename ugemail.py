@@ -7,7 +7,7 @@ uden at en pc står tændt. Alt kører online:
 - En cloud-rutine hos Anthropic vurderer ugens fund (🟢/🟡/🔴) og lægger
   ugevurdering.json på branchen claude/ugevurdering. Mangler den (eller er den
   over 8 dage gammel), får mailen i stedet en sorteret liste uden vurdering.
-- Mailen sendes via Brevo til UGEMAIL_TO (kp@dnnk.dk og sv@dnnk.dk; alarmen kun til ALARM_EMAIL_TO), samme opsætning
+- Mailen sendes via Brevo til UGEMAIL_TO (kp@dnnk.dk, med systemstatus), og kun fundene til UGEMAIL_FUND_TO (sv@dnnk.dk), samme opsætning
   som den gamle digest.
 """
 import asyncio
@@ -68,8 +68,10 @@ async def raa_fund(client, dage: int = 10) -> list:
     return ud[:40]
 
 
-def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool) -> tuple[str, str]:
+def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_fund: bool = False) -> tuple[str, str]:
     idag = datetime.now(timezone.utc).strftime("%d/%m-%Y")
+    if kun_fund:
+        sundhed = []
     fejl = [s for s in sundhed if not s.get("ok")]
     dele = []
 
@@ -129,11 +131,12 @@ def _modtagere(raa: str) -> list:
     return [a.strip() for a in raa.split(",") if a.strip()]
 
 
-async def send(emne: str, krop: str, alarm: bool = False) -> dict:
+async def send(emne: str, krop: str, alarm: bool = False, til_var: str = "UGEMAIL_TO") -> dict:
     from scheduler import BREVO_API_KEY, DIGEST_EMAIL_TO, DIGEST_EMAIL_FROM, DIGEST_EMAIL_FROM_NAME
-    # Ugemailen går til flere (UGEMAIL_TO, kommasepareret). Systemalarmen går kun til ALARM_EMAIL_TO (standard: DIGEST_EMAIL_TO).
+    # UGEMAIL_TO = fuld mail med systemstatus (standard KP), UGEMAIL_FUND_TO = kun klimamonitor-fund (standard SV).
+    # Begge kan have flere adresser, kommasepareret. Systemalarmen går kun til ALARM_EMAIL_TO (standard: DIGEST_EMAIL_TO).
     til = _modtagere(os.environ.get("ALARM_EMAIL_TO", DIGEST_EMAIL_TO) if alarm
-                     else os.environ.get("UGEMAIL_TO", "kp@dnnk.dk,sv@dnnk.dk"))
+                     else os.environ.get(til_var, "sv@dnnk.dk" if til_var == "UGEMAIL_FUND_TO" else "kp@dnnk.dk"))
     if not BREVO_API_KEY:
         return {"sendt": False, "fejl": "BREVO_API_KEY er ikke sat på Render"}
     async with httpx.AsyncClient(timeout=30) as c:
@@ -160,4 +163,6 @@ async def koer(client, sundhed: list, test: bool = False, kun_alarm: bool = Fals
     raa = [] if vurdering else await raa_fund(client)
     emne, krop = byg_html(sundhed, vurdering, raa, test)
     res = await send(emne, krop)
-    return {**res, "emne": emne, "vurdering": bool(vurdering), "raa_fund": len(raa)}
+    fund_emne, fund_krop = byg_html(sundhed, vurdering, raa, test, kun_fund=True)
+    fund_res = await send(fund_emne, fund_krop, til_var="UGEMAIL_FUND_TO")
+    return {**res, "fund_mail": fund_res, "emne": emne, "vurdering": bool(vurdering), "raa_fund": len(raa)}
