@@ -94,6 +94,22 @@ def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_f
                     f"{FARVE['gul']} {len(gul)} værd et kig &nbsp; 🔴 {roede} støj</p>")
         if vurdering.get("opsummering"):
             dele.append(f"<p style='background:#eef5f9;border-left:4px solid #1a4d6e;padding:10px 12px;margin:0 0 14px'>{_e(vurdering['opsummering'])}</p>")
+        temaer = vurdering.get("temaer") or []
+        if temaer:
+            dele.append("<h3 style='color:#5b3a8c;border-bottom:2px solid #5b3a8c;padding-bottom:3px'>🧩 Temaer, der tegner sig</h3>"
+                        "<p style='color:#777;font-size:12px;margin:0 0 6px'>Fund fra denne og tidligere uger, der hænger sammen og kunne blive til en temadag.</p>")
+            for t in temaer:
+                fund = t.get("fund") or []
+                li = "".join(
+                    f"<li style='margin:0 0 2px'><a href=\"{_e(f.get('url'))}\" style='color:#1a4d6e'>{_e(f.get('titel'))}</a>"
+                    f" <span style='color:#777;font-size:12px'>- vurderet {_e(f.get('vurderet'))}</span></li>" for f in fund)
+                # vidensbank-linjen indeholder links fra rutinen og escapes derfor ikke
+                dele.append(
+                    f"<div style='border-left:4px solid #5b3a8c;background:#f8f5fc;padding:8px 12px;margin:0 0 10px'>"
+                    f"<div style='font-weight:bold;color:#5b3a8c'>{_e(t.get('titel'))} <span style='font-weight:normal;color:#777;font-size:12px'>({len(fund)} fund)</span></div>"
+                    f"<div style='font-size:14px;margin:4px 0'>{_e(t.get('vinkel'))}</div>"
+                    + (f"<div style='font-size:14px;margin:0 0 4px'><b>Vidensbank:</b> {t.get('vidensbank')}</div>" if t.get("vidensbank") else "")
+                    + f"<ul style='padding-left:18px;margin:4px 0 0;font-size:13px'>{li}</ul></div>")
         if groen:
             dele.append(f"<h3 style='color:#1b7a3a;border-bottom:2px solid #1b7a3a;padding-bottom:3px'>{FARVE['groen']} Værd at forfølge</h3>")
             for p in groen:
