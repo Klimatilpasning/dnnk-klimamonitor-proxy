@@ -103,12 +103,11 @@ def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_f
                 li = "".join(
                     f"<li style='margin:0 0 2px'><a href=\"{_e(f.get('url'))}\" style='color:#1a4d6e'>{_e(f.get('titel'))}</a>"
                     f" <span style='color:#777;font-size:12px'>- vurderet {_e(f.get('vurderet'))}</span></li>" for f in fund)
-                # vidensbank-linjen indeholder links fra rutinen og escapes derfor ikke
                 dele.append(
                     f"<div style='border-left:4px solid #5b3a8c;background:#f8f5fc;padding:8px 12px;margin:0 0 10px'>"
                     f"<div style='font-weight:bold;color:#5b3a8c'>{_e(t.get('titel'))} <span style='font-weight:normal;color:#777;font-size:12px'>({len(fund)} fund)</span></div>"
                     f"<div style='font-size:14px;margin:4px 0'>{_e(t.get('vinkel'))}</div>"
-                    + (f"<div style='font-size:14px;margin:0 0 4px'><b>Vidensbank:</b> {t.get('vidensbank')}</div>" if t.get("vidensbank") else "")
+                    + (f"<div style='font-size:14px;margin:0 0 4px'>{_vidensbank(t)}</div>" if _vidensbank(t) else "")
                     + f"<ul style='padding-left:18px;margin:4px 0 0;font-size:13px'>{li}</ul></div>")
         if groen:
             dele.append(f"<h3 style='color:#1b7a3a;border-bottom:2px solid #1b7a3a;padding-bottom:3px'>{FARVE['groen']} Værd at forfølge</h3>")
@@ -117,7 +116,11 @@ def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_f
                     f"<div style='border-left:4px solid #1b7a3a;background:#f6fbf7;padding:8px 12px;margin:0 0 8px'>"
                     f"<a href=\"{_e(p.get('url'))}\" style='font-weight:bold;color:#1a4d6e;text-decoration:none'>{_e(p.get('titel'))}</a>"
                     f"<div style='color:#777;font-size:12px;margin:2px 0 4px'>{_e(p.get('kilde'))} - {_e(p.get('dato'))}</div>"
-                    f"<div style='font-size:14px'>{_e(p.get('begrundelse'))}</div></div>")
+                    + (f"<div style='font-size:14px;margin:0 0 3px'><b>Relevans:</b> {_e(p.get('relevans'))}</div>"
+                       f"<div style='font-size:14px;margin:0 0 3px'><b>Mulighed:</b> {_e(p.get('mulighed'))}</div>"
+                       if p.get("relevans") else f"<div style='font-size:14px'>{_e(p.get('begrundelse'))}</div>")
+                    + (f"<div style='font-size:14px'>{_vidensbank(p)}</div>" if _vidensbank(p) else "")
+                    + "</div>")
         if gul:
             dele.append(f"<h3 style='color:#a15c00;border-bottom:2px solid #d9a200;padding-bottom:3px'>{FARVE['gul']} Værd et kig</h3>"
                         "<p style='color:#777;font-size:12px;margin:0 0 6px'>Kun titel og kilde. Åbn klimamonitoren for begrundelse.</p>")
@@ -148,6 +151,16 @@ def byg_html(sundhed: list, vurdering: dict | None, raa: list, test: bool, kun_f
 Sendt automatisk hver fredag fra GitHub Actions via Brevo. <a href="{MONITOR_URL}">Åbn klimamonitoren</a>.</p>
 </body></html>"""
     return emne, krop
+
+
+def _vidensbank(x: dict) -> str:
+    """Vidensbank-linje: tekst + links (fra rutinens felter vidensbank og vidensbank_links)."""
+    links = ", ".join(f"<a href=\"{_e(l.get('url'))}\">{_e(l.get('titel'))}</a>"
+                      for l in (x.get("vidensbank_links") or []) if l.get("url"))
+    tekst = _e(x.get("vidensbank") or "")
+    if not (tekst or links):
+        return ""
+    return f"<b>Vidensbank:</b> {tekst}{' ' + links if links else ''}"
 
 
 def _modtagere(raa: str) -> list:
