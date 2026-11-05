@@ -17,8 +17,8 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Kystlag, bidrag og finansiering
 - **Vinkel:** Mange kommuner er i beslutningsfasen på samme tid, og finansiering, bidragsmodeller og grundejeres modstand går igen. En temadag kunne samle kommuner, der står midt i det, med dem, der er nået længere.
-- **Aktører:** udfyldes ved næste daglige kørsel
-- **Leads:** tjekkes ved næste daglige kørsel
+- **Aktører:** Frederikssund, Kolding, Kerteminde, Digelaget i Brede Ådalen, Skive, Lolland, Vejle, Haderslev (8)
+- **Leads:** Drift-og-bidrag-kystanlaeg.md, Kommunegaranti-kystlag.md, Vordingborg-kap1a.md, Strandparken-Koege-Bugt.md, Kolding-Binderup-dige.md, KDI-forundersoegelser.md, Vejle-stormflod-forundersoegelse.md, Kalvebodkysten-Hvidovre.md, Sakskoebing-Sluse.md, KTC-kystnetvaerk.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Tech Talk: Finansiering af kystbeskyttelsesprojekter" (2023) og "Kystjura og klimaaspekter" (2023). Begge er tre år gamle, og de nye cases er ikke med. [Tech Talk: Finansiering af kystbeskyttelsesprojekter](https://youtube.com/watch?v=c_hJluY22do) [Kystjura og klimaaspekter](https://youtube.com/watch?v=VhqwsCBh1pU)
 - **Sidst noteret:** 2026-11-03
 - **Fund:**
@@ -37,8 +37,8 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Naturbaserede løsninger
 - **Vinkel:** Naturbaserede løsninger dukker op fra flere sider: konference, nye aktører, Dragørs naturmur, der inspirerer Trelleborg, og træbaseret kystbeskyttelse i Hjørring. KP spurgte selv ind til KTC-konferencen 19/10.
-- **Aktører:** udfyldes ved næste daglige kørsel
-- **Leads:** tjekkes ved næste daglige kørsel
+- **Aktører:** Dragør/Trelleborg, Middelfart, Gate 21, KTC Kystnetværk Sjælland, PileByg/Hjørring (5)
+- **Leads:** DuneFront.md, Hjoerring-Nr-Lyngby.md, Nordkystens-Fremtid-raastof.md, Landskabsbaseret-klimatilpasning-Lund.md, KTC-kystnetvaerk.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Muligheder og dilemmaer ved naturbaseret kystbeskyttelse" (2023) og "Realiseringsprojekter fra Byerne og det stigende havvand" (2023, bl.a. Dragør). [Muligheder og dilemmaer ved naturbaseret kystbeskyttelse](https://youtube.com/watch?v=rRMkpYpnkWk) [Realiseringsprojekter fra Byerne og det stigende havvand](https://youtube.com/watch?v=mvx1dZTtyX8)
 - **Sidst noteret:** 2026-11-03
 - **Fund:**
@@ -52,8 +52,8 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Terrænnært grundvand
 - **Vinkel:** Kommunerne skal udpege områder inden 1. juli 2027, og flere er nu i gang med spildevandsplanstillæg. Næste skridt er at vise, hvordan kommunerne konkret har gjort.
-- **Aktører:** udfyldes ved næste daglige kørsel
-- **Leads:** tjekkes ved næste daglige kørsel
+- **Aktører:** Fredensborg, Esbjerg, Herlev, Holstebro (4)
+- **Leads:** Terraennaert-grundvand-Herlev.md (Vejle/Kjartan-kladde 3/11), Jomfrustien-Haderslev.md, Holbaek-Vallestrup.md, WatsonC.md, Privat-regnvand-Koege-Gribskov.md. Ingen Temadag-fil
 - **Vidensbank:** Reglerne er dækket: "Nyt tillæg til spildevandsvejledningen" (feb 2026), "Samfundsøkonomi ved grundvandssænkning" (sep 2026) og Gladsaxe-casen (2025). Kommunecases mangler. [Nyt tillæg til spildevandsvejledningen](https://youtube.com/watch?v=r3mkSTF4cug) [Samfundsøkonomi ved grundvandssænkning](https://youtube.com/watch?v=FZI27NBsJi4)
 - **Sidst noteret:** 2026-11-03
 - **Fund:**
@@ -66,11 +66,13 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Beredskab
 - **Vinkel:** Mobil stormflodssikring købes ind af både Aarhus og Forsvaret, og flere hændelser viser, at faste anlæg ikke altid holder (pumpeslusen, Esbjerg Havn). Vinklen er beredskab som supplement til faste anlæg.
-- **Aktører:** udfyldes ved næste daglige kørsel
-- **Leads:** tjekkes ved næste daglige kørsel
+- **Aktører:** Aarhus/Østjyllands Brandvæsen, Esbjerg Havn, Kolding, ing.dk-forsøg, Forsvarets FMI, Vejle (6)
+- **Leads:** Koege-Dige-og-BRS.md, Kolding-Pumpesluse.md, BaltFloods.md, CREWS.md, Lufthavnsdiget-Sund-Baelt.md. Ingen Temadag-fil
 - **Vidensbank:** Ikke dækket: ingen webinarer eller dokumenter om mobil stormflodssikring.
-- **Sidst noteret:** 2026-11-03
+- **Sidst noteret:** 2026-11-05
 - **Fund:**
+  - 2026-11-05 - [Se billederne: Vejle Kommune tester mobil stormflodsbarriere på Vejle Havn](https://www.vejle.dk/da/nyheder/se-billederne-vejle-kommune-tester-mobil-stormflodsbarriere-paa-vejle-havn/) - 🟡 - Vejle Kommune
+  - 2026-11-05 - [Vil undgå oversvømmede gader: Midlertidig mur blev sat op på havn](https://www.tvsyd.dk/vejle/vil-undga-oversvommede-gader-midlertidig-mur-blev-sat-op-pa-havn-d974e) - 🟡 - Vejle Kommune (TV SYD)
   - 2026-10-30 - [Aarhus: indkøb af mobil stormflodssikring til Østjyllands Brandvæsen](https://udbud.dk/detaljevisning?noticeId=52f5c3b8-ce0c-4fb7-9fc5-936a29590261) - ugevurdering
   - 2026-10-30 - [Esbjerg Havn ramt af markant oversvømmelse](https://www.tvsyd.dk/esbjerg/ramt-af-markant-oversvommelse-1829a) - ugevurdering
   - 2026-10-23 - [Oversvømmelser trods milliondyr sluse: Nu peger borgmesteren på en læring](https://www.tvsyd.dk/kolding/milliondyr-sluse-holdt-ikke-alt-vandet-ude-nu-peger-borgmesteren-pa-en-laering-e2dac) - ugevurdering
@@ -83,8 +85,8 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Planlægning og jura
 - **Vinkel:** En ny runde planer er i gang samtidig med en ny vejledning om klimatilpasning i kommune- og lokalplaner. En temadag kunne sammenligne planerne og give kommunerne vejledningen.
-- **Aktører:** udfyldes ved næste daglige kørsel
-- **Leads:** tjekkes ved næste daglige kørsel
+- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev (8)
+- **Leads:** Risikostyringsplaner-Aabenraa.md (Norddjurs-kladde 3/11), Soenderborg-klimatilpasningsplan.md, PLST-planlovsvejledning-klimatilpasning.md (+ Favrskov-møde 12/11), Ringkoebing-Skjern-fareomraader.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Ny klimatilpasningsplan i Aarhus Kommune" (2024) og Holbæks "risikokortlægning" (2022). [Ny klimatilpasningsplan i Aarhus Kommune](https://youtube.com/watch?v=qar89H6b2Qs) [risikokortlægning](https://youtube.com/watch?v=HQRq2cgHreE)
 - **Sidst noteret:** 2026-11-03
 - **Fund:**
@@ -98,6 +100,18 @@ Ugevurdering hentet: 2026-10-30
   - 2026-10-19 - [Halsnæs: Igangsætning af risikostyringsplaner](https://dagsorden.halsnaes.dk/vis?id=0ef4541a-3633-4dc3-a179-491e85972b5a&punktid=4cfe3a64-cc3d-4294-9294-4204861ea68c) - ugevurdering
   - 2026-10-19 - [Aabenraa: Orientering om revision af risikostyringsplanen](https://dagsordener.aabenraa.dk/vis?id=20d8f5ec-b075-4d23-8abe-a8d9981933ef&punktid=cbf6a7c1-b9d4-403a-b266-b6656e52e239) - ugevurdering
   - 2026-10-19 - [Haderslev: Klimatilpasningsanalyse for Haderslev Kommune](https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=179) - ugevurdering
+
+### Overløb og afgift: hvad betyder de nye regler for forsyningernes investeringer?
+- **Status:** Spirende
+- **Område:** Spildevand, overløb og udledning
+- **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, samtidig med at forsyninger som Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og andre løsninger.
+- **Aktører:** Skatteministeriet/Folketinget (L 80), Herning Vand (2)
+- **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md. Ingen Temadag-fil
+- **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner er ikke dækket. [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8)
+- **Sidst noteret:** 2026-11-05
+- **Fund:**
+  - 2026-11-05 - [Forslag til lov om ændring af lov om afgift af spildevand m.fl. (L 80)](https://www.retsinformation.dk/eli/ft/202612L00080) - 🟢 - Skatteministeriet/Folketinget
+  - 2026-10-22 - [Vi behøver ikke være enige om overløb, men lad os tale ud fra samme viden](https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/) - 🟡 - Herning Vand
 
 ## Arkiv
 
