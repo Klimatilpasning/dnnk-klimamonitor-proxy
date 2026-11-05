@@ -66,7 +66,7 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Beredskab
 - **Vinkel:** Mobil stormflodssikring købes ind af både Aarhus og Forsvaret, og flere hændelser viser, at faste anlæg ikke altid holder (pumpeslusen, Esbjerg Havn). Vinklen er beredskab som supplement til faste anlæg.
-- **Aktører:** Aarhus/Østjyllands Brandvæsen, Esbjerg Havn, Kolding, ing.dk-forsøg, Forsvarets FMI, Vejle (6)
+- **Aktører:** Aarhus/Østjyllands Brandvæsen, Esbjerg Havn, Kolding, ing.dk-forsøg, Forsvarets FMI, Vejle, Beredskabsstyrelsen (7)
 - **Leads:** Koege-Dige-og-BRS.md, Kolding-Pumpesluse.md, BaltFloods.md, CREWS.md, Lufthavnsdiget-Sund-Baelt.md. Ingen Temadag-fil
 - **Vidensbank:** Ikke dækket: ingen webinarer eller dokumenter om mobil stormflodssikring.
 - **Sidst noteret:** 2026-11-05
