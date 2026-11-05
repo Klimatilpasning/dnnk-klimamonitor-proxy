@@ -73,6 +73,7 @@ Ugevurdering hentet: 2026-10-30
 - **Fund:**
   - 2026-11-05 - [Se billederne: Vejle Kommune tester mobil stormflodsbarriere på Vejle Havn](https://www.vejle.dk/da/nyheder/se-billederne-vejle-kommune-tester-mobil-stormflodsbarriere-paa-vejle-havn/) - 🟡 - Vejle Kommune
   - 2026-11-05 - [Vil undgå oversvømmede gader: Midlertidig mur blev sat op på havn](https://www.tvsyd.dk/vejle/vil-undga-oversvommede-gader-midlertidig-mur-blev-sat-op-pa-havn-d974e) - 🟡 - Vejle Kommune (TV SYD)
+  - 2026-11-05 - [Stor øvelse på Vejle Havn: 50 mand øvede sig på noget, de håber aldrig bliver virkelighed](https://vafo.dk/vejle/stor-oevelse-paa-vejle-havn-50-mand-oevede-sig-paa-noget-de-haaber-aldrig-bliver-virkelighed) - 🟡 - Vejle Kommune/Beredskabsstyrelsen (Vejle Amts Folkeblad)
   - 2026-10-30 - [Aarhus: indkøb af mobil stormflodssikring til Østjyllands Brandvæsen](https://udbud.dk/detaljevisning?noticeId=52f5c3b8-ce0c-4fb7-9fc5-936a29590261) - ugevurdering
   - 2026-10-30 - [Esbjerg Havn ramt af markant oversvømmelse](https://www.tvsyd.dk/esbjerg/ramt-af-markant-oversvommelse-1829a) - ugevurdering
   - 2026-10-23 - [Oversvømmelser trods milliondyr sluse: Nu peger borgmesteren på en læring](https://www.tvsyd.dk/kolding/milliondyr-sluse-holdt-ikke-alt-vandet-ude-nu-peger-borgmesteren-pa-en-laering-e2dac) - ugevurdering
