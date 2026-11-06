@@ -42,6 +42,8 @@ TRIN 4b - Opdatér fundarkiv.json: tilføj ugens grønne og gule punkter som {"v
 Validér begge filer:
 python3 -c "import json;d=json.load(open('ugevurdering.json'));assert {'dato','periode','opsummering','punkter','temaer','sete'}<=set(d);assert all(len(p['titel'])<=200 for p in d['punkter']);a=json.load(open('fundarkiv.json'));assert isinstance(a,list)"
 
-TRIN 5 - Gem: git add ugevurdering.json fundarkiv.json && git commit -m "Ugevurdering <dato>" && git push origin claude/ugevurdering. Push SKAL lykkes - ugemailen kl. 06:20 dansk tid læser filen derfra. Fejler push, så kør git pull --rebase origin claude/ugevurdering og prøv igen, og skriv fejlen tydeligt i din slutbesked.
+TRIN 5 - Gem: git add ugevurdering.json fundarkiv.json && git commit -m "Ugevurdering <dato>" && git push origin claude/ugevurdering. Push SKAL lykkes - ugemailen (TRIN 6) læser filen derfra. Fejler push, så kør git pull --rebase origin claude/ugevurdering og prøv igen, og skriv fejlen tydeligt i din slutbesked.
 
-Slutbesked: én linje med antal vurderede links, antal groen/gul/roed, antal temaer (heraf fra temaspor), hvilken datakilde der blev brugt, og om push lykkedes.
+TRIN 6 - Send ugemailen: Når push i TRIN 5 er lykkedes, så start ugemail-workflowet én gang med GitHub-værktøjet actions_run_trigger (hent det med ToolSearch "select:mcp__github__actions_run_trigger", hvis det ikke er indlæst): method "run_workflow", owner "Klimatilpasning", repo "dnnk-klimamonitor-proxy", workflow_id "ugemail.yml", ref "main", inputs {"tilstand": "uge", "test": "false"}. Start det IKKE, hvis push fejlede. Fejler kaldet, så skriv det i slutbeskeden - GitHubs planlagte reservekørsel sender så mailen senere på dagen.
+
+Slutbesked: én linje med antal vurderede links, antal groen/gul/roed, antal temaer (heraf fra temaspor), hvilken datakilde der blev brugt, om push lykkedes, og om ugemailen blev startet.
