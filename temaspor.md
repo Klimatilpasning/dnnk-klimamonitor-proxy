@@ -2,7 +2,7 @@
 
 Fælles fil for de to klimamonitor-rutiner. Den daglige (klimamonitor-nyt) lægger hverdagens 🟢/🟡 på sporene og løfter et spor, når det bliver modent. Ugevurderingen (fredag) læser filen fra grenen claude/ugevurdering og bruger samme spor-titler i sine temaer; dens nye temaer hentes tilbage hertil mandag. KP må gerne rette, omdøbe eller slette et spor.
 
-Ugevurdering hentet: 2026-10-30
+Ugevurdering hentet: 2026-11-06
 
 ## Regler
 - Spirende = 2 fund. Moden = mindst 3 fund fra mindst 2 forskellige aktører (kommuner, forsyninger, styrelser, rådgivere), og mindst ét fund fra de seneste 14 dage.
@@ -17,11 +17,17 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Kystlag, bidrag og finansiering
 - **Vinkel:** Mange kommuner er i beslutningsfasen på samme tid, og finansiering, bidragsmodeller og grundejeres modstand går igen. En temadag kunne samle kommuner, der står midt i det, med dem, der er nået længere.
-- **Aktører:** Frederikssund, Kolding, Kerteminde, Digelaget i Brede Ådalen, Skive, Lolland, Vejle, Haderslev (8)
+- **Aktører:** Frederikssund, Kolding, Kerteminde, Digelaget i Brede Ådalen, Skive, Lolland, Vejle, Haderslev, Dragør, Roskilde, Køge, Vordingborg, København (13)
 - **Leads:** Drift-og-bidrag-kystanlaeg.md, Kommunegaranti-kystlag.md, Vordingborg-kap1a.md, Strandparken-Koege-Bugt.md, Kolding-Binderup-dige.md, KDI-forundersoegelser.md, Vejle-stormflod-forundersoegelse.md, Kalvebodkysten-Hvidovre.md, Sakskoebing-Sluse.md, KTC-kystnetvaerk.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Tech Talk: Finansiering af kystbeskyttelsesprojekter" (2023) og "Kystjura og klimaaspekter" (2023). Begge er tre år gamle, og de nye cases er ikke med. [Tech Talk: Finansiering af kystbeskyttelsesprojekter](https://youtube.com/watch?v=c_hJluY22do) [Kystjura og klimaaspekter](https://youtube.com/watch?v=VhqwsCBh1pU)
-- **Sidst noteret:** 2026-11-03
+- **Sidst noteret:** 2026-11-06
 - **Fund:**
+  - 2026-11-06 - [Vordingborg: totalrådgiverudbud til kystbeskyttelse](https://udbud.dk/detaljevisning?noticeId=e0eca07a-d79f-41b2-a440-902ec87dbead) - ugevurdering
+  - 2026-11-06 - [Roskilde: driftsbidrag til digelag og kystbeskyttelseslag](https://dagsordener.roskilde.dk/vis?id=6ea20edd-b9a2-43af-b40e-dc730047d868&punktid=1b27dd49-0a12-450c-84b8-86f4672d5df8) - ugevurdering
+  - 2026-11-06 - [Køge Dige: lokalplan og tilladelse endeligt vedtaget](https://dagsordener.koege.dk/vis?id=cca800e5-adad-4916-b229-a7f9b10a74cf&punktid=fc7b1c12-3d93-44f8-bbdf-0d194cfabe3e) - ugevurdering
+  - 2026-11-06 - [København: anlægsbevilling til stormflodssikring](https://www.kk.dk/dagsordener-og-referater/%C3%98konomiudvalget/m%C3%B8de-03112026/dagsorden/punkt-5#punkt-5) - ugevurdering
+  - 2026-11-06 - [Haderslev: besparelser i kystbeskyttelsesprojektet Vores Kyst](https://dagsordener.haderslev.dk/vis?id=4df73899-65be-4c6f-b264-b0252779078a&punktid=69f6baa9-3f46-4fc3-ba89-76c349045dd7) - ugevurdering
+  - 2026-11-06 - [Dragør: bidragsfordeling og digelag for kystbeskyttelsen](https://dagsordener.dragoer.dk/vis?id=9f947f1f-ea7b-4fab-8a0e-f701223932d8&punktid=50c6323f-a75d-48ea-a41b-57cb40e3e967) - ugevurdering
   - 2026-10-30 - [Frederikssund: nye digeprojekter ved Kignæs og Dalby Huse](https://www.frederikssund.dk/Politik/Dagsordener-og-referater/Byraadets-moeder/2026-10-28_19-00/dagsorden#item-154) - ugevurdering
   - 2026-10-30 - [Milliondyrt dige i Kolding når ny milepæl - sommerhusejere undersøger alternativ](https://www.tvsyd.dk/kolding/milliondyrt-dige-nar-ny-milepael-sommerhusejere-far-undersogt-alternativ-0d2aa) - ugevurdering
   - 2026-10-30 - [Kolding: anlægsbevilling til kystsikring ved Binderup-Grønninghoved](https://udvalg.kolding.dk/vis?id=bfafd660-6df1-49ce-a2b4-ccb63e6c4da5&punktid=cde6c967-d170-4dc4-92ec-c5f8590de6a7) - ugevurdering
@@ -52,11 +58,16 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Terrænnært grundvand
 - **Vinkel:** Kommunerne skal udpege områder inden 1. juli 2027, og flere er nu i gang med spildevandsplanstillæg. Næste skridt er at vise, hvordan kommunerne konkret har gjort.
-- **Aktører:** Fredensborg, Esbjerg, Herlev, Holstebro (4)
+- **Aktører:** Fredensborg, Esbjerg, Herlev, Holstebro, Svendborg, Vejle, Holbæk (7)
 - **Leads:** Terraennaert-grundvand-Herlev.md (Vejle/Kjartan-kladde 3/11), Jomfrustien-Haderslev.md, Holbaek-Vallestrup.md, WatsonC.md, Privat-regnvand-Koege-Gribskov.md. Ingen Temadag-fil
 - **Vidensbank:** Reglerne er dækket: "Nyt tillæg til spildevandsvejledningen" (feb 2026), "Samfundsøkonomi ved grundvandssænkning" (sep 2026) og Gladsaxe-casen (2025). Kommunecases mangler. [Nyt tillæg til spildevandsvejledningen](https://youtube.com/watch?v=r3mkSTF4cug) [Samfundsøkonomi ved grundvandssænkning](https://youtube.com/watch?v=FZI27NBsJi4)
-- **Sidst noteret:** 2026-11-03
+- **Sidst noteret:** 2026-11-06
 - **Fund:**
+  - 2026-11-06 - [Vejle: spildevandsplanlægning om terrænnært grundvand](https://dagsordener.vejle.dk/vis?id=7ce57385-e88a-4c00-9dc7-9351c5640f21&punktid=cf2fc29a-ef39-44f2-be10-ef59254303ee) - ugevurdering
+  - 2026-11-06 - [Svendborg: spildevandsplantillæg om terrænnært grundvand](https://dagsordener.svendborg.dk/vis?id=466f429e-e070-4821-b1df-cf1d7a8b70e8&punktid=af9096fe-dadd-4f7f-bb0d-302f7272a391) - ugevurdering
+  - 2026-11-06 - [Holbæk: samarbejdsaftale for Vallestrup Levende Grundvandspark](https://dagsordener.holbaek.dk/vis?id=205b3a74-2c85-47a3-890e-968a375c8a9d&punktid=2b34e3e9-f3e2-4a5b-a781-4f721d3fac9d) - ugevurdering
+  - 2026-11-06 - [Fredensborg: tillæg om terrænnært grundvand](https://dagsordener.fredensborg.dk/vis?id=5028cc09-a641-49a9-8259-fa448096a503&punktid=527314c3-7994-45dd-a594-37376f455ffd) - ugevurdering
+  - 2026-11-06 - [Esbjerg: tillæg om terrænnært grundvand i høring](https://dagsordener.esbjergkommune.dk/vis?id=4a373dd4-7f75-43e4-a32f-abc231b9875e&punktid=dffa0fc0-ea42-4af8-9a33-8637c74ef991) - ugevurdering
   - 2026-10-30 - [Fredensborg og Esbjerg: spildevandsplanstillæg om terrænnært grundvand](https://dagsordener.fredensborg.dk/vis?id=bf1b4210-3b30-4299-91b1-c4d14a0416df&punktid=9a5b50f0-5578-4836-b92c-8c57b7e527e4) - ugevurdering
   - 2026-10-19 - [Fredensborg: Godkendelse af forslag til tillæg til spildevandsplanen - Områder i risiko for terrænnært grundvand](https://dagsordener.fredensborg.dk/vis?id=3581cbad-1658-4ebc-ba0f-63d5729e1a5d&punktid=ff6cfdf7-5a30-4f4c-98da-9af9971519f7) - ugevurdering
   - 2026-10-19 - [Herlev: Tillæg nr. 4 til spildevandsplanen om terrænnært grundvand](https://dagsordener.herlev.dk/vis?id=1e1e8cc2-4853-4991-9738-db36529b62f1&punktid=81028261-f2ae-465d-ba33-288235bcea34) - ugevurdering
@@ -66,11 +77,13 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Beredskab
 - **Vinkel:** Mobil stormflodssikring købes ind af både Aarhus og Forsvaret, og flere hændelser viser, at faste anlæg ikke altid holder (pumpeslusen, Esbjerg Havn). Vinklen er beredskab som supplement til faste anlæg.
-- **Aktører:** Aarhus/Østjyllands Brandvæsen, Esbjerg Havn, Kolding, ing.dk-forsøg, Forsvarets FMI, Vejle, Beredskabsstyrelsen (7)
+- **Aktører:** Aarhus/Østjyllands Brandvæsen, Esbjerg Havn, Kolding, ing.dk-forsøg, Forsvarets FMI, Vejle, Beredskabsstyrelsen, Frederikssund (8)
 - **Leads:** Koege-Dige-og-BRS.md, Kolding-Pumpesluse.md, BaltFloods.md, CREWS.md, Lufthavnsdiget-Sund-Baelt.md. Ingen Temadag-fil
 - **Vidensbank:** Ikke dækket: ingen webinarer eller dokumenter om mobil stormflodssikring.
-- **Sidst noteret:** 2026-11-05
+- **Sidst noteret:** 2026-11-06
 - **Fund:**
+  - 2026-11-06 - [Vejle: køb af mobile stormflodsbarrierer, 2. etape](https://dagsordener.vejle.dk/vis?id=3bef78d8-3f54-40f6-8257-69f4fec03724&punktid=fe8b563b-8e8c-4ae4-a77f-79d56eda41f2) - ugevurdering
+  - 2026-11-06 - [Frederikssund: indsatsplan for forhøjet vandstand revideret efter stormflod](https://www.frederikssund.dk/Politik/Dagsordener-og-referater/teknik-og-klima/2026-11-03_08-15/dagsorden#item-151) - ugevurdering
   - 2026-11-05 - [Se billederne: Vejle Kommune tester mobil stormflodsbarriere på Vejle Havn](https://www.vejle.dk/da/nyheder/se-billederne-vejle-kommune-tester-mobil-stormflodsbarriere-paa-vejle-havn/) - 🟡 - Vejle Kommune
   - 2026-11-05 - [Vil undgå oversvømmede gader: Midlertidig mur blev sat op på havn](https://www.tvsyd.dk/vejle/vil-undga-oversvommede-gader-midlertidig-mur-blev-sat-op-pa-havn-d974e) - 🟡 - Vejle Kommune (TV SYD)
   - 2026-11-05 - [Stor øvelse på Vejle Havn: 50 mand øvede sig på noget, de håber aldrig bliver virkelighed](https://vafo.dk/vejle/stor-oevelse-paa-vejle-havn-50-mand-oevede-sig-paa-noget-de-haaber-aldrig-bliver-virkelighed) - 🟡 - Vejle Kommune/Beredskabsstyrelsen (Vejle Amts Folkeblad)
@@ -86,11 +99,20 @@ Ugevurdering hentet: 2026-10-30
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Planlægning og jura
 - **Vinkel:** En ny runde planer er i gang samtidig med en ny vejledning om klimatilpasning i kommune- og lokalplaner. En temadag kunne sammenligne planerne og give kommunerne vejledningen.
-- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev (8)
+- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev, Kolding, Kerteminde, Aarhus, KL/DTU (risikomonitorering), Folketinget (L 22) (13)
 - **Leads:** Risikostyringsplaner-Aabenraa.md (Norddjurs-kladde 3/11), Soenderborg-klimatilpasningsplan.md, PLST-planlovsvejledning-klimatilpasning.md (+ Favrskov-møde 12/11), Ringkoebing-Skjern-fareomraader.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Ny klimatilpasningsplan i Aarhus Kommune" (2024) og Holbæks "risikokortlægning" (2022). [Ny klimatilpasningsplan i Aarhus Kommune](https://youtube.com/watch?v=qar89H6b2Qs) [risikokortlægning](https://youtube.com/watch?v=HQRq2cgHreE)
-- **Sidst noteret:** 2026-11-03
+- **Sidst noteret:** 2026-11-06
 - **Fund:**
+  - 2026-11-06 - [Ærø: klimatilpasningsplan til drøftelse](https://dagsordener.aeroekommune.dk/vis?id=20fbe7ee-4758-42d1-8749-24aa047bb703&punktid=ef11ae10-e11a-4fcc-b65f-acc2df3d69ba) - ugevurdering
+  - 2026-11-06 - [Sønderborg: forslag til Klimatilpasningsplan 2026](https://dagsordener.sonderborgkommune.dk/vis?id=78f9f1ee-3b2b-470c-b5f7-fd2f3775a50c&punktid=b93b57f4-311a-4e75-950e-e8450fedf8c3) - ugevurdering
+  - 2026-11-06 - [Nyt projekt skal vise effekten af klimatilpasning (KL/DTU, OS2-Skadesøkonomi)](https://realdania.dk/nyhedsoverblik/nyheder/2026/11/nyt-projekt-skal-vise-effekten-af-klimatilpasning) - 🟡 - KL/DTU/Realdania
+  - 2026-11-06 - [Norddjurs: risikostyringsplaner for Grenaa og Randers Fjord](https://norddjurs.meetingsplus.dk/committees/okonomiudvalget/03-11-2026#id_163034) - ugevurdering
+  - 2026-11-06 - [Kolding: opstart af risikostyringsplan](https://udvalg.kolding.dk/vis?id=92db747f-a232-42eb-9de4-6230c9b5af32&punktid=8e74b12c-6462-498c-b5db-22d7183f7499) - ugevurdering
+  - 2026-11-06 - [Kerteminde: status på Klimatilpasningsplan 2027](https://dagsordener.kerteminde.dk/vis?id=7bc343d3-2efc-4283-abf2-743840293583&punktid=54638fba-28eb-4fb4-92cc-53e9599b17c8) - ugevurdering
+  - 2026-11-06 - [Esbjerg: forslag til Klimatilpasningsplan 2026-2030](https://dagsordener.esbjergkommune.dk/vis?id=4a373dd4-7f75-43e4-a32f-abc231b9875e&punktid=24c86d78-4d89-49c8-881d-85ae2c25a1d0) - ugevurdering
+  - 2026-11-06 - [Den eneste lokalplan, der undtages fra skærpede klimatilpasningskrav (L 22, lufthavnen)](https://klimamonitor.dk/nyheder/klimatilpasning/article19805247.ece) - 🟡 - Folketinget/BLT (L 22)
+  - 2026-11-06 - [Aarhus: oplæg til kyststrategi](https://dagsordener.aarhus.dk/vis?id=d71b38f0-31ae-47da-9e2f-ca17aff990ac&punktid=10bb15e5-cc4a-4ccf-9978-222a65e3a7cd) - ugevurdering
   - 2026-10-30 - [Sønderborg: forslag til Klimatilpasningsplan 2026](https://dagsordener.sonderborgkommune.dk/vis?id=c988ccab-ea6a-4f5f-a6ca-f381f71025b7&punktid=fff91ade-3fad-44af-a79f-07e60d11f5e3) - ugevurdering
   - 2026-10-30 - [Ærø: klimatilpasningsplan til drøftelse](https://dagsordener.aeroekommune.dk/vis?id=d4677904-7e21-4c2e-a1fd-417ef37d25cf&punktid=db2d6f3c-b895-447b-ac39-88c63b4f63e7) - ugevurdering
   - 2026-10-30 - [Esbjerg: forslag til Klimatilpasningsplan 2026-2030](https://dagsordener.esbjergkommune.dk/vis?id=79b1d038-83e5-4b85-8b8e-ec1c0631e69a&punktid=f5f2d50b-a7fc-489f-9b65-da5ea3058e74) - ugevurdering
@@ -103,14 +125,18 @@ Ugevurdering hentet: 2026-10-30
   - 2026-10-19 - [Haderslev: Klimatilpasningsanalyse for Haderslev Kommune](https://dagsordener.haderslev.dk/vis?id=3c17af97-1770-4e52-9676-e4d7d23ff3ec&punkt=179) - ugevurdering
 
 ### Overløb og afgift: hvad betyder de nye regler for forsyningernes investeringer?
-- **Status:** Spirende
+- **Status:** Moden (6/11-2026: 4 fund, 4 aktører, L 92 og Gentofte kom til)
 - **Område:** Spildevand, overløb og udledning
-- **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, samtidig med at forsyninger som Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og andre løsninger.
-- **Aktører:** Skatteministeriet/Folketinget (L 80), Herning Vand (2)
-- **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md. Ingen Temadag-fil
-- **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner er ikke dækket. [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8)
-- **Sidst noteret:** 2026-11-05
+- **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, og L 92 giver forsyningerne fem år mere (til 1/1-2032) til at påbegynde medfinansierede klimatilpasningsprojekter efter de gamle regler. Gentofte genbesøger afløbsstrategien, og Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og skybrudsprojekter.
+- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand (4)
+- **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md, Vesterbro-Torv.md (24/2, HOFOR/KK-skybrudsprojekt - medfinansiering). Ingen Temadag-fil
+- **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8)
+- **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud.
+- **Temadag-skitse:** Bærer en temadag (to vinkler: ny regulering + forsyningscases). Målgruppe: forsyninger og kommunernes spildevandsplanlæggere. Indslag: 1) Skatteministeriet/Energistyrelsen om L 80 og L 92, 2) en forsyning med medfinansierede projekter på overgangsordningen (HOFOR, jf. Vesterbro Torv), 3) Gentofte om at genbesøge afløbsstrategien, 4) Herning Vand om fælles videngrundlag for overløb. Online-forløb er nok, hvis ministeriet kun vil holde et kort oplæg; ellers fysisk hos en forsyning efter vedtagelsen (begge love træder i kraft 2026/27).
+- **Sidst noteret:** 2026-11-06
 - **Fund:**
+  - 2026-11-06 - [L 92: Forlængelse af overgangsperiode for klimatilpasningsprojekter for tag- og overfladevand](https://www.retsinformation.dk/eli/ft/202612L00092) - 🟢 - Klima-, Energi- og Forsyningsministeriet/Energistyrelsen
+  - 2026-11-06 - [Gentofte: genbesøg af afløbsstrategien og bassin ved Skovshoved](https://dagsordener.gentofte.dk/vis?id=11bb94b2-f409-4efd-9168-60a0cb02628b&punktid=7ebd36b4-4cdc-4ff6-b18d-46d6a29e43a4) - ugevurdering
   - 2026-11-05 - [Forslag til lov om ændring af lov om afgift af spildevand m.fl. (L 80)](https://www.retsinformation.dk/eli/ft/202612L00080) - 🟢 - Skatteministeriet/Folketinget
   - 2026-10-22 - [Vi behøver ikke være enige om overløb, men lad os tale ud fra samme viden](https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/) - 🟡 - Herning Vand
 
