@@ -6,7 +6,7 @@
   "url": "https://www.retsinformation.dk/eli/ft/202612L00092",
   "kilde": "Retsinformation",
   "dato": "2026-11-06",
-  "begrundelse": "Lovforslag fremsat 5/11 om forlængelse af overgangsperioden for klimatilpasningsprojekter for tag- og overfladevand i betalingsreglerne for spildevandsforsyninger."
+  "begrundelse": "Lovforslaget flytter fristen for at påbegynde forsyningernes klimatilpasningsprojekter for tag- og overfladevand fra 1/1-2027 til 2032 og anmeldelsesfristen til Vandsektortilsynet fra 15/4-2028 til 2033; træder i kraft 31/12-2026. Gælder kun projekter, der blev anmeldt senest 15/4-2021."
  },
  {
   "vurderet": "2026-11-06",
@@ -15,7 +15,7 @@
   "url": "https://www.retsinformation.dk/eli/ft/202612L00080",
   "kilde": "Retsinformation",
   "dato": "2026-11-05",
-  "begrundelse": "Lovforslag om afgift på spildevand og overløb er fremsat 4/11; hører til forsyningernes investeringsvalg mellem bassiner og andre løsninger."
+  "begrundelse": "Lovforslaget indfører afgift på urenset spildevand fra overløb (afgiftsperiode kalenderåret), afskaffer fradraget for forsinkelsesbassiner og nedsætter afgiften på ledningsført vand."
  },
  {
   "vurderet": "2026-11-06",
@@ -24,7 +24,7 @@
   "url": "https://www.kk.dk/dagsordener-og-referater/Borgerrepr%C3%A6sentationen/m%C3%B8de-05112026/dagsorden/punkt-16#punkt-16",
   "kilde": "Politiske dagsordener",
   "dato": "2026-11-05",
-  "begrundelse": "Borgerrepræsentationen behandlede 5/11 en forhøjelse af klimabevillingen til skybrudsprojekterne i Lersøparken, Bispebjerg; hører sammen med projektforslag Lersø Parkallé Syd."
+  "begrundelse": "Klimabevillingen til skybrudsprojektet i Lersøparken hæves med 14,8 mio. kr. (13 %) på grund af prisstigninger, projektets kompleksitet og mere omfattende anlægsarbejder end ventet; finansieres via HOFORs takster."
  },
  {
   "vurderet": "2026-11-06",
@@ -141,7 +141,7 @@
   "url": "https://dagsordener.koege.dk/vis?id=cca800e5-adad-4916-b229-a7f9b10a74cf&punktid=fc7b1c12-3d93-44f8-bbdf-0d194cfabe3e",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-30",
-  "begrundelse": "Plan-, Grøn- og Landdistriktsudvalget behandlede 5/11 endelig vedtagelse af lokalplan 1050 Køge Dige, kommuneplantillæg og tilladelse til kystbeskyttelse (Koege-Dige-og-BRS.md)."
+  "begrundelse": "Endelig vedtagelse af lokalplan 1050, kommuneplantillæg, tilladelse til kystbeskyttelse, bidragsfordeling og vedtægter for Køge Digelaug; kræver fravigelse af forbud i Natura 2000-området Ølsemagle Strand og Staunings Ø og ekspropriation til dige og erstatningsnatur (lead Koege-Dige-og-BRS.md)."
  },
  {
   "vurderet": "2026-11-06",
@@ -160,15 +160,6 @@
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-30",
   "begrundelse": "Tidligt stadie; tidligere nedjusteret, men fællesprojekt kan blive et lead."
- },
- {
-  "vurderet": "2026-11-06",
-  "farve": "gul",
-  "titel": "Tårnby: anlægsmidler til Schæfersgård ved diget",
-  "url": "https://dagsordener.taarnby.dk/vis?id=2e441fc5-dbce-47e0-bd87-c6ceba4c3bb8&punktid=745e6be6-f37d-4036-8209-db253ec55b35",
-  "kilde": "Politiske dagsordener",
-  "dato": "2026-10-30",
-  "begrundelse": "Konkret anlægsfrigivelse ved Amager, men lille og uden kendt vinkel."
  },
  {
   "vurderet": "2026-11-06",
@@ -253,21 +244,21 @@
  },
  {
   "vurderet": "2026-11-06",
+  "farve": "groen",
+  "titel": "Dragør: bidragsfordeling og digelag for kystbeskyttelsen",
+  "url": "https://dagsordener.dragoer.dk/vis?id=9f947f1f-ea7b-4fab-8a0e-f701223932d8&punktid=50c6323f-a75d-48ea-a41b-57cb40e3e967",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-10-29",
+  "begrundelse": "Status 29/10: etape 1 (Søvang, Sydvestpynten, Kongelunden) kræver en bidragsfordeling før endelig beslutning, og Codex advokater har lavet et notat om organisering, digelag og finansiering; miniseminar for kommunalbestyrelsen 17/11. Høringssvar om Lufthavnsdiget er samlet her (lead Lufthavnsdiget-Sund-Baelt.md)."
+ },
+ {
+  "vurderet": "2026-11-06",
   "farve": "gul",
   "titel": "Lemvig: 575.000 kr. til sikring af højvandsværn i Midtby",
   "url": "https://dagsordener.lemvig.dk/vis?id=a9b7294c-9f7a-40a7-88e1-6fc28f2a45a5&punktid=047217c2-c02f-446a-9799-08fdfd5ad608",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-29",
   "begrundelse": "Lille bevilling, men viser vedligehold af eksisterende højvandsværn; Lemvig har tidligere holdt oplæg om Thyborøn."
- },
- {
-  "vurderet": "2026-11-06",
-  "farve": "gul",
-  "titel": "Dragør: status på kystbeskyttelse og høringssvar om Lufthavnsdiget",
-  "url": "https://dagsordener.dragoer.dk/vis?id=9f947f1f-ea7b-4fab-8a0e-f701223932d8&punktid=50c6323f-a75d-48ea-a41b-57cb40e3e967",
-  "kilde": "Politiske dagsordener",
-  "dato": "2026-10-29",
-  "begrundelse": "Nyt om Lufthavnsdiget-Sund-Baelt.md (høringssvar til afgrænsning, 1. offentlighedsfase)."
  },
  {
   "vurderet": "2026-11-06",
@@ -321,7 +312,7 @@
   "url": "https://odder.dk/nyheder/2026/okt/store-roer-vakte-opsigt-i-odder",
   "kilde": "Odder Kommune",
   "dato": "2026-10-29",
-  "begrundelse": "Underjordisk bassin langs Odder Å."
+  "begrundelse": "Samn Forsyning etablerer rørbassin på 300 m3 under parkeringsplads ved Mejerivej/Østergade efter udvidelsen af Odder Å; vandet pumpes kontrolleret ud."
  },
  {
   "vurderet": "2026-11-06",
@@ -339,7 +330,7 @@
   "url": "https://dagsordener.holbaek.dk/vis?id=205b3a74-2c85-47a3-890e-968a375c8a9d&punktid=2b34e3e9-f3e2-4a5b-a781-4f721d3fac9d",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-28",
-  "begrundelse": "Kommunalbestyrelsen godkendte 28/10 samarbejdsaftale og benyttelsesaftale for Vallestrup Levende Grundvandspark (lead Holbaek-Vallestrup.md)."
+  "begrundelse": "Kommunalbestyrelsen godkendte samarbejdsaftale mellem Holbæk Kommune, Skovgro, Fors Vand Holbæk og Dansk Økojord samt benyttelsesaftale om ca. 6 ha kommunal jord, som Skovgro får gratis med ret til skovstøtte (lead Holbaek-Vallestrup.md)."
  },
  {
   "vurderet": "2026-11-06",
@@ -357,16 +348,16 @@
   "url": "https://dagsordener.sonderborgkommune.dk/vis?id=78f9f1ee-3b2b-470c-b5f7-fd2f3775a50c&punktid=b93b57f4-311a-4e75-950e-e8450fedf8c3",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-28",
-  "begrundelse": "Plan i politisk behandling; allerede nævnt i planspor."
+  "begrundelse": "Klimatilpasningsplan 2026 til godkendelse efter høring: 41 bemærkninger gav seks ændringer; drop-in café for borgere. Allerede i planspor (Soenderborg-klimatilpasningsplan.md)."
  },
  {
   "vurderet": "2026-11-06",
   "farve": "gul",
-  "titel": "Vejle: klimatilpasning af Skyttehusvejen og Steensens Vej, Vonge",
+  "titel": "Vejle: Skyttehusvejen, Steensens Vej og Vonge",
   "url": "https://dagsordener.vejle.dk/vis?id=d52919ac-274b-4e08-97c6-d6ac1352e956&punktid=169caebc-c9f2-4d20-b9bc-e620e7a66d1b",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-28",
-  "begrundelse": "Tre anlægsbevillinger til klimatilpasning i veje og byrum; rutine, men samlet en pakke."
+  "begrundelse": "Skyttehusvejen: 1,7 mio. kr. til 70 m spunsvæg mod sætninger og trykvand fra skråninger (mest geoteknik); Steensens Vej og Vonge er vejrenoveringer med klimatilpasning."
  },
  {
   "vurderet": "2026-11-06",
@@ -393,7 +384,7 @@
   "url": "https://dagsordener.aarhus.dk/vis?id=d71b38f0-31ae-47da-9e2f-ca17aff990ac&punktid=10bb15e5-cc4a-4ccf-9978-222a65e3a7cd",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-28",
-  "begrundelse": "Kyststrategien 'Den levende kyst' er tidligere omtalt i vidensbanken (2025); nyt om prioritering af kystområder."
+  "begrundelse": "Referatet siger kun, at udvalget drøftede kyststrategien og prioriteringen af kystområderne; Aarhus' 'Den levende kyst' er omtalt i vidensbanken (2025)."
  },
  {
   "vurderet": "2026-11-06",
@@ -402,7 +393,7 @@
   "url": "https://dagsordener.horsens.dk/vis?id=c602212b-88ca-4b53-9026-ed55138e8ec2&punktid=5557dc1e-7f6c-4873-af3c-95dbfa6528a5",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-27",
-  "begrundelse": "Horsens har tidligere sagt nej til oplæg; ny indgang kræves."
+  "begrundelse": "Anlægsbevilling på 295 mio. kr. (kommunens andel) og 280 mio. kr. (Samn Forsynings andel) til klimatilpasningsanlæg ved Ringvej Syd. Horsens har tidligere sagt nej til oplæg, så en ny indgang (fx rådgiver) skal til (Horsens-Ringvej-Syd.md)."
  },
  {
   "vurderet": "2026-11-06",
@@ -411,7 +402,7 @@
   "url": "https://udvalg.kolding.dk/vis?id=a1595acf-8d45-40a5-a703-227d315515da&punktid=aecdf11f-4782-4638-8dcf-46d3cc9a6de0",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-27",
-  "begrundelse": "Tidligere nedjusteret; nyt punkt i en kendt sag."
+  "begrundelse": "Kommunalt fællesprojekt til 61,5 mio. kr., færdigt i 2029; udgiften fordeles til grundejere med fordel, og der frigives kun midler til projektering og forundersøgelser. Tidligere nedjusteret (Kolding-Binderup-dige.md)."
  },
  {
   "vurderet": "2026-11-06",
@@ -420,7 +411,7 @@
   "url": "https://dagsordener.nyborg.dk/vis?id=cddd5ffd-7722-493c-a207-d44d86e24932&punktid=7552ae98-64e9-41eb-87fd-6ad717d39b5a",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-27",
-  "begrundelse": "Kombineret vej- og kystsikring."
+  "begrundelse": "2,0 mio. kr. til reparation eller ny skråningsbeskyttelse mod erosion langs Risingevej; en ny løsning kræver tilladelse efter kystbeskyttelsesloven."
  },
  {
   "vurderet": "2026-11-06",
@@ -452,20 +443,11 @@
  {
   "vurderet": "2026-11-06",
   "farve": "gul",
-  "titel": "Thisted: to mulige kystnære udviklingsspor ved Hanstholm",
-  "url": "https://dagsordener.thisted.dk/vis?id=e7ed0bfc-f95f-4133-a2ba-ac6ae91b914f&punktid=2fcf0328-829a-4ee8-97fc-c12d397c4f62",
-  "kilde": "Politiske dagsordener",
-  "dato": "2026-10-27",
-  "begrundelse": "Dialog om kystudvikling; uklar vinkel."
- },
- {
-  "vurderet": "2026-11-06",
-  "farve": "gul",
   "titel": "Allerød: status for separatkloakering",
   "url": "https://dagsordener.alleroed.dk/vis?id=bfe6ca21-dcbd-4d8a-994a-abb2aad17701&punktid=38d00a3c-ec43-4c74-a6c2-7385b7b0648b",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-27",
-  "begrundelse": "Orientering om separering."
+  "begrundelse": "Status på Novafos' separatkloakering; første varselsbreve sendes ultimo 2026. Separering dimensioneres kun til 5-årshændelse, skybrud er kommunens og grundejernes ansvar."
  },
  {
   "vurderet": "2026-11-06",
@@ -483,16 +465,7 @@
   "url": "https://dagsordener.guldborgsund.dk/vis?id=994508ce-b0c2-4ba2-aa17-7d146f786556&punktid=74ccec64-b92f-4973-af9c-f3d418f142c3",
   "kilde": "Politiske dagsordener",
   "dato": "2026-10-26",
-  "begrundelse": "Orientering om lead Sakskoebing-Sluse.md."
- },
- {
-  "vurderet": "2026-11-06",
-  "farve": "gul",
-  "titel": "Langeland: tematillæg om sommerhusområder i kystnærhedszonen",
-  "url": "https://dagsordener.langelandkommune.dk/vis?id=e137159a-93cc-4bd8-b589-2c47150be597&punktid=018aaaa8-854b-4bf0-87b0-18843e2514e0",
-  "kilde": "Politiske dagsordener",
-  "dato": "2026-10-26",
-  "begrundelse": "Planlægning i kystnærhedszonen."
+  "begrundelse": "Orientering om undersøgelser og anbefalinger for Sakskøbing (Rosenvang), hvor kraftig regn og høj vandstand i åen falder sammen; vandparkering og højvandssikring undersøgt (lead Sakskoebing-Sluse.md)."
  },
  {
   "vurderet": "2026-11-06",
