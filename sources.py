@@ -430,7 +430,9 @@ SCRAPE_SOURCES = {
     # danske nyhed var fra marts. Kræver curl_cffi/headless - ikke det værd.
     # Fjernet 15/10-2026: Krüger. Cloudflare-udfordring ("Just a moment...",
     # HTTP 403) uanset UA, samme mønster som Orbicon|WSP.
-    "MOE":                              {"url": "https://moe.dk/nyheder/", "gruppe": "Rådgivere"},
+    # Rettet 6/11-2026: MOE er blevet til Artelia. moe.dk-certifikatet udløb
+    # 3/11-2026, og www.moe.dk/nyheder/ sender 301 til arteliagroup.dk/nyheder/.
+    "MOE":                              {"url": "https://arteliagroup.dk/nyheder/", "gruppe": "Rådgivere"},
     # Fjernet 7/10-2026: Watertech. Overtaget af NIRAS; domænet sender 301 til
     # niras.dk, og certifikatet er udstedt til et fremmed domæne.
     "EnviDan":                          {"url": "https://envidan.dk/nyheder/", "gruppe": "Rådgivere"},
