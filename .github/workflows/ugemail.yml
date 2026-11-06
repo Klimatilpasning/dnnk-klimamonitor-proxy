@@ -5,12 +5,17 @@ name: Ugemail og systemalarm
 # Fredag: ugemail med ugens vurderede fund (fra cloud-rutinen) + systemstatus.
 # Mailen sendes af Render (/send-ugemail) via Brevo, som den gamle digest.
 # Tider i UTC: alarm 05:20 = 6:20 dansk vintertid / 7:20 sommertid.
-# Fredagsmail 07:20 = 8:20 dansk vintertid / 9:20 sommertid (rutinen kører 7:10 dansk tid).
+# Fredagsmail: cloud-rutinen "DNNK klimamonitor - ugevurdering" starter selv dette workflow
+# (workflow_dispatch, tilstand=uge, test=false), når den har pushet vurderingen. GitHubs
+# planlagte kørsler kommer ofte timer for sent eller slet ikke. Fredagens cron 07:20 UTC
+# er derfor kun en reserve, der springer over, hvis rutinen allerede har sendt ugemailen.
+
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Ugemail ({0}{1})', inputs.tilstand, inputs.test && ', TEST' || '') || 'Ugemail og systemalarm' }}
 
 on:
   schedule:
     - cron: '20 5 * * 1-4,6,0'   # alle dage undtagen fredag: kun alarm ved fejl
-    - cron: '20 7 * * 5'         # fredag: ugemail (efter cloud-rutinens vurdering kl. 7:10 dansk tid)
+    - cron: '20 7 * * 5'         # fredag: reserve, hvis cloud-rutinen ikke selv har sendt ugemailen
   workflow_dispatch:
     inputs:
       tilstand:
@@ -50,7 +55,20 @@ jobs:
             echo "tilstand=alarm" >> $GITHUB_OUTPUT; echo "test=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Fredagsreserve - er ugemailen allerede sendt i dag?
+        id: sendt
+        if: github.event_name == 'schedule' && github.event.schedule == '20 7 * * 5'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IDAG=$(date -u +%Y-%m-%d)
+          ANTAL=$(gh api "repos/${{ github.repository }}/actions/workflows/ugemail.yml/runs?event=workflow_dispatch&created=>=$IDAG&per_page=50" \
+            --jq '[.workflow_runs[] | select(.display_title == "Ugemail (uge)" and (.conclusion == "success" or .status != "completed"))] | length')
+          echo "Ugemails sendt (eller i gang) fra rutinen i dag: $ANTAL"
+          if [ "$ANTAL" -gt 0 ]; then echo "spring=true" >> $GITHUB_OUTPUT; else echo "spring=false" >> $GITHUB_OUTPUT; fi
+
       - name: Sundhedstjek
+        if: steps.sendt.outputs.spring != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -59,6 +77,7 @@ jobs:
           cat /tmp/sundhed.json
 
       - name: Send mail via Render
+        if: steps.sendt.outputs.spring != 'true'
         run: |
           KUN_ALARM=false; [ "${{ steps.t.outputs.tilstand }}" = "alarm" ] && KUN_ALARM=true
           python - <<EOF > /tmp/body.json
