@@ -99,11 +99,12 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Planlægning og jura
 - **Vinkel:** En ny runde planer er i gang samtidig med en ny vejledning om klimatilpasning i kommune- og lokalplaner. En temadag kunne sammenligne planerne og give kommunerne vejledningen.
-- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev, Kolding, Kerteminde, Aarhus, KL/DTU (risikomonitorering), Folketinget (L 22) (13)
+- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev, Kolding, Kerteminde, Aarhus, KL/DTU (risikomonitorering), Folketinget (L 22), Aalborg (14)
 - **Leads:** Risikostyringsplaner-Aabenraa.md (Norddjurs-kladde 3/11), Soenderborg-klimatilpasningsplan.md, PLST-planlovsvejledning-klimatilpasning.md (+ Favrskov-møde 12/11), Ringkoebing-Skjern-fareomraader.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Ny klimatilpasningsplan i Aarhus Kommune" (2024) og Holbæks "risikokortlægning" (2022). [Ny klimatilpasningsplan i Aarhus Kommune](https://youtube.com/watch?v=qar89H6b2Qs) [risikokortlægning](https://youtube.com/watch?v=HQRq2cgHreE)
-- **Sidst noteret:** 2026-11-06
+- **Sidst noteret:** 2026-11-09
 - **Fund:**
+  - 2026-11-09 - [Mere vand på vej: Tag med på gåtur gennem fremtidens Aalborg (ny klimatilpasningsplan, borgermøde 16/11)](https://www.tv2nord.dk/kort-nyt/aalborg/tag-med-pa-gatur-gennem-fremtidens-aalborg-2ea1e) - 🟡 - Aalborg Kommune
   - 2026-11-06 - [Ærø: klimatilpasningsplan til drøftelse](https://dagsordener.aeroekommune.dk/vis?id=20fbe7ee-4758-42d1-8749-24aa047bb703&punktid=ef11ae10-e11a-4fcc-b65f-acc2df3d69ba) - ugevurdering
   - 2026-11-06 - [Sønderborg: forslag til Klimatilpasningsplan 2026](https://dagsordener.sonderborgkommune.dk/vis?id=78f9f1ee-3b2b-470c-b5f7-fd2f3775a50c&punktid=b93b57f4-311a-4e75-950e-e8450fedf8c3) - ugevurdering
   - 2026-11-06 - [Nyt projekt skal vise effekten af klimatilpasning (KL/DTU, OS2-Skadesøkonomi)](https://realdania.dk/nyhedsoverblik/nyheder/2026/11/nyt-projekt-skal-vise-effekten-af-klimatilpasning) - 🟡 - KL/DTU/Realdania
@@ -133,8 +134,9 @@ Ugevurdering hentet: 2026-11-06
 - **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8)
 - **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud.
 - **Temadag-skitse:** Bærer en temadag (to vinkler: ny regulering + forsyningscases). Målgruppe: forsyninger og kommunernes spildevandsplanlæggere. Indslag: 1) Skatteministeriet/Energistyrelsen om L 80 og L 92, 2) en forsyning med medfinansierede projekter på overgangsordningen (HOFOR, jf. Vesterbro Torv), 3) Gentofte om at genbesøge afløbsstrategien, 4) Herning Vand om fælles videngrundlag for overløb. Online-forløb er nok, hvis ministeriet kun vil holde et kort oplæg; ellers fysisk hos en forsyning efter vedtagelsen (begge love træder i kraft 2026/27).
-- **Sidst noteret:** 2026-11-06
+- **Sidst noteret:** 2026-11-09
 - **Fund:**
+  - 2026-11-09 - [Høringsportalen: L 92 (forlængelse af overgangsperiode for klimatilpasningsprojekter)](https://hoeringsportalen.dk/Hearing/Details/71474) - 🟡 - KEFM/Energistyrelsen
   - 2026-11-06 - [L 92: Forlængelse af overgangsperiode for klimatilpasningsprojekter for tag- og overfladevand](https://www.retsinformation.dk/eli/ft/202612L00092) - 🟢 - Klima-, Energi- og Forsyningsministeriet/Energistyrelsen
   - 2026-11-06 - [Gentofte: genbesøg af afløbsstrategien og bassin ved Skovshoved](https://dagsordener.gentofte.dk/vis?id=11bb94b2-f409-4efd-9168-60a0cb02628b&punktid=7ebd36b4-4cdc-4ff6-b18d-46d6a29e43a4) - ugevurdering
   - 2026-11-05 - [Forslag til lov om ændring af lov om afgift af spildevand m.fl. (L 80)](https://www.retsinformation.dk/eli/ft/202612L00080) - 🟢 - Skatteministeriet/Folketinget
