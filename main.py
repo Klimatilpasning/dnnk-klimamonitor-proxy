@@ -619,6 +619,16 @@ _TIMEOUT_POST = httpx.Timeout(20, connect=5)
 # Begræns samtidige eksterne fetches ved cache-miss (scrape rammer ~100 mål)
 _FETCH_SEM = asyncio.Semaphore(15)
 
+# GENFORSØG (9/11-2026): 6/11 og 9/11 fejlede 11 tilfældige, sunde kilder med
+# ConnectTimeout i morgenrutinen, der kalder /news/full og /news/scrape
+# samtidig. Parsingen (BeautifulSoup, sitemaps på op til 8 MB) kører på
+# event-loopet, og på Renders lille CPU når et TLS-handshake ikke at blive
+# færdigt inden connect=5 s, når loopet er optaget. Ét nyt forsøg uden for
+# semaforen fanger det. Kun connect-/pool-timeouts: SSL- og DNS-fejl er ikke
+# tilfældige, og ReadTimeout koster allerede 15 s. En død vært (Bornholm)
+# koster ét forsøg mere, og den negative cache begrænser det til ét kald.
+_GENFORSOEG = 1
+
 def _cache_gem(key: str, text: str, now: float) -> None:
     global _cache_tegn
     gammel = _FEED_CACHE.pop(key, None)
@@ -663,18 +673,27 @@ async def get_feed_text(client, url: str, headers=None, body=None,
     fut = asyncio.get_running_loop().create_future()
     _INFLIGHT[key] = fut
     try:
-        async with _FETCH_SEM:
-            if headers is None:
-                vaert = url.split("/")[2] if "://" in url else ""
-                if vaert in UA_PR_VAERT:
-                    headers = {**RSS_HEADERS, "User-Agent": UA_PR_VAERT[vaert]}
-            if body is None:
-                resp = await client.get(url, timeout=_TIMEOUT_GET, follow_redirects=True,
-                                        headers=headers or RSS_HEADERS)
-            else:
-                resp = await client.post(url, json=body, timeout=_TIMEOUT_POST,
-                                         follow_redirects=True,
-                                         headers=headers or RSS_HEADERS)
+        if headers is None:
+            vaert = url.split("/")[2] if "://" in url else ""
+            if vaert in UA_PR_VAERT:
+                headers = {**RSS_HEADERS, "User-Agent": UA_PR_VAERT[vaert]}
+        for forsoeg in range(1 + _GENFORSOEG):
+            try:
+                async with _FETCH_SEM:
+                    if body is None:
+                        resp = await client.get(url, timeout=_TIMEOUT_GET,
+                                                follow_redirects=True,
+                                                headers=headers or RSS_HEADERS)
+                    else:
+                        resp = await client.post(url, json=body, timeout=_TIMEOUT_POST,
+                                                 follow_redirects=True,
+                                                 headers=headers or RSS_HEADERS)
+                break
+            except (httpx.ConnectTimeout, httpx.PoolTimeout):
+                if forsoeg == _GENFORSOEG:
+                    raise
+                print(f"[genforsoeg] {url}: connect-timeout, prøver igen")
+                await asyncio.sleep(1 + forsoeg)
         if len(resp.content) > max_bytes:
             raise ValueError(f"svar for stort ({len(resp.content)} bytes)")
         text = resp.text
