@@ -129,18 +129,30 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (6/11-2026: 4 fund, 4 aktører, L 92 og Gentofte kom til)
 - **Område:** Spildevand, overløb og udledning
 - **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, og L 92 giver forsyningerne fem år mere (til 1/1-2032) til at påbegynde medfinansierede klimatilpasningsprojekter efter de gamle regler. Gentofte genbesøger afløbsstrategien, og Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og skybrudsprojekter.
-- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand (4)
+- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand, Ren Forsyning Mariagerfjord (5)
 - **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md, Vesterbro-Torv.md (24/2, HOFOR/KK-skybrudsprojekt - medfinansiering). Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8)
 - **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud.
 - **Temadag-skitse:** Bærer en temadag (to vinkler: ny regulering + forsyningscases). Målgruppe: forsyninger og kommunernes spildevandsplanlæggere. Indslag: 1) Skatteministeriet/Energistyrelsen om L 80 og L 92, 2) en forsyning med medfinansierede projekter på overgangsordningen (HOFOR, jf. Vesterbro Torv), 3) Gentofte om at genbesøge afløbsstrategien, 4) Herning Vand om fælles videngrundlag for overløb. Online-forløb er nok, hvis ministeriet kun vil holde et kort oplæg; ellers fysisk hos en forsyning efter vedtagelsen (begge love træder i kraft 2026/27).
 - **Sidst noteret:** 2026-11-09
 - **Fund:**
+  - 2026-11-09 - [Kloakoverløb til Mariager Fjord er halveret - men 35 overløb er stadig tilbage](https://fjordavisen.nu/kloakoverloeb-til-mariager-fjord-er-halveret-men-35-overloeb-er-stadig-tilbage/) - 🟡 - Ren Forsyning Mariagerfjord
   - 2026-11-09 - [Høringsportalen: L 92 (forlængelse af overgangsperiode for klimatilpasningsprojekter)](https://hoeringsportalen.dk/Hearing/Details/71474) - 🟡 - KEFM/Energistyrelsen
   - 2026-11-06 - [L 92: Forlængelse af overgangsperiode for klimatilpasningsprojekter for tag- og overfladevand](https://www.retsinformation.dk/eli/ft/202612L00092) - 🟢 - Klima-, Energi- og Forsyningsministeriet/Energistyrelsen
   - 2026-11-06 - [Gentofte: genbesøg af afløbsstrategien og bassin ved Skovshoved](https://dagsordener.gentofte.dk/vis?id=11bb94b2-f409-4efd-9168-60a0cb02628b&punktid=7ebd36b4-4cdc-4ff6-b18d-46d6a29e43a4) - ugevurdering
   - 2026-11-05 - [Forslag til lov om ændring af lov om afgift af spildevand m.fl. (L 80)](https://www.retsinformation.dk/eli/ft/202612L00080) - 🟢 - Skatteministeriet/Folketinget
   - 2026-10-22 - [Vi behøver ikke være enige om overløb, men lad os tale ud fra samme viden](https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/) - 🟡 - Herning Vand
+
+### Plads til vandet: hvordan giver vi vandløbene rum ved oversvømmelser?
+- **Status:** Spirende (oprettet 9/11-2026)
+- **Område:** Vandløb og å
+- **Vinkel:** Københavns Kommune udbyder vandløbsregulering og oversvømmelsesanlæg i Vigerslevparken (Harrestrup Å), og det svenske forskningsprojekt Room4water peger på, at arbejdsgange og holdninger skal ændres, før vandløbene får plads nok. Spørgsmålet er, hvordan man skaffer areal til vandet - i byparken og i det åbne land.
+- **Aktører:** Københavns Kommune, Room4water/VTI (SE) (2)
+- **Leads:** HOFOR-Harrestrup-Aa.md, Storaa-Holstebro.md, Oesteraa-Aalborg.md, Kolding-Pumpesluse.md. Ingen Temadag-fil
+- **Sidst noteret:** 2026-11-09
+- **Fund:**
+  - 2026-11-09 - [Klimatanpassning i stora vattendrag (Room4water)](https://vaguiden.se/2026/11/klimatanpassning-i-stora-vattendrag/) - 🟡 - Room4water/VTI (SE)
+  - 2026-11-09 - [Arbejder til vandløbsregulering og sikring mod oversvømmelser - Harrestrup Å i Vigerslevparken](https://ted.europa.eu/da/notice/-/detail/777149-2026) - 🟢 - Københavns Kommune
 
 ## Arkiv
 
