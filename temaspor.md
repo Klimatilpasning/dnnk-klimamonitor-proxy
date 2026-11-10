@@ -17,11 +17,17 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Kystlag, bidrag og finansiering
 - **Vinkel:** Mange kommuner er i beslutningsfasen på samme tid, og finansiering, bidragsmodeller og grundejeres modstand går igen. En temadag kunne samle kommuner, der står midt i det, med dem, der er nået længere.
-- **Aktører:** Frederikssund, Kolding, Kerteminde, Digelaget i Brede Ådalen, Skive, Lolland, Vejle, Haderslev, Dragør, Roskilde, Køge, Vordingborg, København (13)
+- **Aktører:** Frederikssund, Kolding, Kerteminde, Digelaget i Brede Ådalen, Skive, Lolland, Vejle, Haderslev, Dragør, Roskilde, Køge, Vordingborg, København, Tønder, Thisted, Realdania (16)
 - **Leads:** Drift-og-bidrag-kystanlaeg.md, Kommunegaranti-kystlag.md, Vordingborg-kap1a.md, Strandparken-Koege-Bugt.md, Kolding-Binderup-dige.md, KDI-forundersoegelser.md, Vejle-stormflod-forundersoegelse.md, Kalvebodkysten-Hvidovre.md, Sakskoebing-Sluse.md, KTC-kystnetvaerk.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Tech Talk: Finansiering af kystbeskyttelsesprojekter" (2023) og "Kystjura og klimaaspekter" (2023). Begge er tre år gamle, og de nye cases er ikke med. [Tech Talk: Finansiering af kystbeskyttelsesprojekter](https://youtube.com/watch?v=c_hJluY22do) [Kystjura og klimaaspekter](https://youtube.com/watch?v=VhqwsCBh1pU)
-- **Sidst noteret:** 2026-11-06
+- **Sidst noteret:** 2026-11-10
 - **Fund:**
+  - 2026-11-10 - [Lolland: Kystsikring af Nakskov - valg af bynær løsning (Rambøll/EIB, betalingsvillighed)](https://dagsordener.lolland.dk/vis?id=3c507620-7b3d-40ca-ba6e-451cd49527f2&punktid=8b30cb1a-e98e-45d7-b4cf-32a9d084bf33) - 🟢 - Lolland Kommune
+  - 2026-11-10 - [Realdania: Stormflodssæsonen er over os, men griber vi udfordringen rigtigt an?](https://klimamonitor.dk/nyheder/debat/article19815334.ece) - 🟡 - Realdania
+  - 2026-11-10 - [Tønder: Juvre Digelag - tilskud](https://dagsordener.toender.dk/vis?id=192a7444-2fb2-4dba-ba27-4e349bcb442f&punktid=909808e6-20c5-4812-a0ae-40bf1af97a0f) - 🟡 - Tønder Kommune/Juvre Digelag
+  - 2026-11-10 - [Tønder: landzonetilladelse til forstærkning af Ballum Dige syd](https://dagsordener.toender.dk/vis?id=192a7444-2fb2-4dba-ba27-4e349bcb442f&punktid=c59dbbe3-4a1b-41da-b535-4319ecf97a67) - 🟡 - Tønder Kommune/Digelaget i Brede Ådalen
+  - 2026-11-10 - [Roskilde: driftsbidrag - Strandgade Kystbeskyttelseslag](https://dagsordener.roskilde.dk/vis?id=54308478-74d9-4acd-a7d6-b7884b3ae67b&punktid=481ebc14-3173-4d81-81e3-d2c11323379b) - 🟡 - Roskilde Kommune
+  - 2026-11-10 - [Thisted: Hawblink, kystbeskyttelse - tillægsbevilling](https://dagsordener.thisted.dk/vis?id=ff96be30-cda2-4289-b291-8dd2bb0c9329&punktid=237d3a02-f925-4ea7-8acd-c8792fd2b862) - 🟡 - Thisted Kommune
   - 2026-11-06 - [Vordingborg: totalrådgiverudbud til kystbeskyttelse](https://udbud.dk/detaljevisning?noticeId=e0eca07a-d79f-41b2-a440-902ec87dbead) - ugevurdering
   - 2026-11-06 - [Roskilde: driftsbidrag til digelag og kystbeskyttelseslag](https://dagsordener.roskilde.dk/vis?id=6ea20edd-b9a2-43af-b40e-dc730047d868&punktid=1b27dd49-0a12-450c-84b8-86f4672d5df8) - ugevurdering
   - 2026-11-06 - [Køge Dige: lokalplan og tilladelse endeligt vedtaget](https://dagsordener.koege.dk/vis?id=cca800e5-adad-4916-b229-a7f9b10a74cf&punktid=fc7b1c12-3d93-44f8-bbdf-0d194cfabe3e) - ugevurdering
@@ -61,8 +67,9 @@ Ugevurdering hentet: 2026-11-06
 - **Aktører:** Fredensborg, Esbjerg, Herlev, Holstebro, Svendborg, Vejle, Holbæk (7)
 - **Leads:** Terraennaert-grundvand-Herlev.md (Vejle/Kjartan-kladde 3/11), Jomfrustien-Haderslev.md, Holbaek-Vallestrup.md, WatsonC.md, Privat-regnvand-Koege-Gribskov.md. Ingen Temadag-fil
 - **Vidensbank:** Reglerne er dækket: "Nyt tillæg til spildevandsvejledningen" (feb 2026), "Samfundsøkonomi ved grundvandssænkning" (sep 2026) og Gladsaxe-casen (2025). Kommunecases mangler. [Nyt tillæg til spildevandsvejledningen](https://youtube.com/watch?v=r3mkSTF4cug) [Samfundsøkonomi ved grundvandssænkning](https://youtube.com/watch?v=FZI27NBsJi4)
-- **Sidst noteret:** 2026-11-06
+- **Sidst noteret:** 2026-11-10
 - **Fund:**
+  - 2026-11-10 - [Energistyrelsen: vejledning om spildevandsselskabers omkostninger til klimatilpasning, terrænnært grundvand og projekter med andre parter (VEJ 10274)](https://www.retsinformation.dk/eli/retsinfo/2026/10274) - 🟢 - Energistyrelsen
   - 2026-11-06 - [Vejle: spildevandsplanlægning om terrænnært grundvand](https://dagsordener.vejle.dk/vis?id=7ce57385-e88a-4c00-9dc7-9351c5640f21&punktid=cf2fc29a-ef39-44f2-be10-ef59254303ee) - ugevurdering
   - 2026-11-06 - [Svendborg: spildevandsplantillæg om terrænnært grundvand](https://dagsordener.svendborg.dk/vis?id=466f429e-e070-4821-b1df-cf1d7a8b70e8&punktid=af9096fe-dadd-4f7f-bb0d-302f7272a391) - ugevurdering
   - 2026-11-06 - [Holbæk: samarbejdsaftale for Vallestrup Levende Grundvandspark](https://dagsordener.holbaek.dk/vis?id=205b3a74-2c85-47a3-890e-968a375c8a9d&punktid=2b34e3e9-f3e2-4a5b-a781-4f721d3fac9d) - ugevurdering
@@ -99,11 +106,15 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Planlægning og jura
 - **Vinkel:** En ny runde planer er i gang samtidig med en ny vejledning om klimatilpasning i kommune- og lokalplaner. En temadag kunne sammenligne planerne og give kommunerne vejledningen.
-- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev, Kolding, Kerteminde, Aarhus, KL/DTU (risikomonitorering), Folketinget (L 22), Aalborg (14)
+- **Aktører:** Sønderborg, Ærø, Esbjerg, Norddjurs, PLST, Halsnæs, Aabenraa, Haderslev, Kolding, Kerteminde, Aarhus, KL/DTU (risikomonitorering), Folketinget (L 22), Aalborg, Struer, Thisted (16)
 - **Leads:** Risikostyringsplaner-Aabenraa.md (Norddjurs-kladde 3/11), Soenderborg-klimatilpasningsplan.md, PLST-planlovsvejledning-klimatilpasning.md (+ Favrskov-møde 12/11), Ringkoebing-Skjern-fareomraader.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Ny klimatilpasningsplan i Aarhus Kommune" (2024) og Holbæks "risikokortlægning" (2022). [Ny klimatilpasningsplan i Aarhus Kommune](https://youtube.com/watch?v=qar89H6b2Qs) [risikokortlægning](https://youtube.com/watch?v=HQRq2cgHreE)
-- **Sidst noteret:** 2026-11-09
+- **Sidst noteret:** 2026-11-10
 - **Fund:**
+  - 2026-11-10 - [Struer: forslag til risikostyringsplan](https://dagsordener.struer.dk/vis?id=0d841461-73ca-4f06-b6a4-251e81efe145&punktid=6a2033f3-b798-4a9d-9a18-b8757fbc7e19) - 🟡 - Struer Kommune
+  - 2026-11-10 - [Thisted: risikostyringsplan for Vestlig Limfjord og principper for klimarobusthed](https://dagsordener.thisted.dk/vis?id=ff96be30-cda2-4289-b291-8dd2bb0c9329&punktid=d98ddd21-70e4-43ee-8460-1a016d009be9) - 🟡 - Thisted Kommune
+  - 2026-11-10 - [Norddjurs: kommunalbestyrelsen godkender risikostyringsplaner for Grenaa og Randers Fjord](https://norddjurs.meetingsplus.dk/committees/kommunalbestyrelsen/10-11-2026#id_163616) - 🟡 - Norddjurs Kommune
+  - 2026-11-10 - [Aalborg: orientering om præsentation af klimatilpasning](https://apps.aalborgkommune.dk/dagsordenreferat/visreferat?id=56&moedetitel=2026-11-10%2008.30#punkt-8) - 🟡 - Aalborg Kommune
   - 2026-11-09 - [Mere vand på vej: Tag med på gåtur gennem fremtidens Aalborg (ny klimatilpasningsplan, borgermøde 16/11)](https://www.tv2nord.dk/kort-nyt/aalborg/tag-med-pa-gatur-gennem-fremtidens-aalborg-2ea1e) - 🟡 - Aalborg Kommune
   - 2026-11-06 - [Ærø: klimatilpasningsplan til drøftelse](https://dagsordener.aeroekommune.dk/vis?id=20fbe7ee-4758-42d1-8749-24aa047bb703&punktid=ef11ae10-e11a-4fcc-b65f-acc2df3d69ba) - ugevurdering
   - 2026-11-06 - [Sønderborg: forslag til Klimatilpasningsplan 2026](https://dagsordener.sonderborgkommune.dk/vis?id=78f9f1ee-3b2b-470c-b5f7-fd2f3775a50c&punktid=b93b57f4-311a-4e75-950e-e8450fedf8c3) - ugevurdering
@@ -129,13 +140,14 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (6/11-2026: 4 fund, 4 aktører, L 92 og Gentofte kom til)
 - **Område:** Spildevand, overløb og udledning
 - **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, og L 92 giver forsyningerne fem år mere (til 1/1-2032) til at påbegynde medfinansierede klimatilpasningsprojekter efter de gamle regler. Gentofte genbesøger afløbsstrategien, og Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og skybrudsprojekter.
-- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand, Ren Forsyning Mariagerfjord (5)
+- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand, Ren Forsyning Mariagerfjord, Energistyrelsen (omkostningsvejledning) (6)
 - **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md, Vesterbro-Torv.md (24/2, HOFOR/KK-skybrudsprojekt - medfinansiering). Ingen Temadag-fil
-- **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8)
-- **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud.
+- **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8) 10/11: den nye omkostningsvejledning (VEJ 10274) er udækket - vidensbanken har kun Hortens gennemgang af den gamle omkostningsbekendtgørelse (2023, PDF).
+- **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud. 10/11: DANVA krævede i [høringssvar 9/9-2026](https://www.danva.dk/hoeringssvar/hoeringssvar/hoeringssvar-2026/hoering-over-udkast-til-vejledning-til-bekendtgoerelse-om-beregning-af-samfundsoekonomisk-hensigtsmaessighed-ved-forsyning-af-omraader-med-grundvandssaenkende-foranstaltninger/) entydig forsyningspligt for omfangsdræn - vidensspørgsmål til Energistyrelsen.
 - **Temadag-skitse:** Bærer en temadag (to vinkler: ny regulering + forsyningscases). Målgruppe: forsyninger og kommunernes spildevandsplanlæggere. Indslag: 1) Skatteministeriet/Energistyrelsen om L 80 og L 92, 2) en forsyning med medfinansierede projekter på overgangsordningen (HOFOR, jf. Vesterbro Torv), 3) Gentofte om at genbesøge afløbsstrategien, 4) Herning Vand om fælles videngrundlag for overløb. Online-forløb er nok, hvis ministeriet kun vil holde et kort oplæg; ellers fysisk hos en forsyning efter vedtagelsen (begge love træder i kraft 2026/27).
-- **Sidst noteret:** 2026-11-09
+- **Sidst noteret:** 2026-11-10
 - **Fund:**
+  - 2026-11-10 - [Energistyrelsen: vejledning om spildevandsselskabers omkostninger til klimatilpasning, terrænnært grundvand og projekter med andre parter (VEJ 10274)](https://www.retsinformation.dk/eli/retsinfo/2026/10274) - 🟢 - Energistyrelsen
   - 2026-11-09 - [Kloakoverløb til Mariager Fjord er halveret - men 35 overløb er stadig tilbage](https://fjordavisen.nu/kloakoverloeb-til-mariager-fjord-er-halveret-men-35-overloeb-er-stadig-tilbage/) - 🟡 - Ren Forsyning Mariagerfjord
   - 2026-11-09 - [Høringsportalen: L 92 (forlængelse af overgangsperiode for klimatilpasningsprojekter)](https://hoeringsportalen.dk/Hearing/Details/71474) - 🟡 - KEFM/Energistyrelsen
   - 2026-11-06 - [L 92: Forlængelse af overgangsperiode for klimatilpasningsprojekter for tag- og overfladevand](https://www.retsinformation.dk/eli/ft/202612L00092) - 🟢 - Klima-, Energi- og Forsyningsministeriet/Energistyrelsen
