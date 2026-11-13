@@ -49,11 +49,12 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (fra ugevurdering 30/10)
 - **Område:** Naturbaserede løsninger
 - **Vinkel:** Naturbaserede løsninger dukker op fra flere sider: konference, nye aktører, Dragørs naturmur, der inspirerer Trelleborg, og træbaseret kystbeskyttelse i Hjørring. KP spurgte selv ind til KTC-konferencen 19/10.
-- **Aktører:** Dragør/Trelleborg, Middelfart, Gate 21, KTC Kystnetværk Sjælland, PileByg/Hjørring (5)
+- **Aktører:** Dragør/Trelleborg, Middelfart, Gate 21, KTC Kystnetværk Sjælland, PileByg/Hjørring, Nordkystens Fremtid/Danmarks Sportsfiskerforbund (6)
 - **Leads:** DuneFront.md, Hjoerring-Nr-Lyngby.md, Nordkystens-Fremtid-raastof.md, Landskabsbaseret-klimatilpasning-Lund.md, KTC-kystnetvaerk.md. Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Muligheder og dilemmaer ved naturbaseret kystbeskyttelse" (2023) og "Realiseringsprojekter fra Byerne og det stigende havvand" (2023, bl.a. Dragør). [Muligheder og dilemmaer ved naturbaseret kystbeskyttelse](https://youtube.com/watch?v=rRMkpYpnkWk) [Realiseringsprojekter fra Byerne og det stigende havvand](https://youtube.com/watch?v=mvx1dZTtyX8)
-- **Sidst noteret:** 2026-11-03
+- **Sidst noteret:** 2026-11-13
 - **Fund:**
+  - 2026-11-13 - [Forbundet klager over stort kystbeskyttelsesprojekt på Nordkysten (sandfodring)](https://www.sportsfiskeren.dk/natur-og-fiskeripolitik/nyheder/2026/11/forbundet-klager-over-stort-kystbeskyttelsesprojekt-paa-nordkysten) - 🟡 - Danmarks Sportsfiskerforbund/Nordkystens Fremtid
   - 2026-10-30 - [Dragørs naturmur inspirerer Trelleborg](https://newsoresund.dk/dragoers-naturmur-inspirerer-trelleborg/) - ugevurdering
   - 2026-10-30 - [Middelfart: Stribs blå fælleskab - helhedsplan for kyst, natur og fælleskab](https://dagsordener.middelfart.dk/vis?id=b3609685-2e38-4420-97af-0c6abf59cac4&punktid=2aa9555c-a608-46dd-a454-e691af25fe0d) - ugevurdering
   - 2026-10-23 - [Nye og erfarne kræfter vil sikre kysterne med naturens materialer](https://gate21.dk/klimatilpasning/nye-og-erfarne-kraefter-vil-sikre-kysterne-med-naturens-materialer/) - ugevurdering
@@ -140,13 +141,15 @@ Ugevurdering hentet: 2026-11-06
 - **Status:** Moden (6/11-2026: 4 fund, 4 aktører, L 92 og Gentofte kom til)
 - **Område:** Spildevand, overløb og udledning
 - **Vinkel:** L 80 lægger afgift på overløb og fjerner fradraget for forsinkelsesbassiner, og L 92 giver forsyningerne fem år mere (til 1/1-2032) til at påbegynde medfinansierede klimatilpasningsprojekter efter de gamle regler. Gentofte genbesøger afløbsstrategien, og Herning Vand efterlyser fælles viden om overløb. Spørgsmålet er, hvordan reglerne ændrer valget mellem bassiner, separering og skybrudsprojekter.
-- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand, Ren Forsyning Mariagerfjord, Energistyrelsen (omkostningsvejledning) (6)
+- **Aktører:** Skatteministeriet (L 80), KEFM/Energistyrelsen (L 92), Gentofte, Herning Vand, Ren Forsyning Mariagerfjord, Energistyrelsen (omkostningsvejledning), Miljøministeriet/MST (Søren Gades spørgsmål, Bornholm) (7)
 - **Leads:** BIOFOS-Tranestien.md (2/12), Novafos-spildevandsbassiner.md (afholdt 2/11), DIN-Forsyning-Hjerting.md, VandCenter-Syd-Brorenden.md, Roedovre-HOFOR-MKV.md, Vesterbro-Torv.md (24/2, HOFOR/KK-skybrudsprojekt - medfinansiering). Ingen Temadag-fil
 - **Vidensbank:** Delvist dækket: "Udfordringer med overløb" (30/6-2025, Krüger om kommende betaling for overløb). Fradraget for bassiner og L 92/overgangsordningen er ikke dækket; medfinansiering optræder kun som baggrund i cases (Karens Minde Aksen 2024, KLIKOVAND-jura 2014). [Udfordringer med overløb](https://youtube.com/watch?v=wHSGQVYpDB8) [Karens Minde Aksen](https://youtube.com/watch?v=bB_kNM928t8) 10/11: den nye omkostningsvejledning (VEJ 10274) er udækket - vidensbanken har kun Hortens gennemgang af den gamle omkostningsbekendtgørelse (2023, PDF).
 - **DANVA/KL-vinkel:** Spildevand er DANVA's kernefelt: DANVA har både krævet en overløbsafgift ([aug. 2026](https://www.danva.dk/nyheder/2026/spildevandsselskaber-politianmeldes-af-miljoestyrelsen/)) og kaldt den en ineffektiv drivkraft ([apr. 2026](https://www.danva.dk/nyheder/2026/fra-kolera-til-klimaforandringer-og-rekruttering-vandforum-samlede-fuldt-hus/)) - hold det som vidensvinkel uden standpunkt. KL er tavs om afgiften; skybrud/regnvand er delt felt, hvor begge har egne tilbud. 10/11: DANVA krævede i [høringssvar 9/9-2026](https://www.danva.dk/hoeringssvar/hoeringssvar/hoeringssvar-2026/hoering-over-udkast-til-vejledning-til-bekendtgoerelse-om-beregning-af-samfundsoekonomisk-hensigtsmaessighed-ved-forsyning-af-omraader-med-grundvandssaenkende-foranstaltninger/) entydig forsyningspligt for omfangsdræn - vidensspørgsmål til Energistyrelsen.
 - **Temadag-skitse:** Bærer en temadag (to vinkler: ny regulering + forsyningscases). Målgruppe: forsyninger og kommunernes spildevandsplanlæggere. Indslag: 1) Skatteministeriet/Energistyrelsen om L 80 og L 92, 2) en forsyning med medfinansierede projekter på overgangsordningen (HOFOR, jf. Vesterbro Torv), 3) Gentofte om at genbesøge afløbsstrategien, 4) Herning Vand om fælles videngrundlag for overløb. Online-forløb er nok, hvis ministeriet kun vil holde et kort oplæg; ellers fysisk hos en forsyning efter vedtagelsen (begge love træder i kraft 2026/27).
-- **Sidst noteret:** 2026-11-10
+- **Sidst noteret:** 2026-11-13
 - **Fund:**
+  - 2026-11-13 - [Nu er der kommet svar på Søren Gades 1.176 spørgsmål om overløb](https://ekstrabladet.dk/nyheder/samfund/nu-er-der-kommet-svar-paa-soeren-gades-1.176-spoergsmaal/11351887) - 🟡 - Miljøministeriet
+  - 2026-11-13 - [Bornholm: ingen af 99 overløb havde måleudstyr, MST førte ingen fysiske tilsyn](https://bornholm.nu/?Id=143129) - 🟡 - Miljøstyrelsen/Bornholms Energi & Forsyning
   - 2026-11-10 - [Energistyrelsen: vejledning om spildevandsselskabers omkostninger til klimatilpasning, terrænnært grundvand og projekter med andre parter (VEJ 10274)](https://www.retsinformation.dk/eli/retsinfo/2026/10274) - 🟢 - Energistyrelsen
   - 2026-11-09 - [Kloakoverløb til Mariager Fjord er halveret - men 35 overløb er stadig tilbage](https://fjordavisen.nu/kloakoverloeb-til-mariager-fjord-er-halveret-men-35-overloeb-er-stadig-tilbage/) - 🟡 - Ren Forsyning Mariagerfjord
   - 2026-11-09 - [Høringsportalen: L 92 (forlængelse af overgangsperiode for klimatilpasningsprojekter)](https://hoeringsportalen.dk/Hearing/Details/71474) - 🟡 - KEFM/Energistyrelsen
@@ -156,15 +159,30 @@ Ugevurdering hentet: 2026-11-06
   - 2026-10-22 - [Vi behøver ikke være enige om overløb, men lad os tale ud fra samme viden](https://herningvand.dk/nyheder/vi-behoever-ikke-vaere-enige-om-overloeb-men-lad-os-tale-ud-fra-samme-viden/) - 🟡 - Herning Vand
 
 ### Plads til vandet: hvordan giver vi vandløbene rum ved oversvømmelser?
-- **Status:** Spirende (oprettet 9/11-2026)
+- **Status:** Moden (13/11-2026: 3 fund, 3 aktører, Tryggevælde Å kom til)
 - **Område:** Vandløb og å
 - **Vinkel:** Københavns Kommune udbyder vandløbsregulering og oversvømmelsesanlæg i Vigerslevparken (Harrestrup Å), og det svenske forskningsprojekt Room4water peger på, at arbejdsgange og holdninger skal ændres, før vandløbene får plads nok. Spørgsmålet er, hvordan man skaffer areal til vandet - i byparken og i det åbne land.
-- **Aktører:** Københavns Kommune, Room4water/VTI (SE) (2)
+- **Aktører:** Københavns Kommune, Room4water/VTI (SE), Faxe Kommune (3)
 - **Leads:** HOFOR-Harrestrup-Aa.md, Storaa-Holstebro.md, Oesteraa-Aalborg.md, Kolding-Pumpesluse.md. Ingen Temadag-fil
-- **Sidst noteret:** 2026-11-09
+- **Vidensbank:** Delvist dækket: "Godmorgen med DNNK: Overløb og oversvømmelser fra vandløb" (29/1-2025, KDS-screeningsværktøj og DMI-varsling) og notatet om hydraulisk kapacitet i Værebro Å-systemet (Novafos/HOFOR/FORS). Areal til vandløbene og tilladelser er ikke dækket. [Overløb og oversvømmelser fra vandløb](https://youtube.com/watch?v=6WNH1LkSKOM)
+- **DANVA/KL-vinkel:** Vandløb er KL's kernefelt: KL har krævet, at vandløbskapacitet og risikoen for oversvømmelse nedstrøms indgår i planlægningen ([høringssvar 9/3-2026](https://www.kl.dk/hoeringssvar/teknik-og-miljoe/2026/hoeringssvar-gennemfoerelse-af-bygge-og-anlaegsprojekter)). DANVA har efterlyst projekter på tværs af kommuner og forsyninger i vandløbsoplande ([Store Vejle Å](https://www.danva.dk/om-danva/danva-klimapris/danvas-klimapris-2017/store-vejle-%C3%A5/)). Hold det som vidensvinkel uden standpunkt.
+- **Temadag-skitse:** Det bærer endnu ikke en temadag. Det er Modent på tælling, men kun ét fund er 🟢 (Vigerslevparken), og to er kontekst (svensk forskning og en enkelt nævnsafgørelse). Indtil videre er det et webinarforløb: 1) KK/WSP om Vigerslevparken (lead i gang), 2) Room4water om at ændre arbejdsgange, så vandløbene får plads, 3) en kommune i det åbne land om tilladelser til at skaffe areal (Storå/Holstebro). Bliver det til en temadag, så bør den være fysisk ved Harrestrup Å, når anlægget starter i 2027.
+- **Sidst noteret:** 2026-11-13
 - **Fund:**
+  - 2026-11-13 - [MFKN: Ophævelse og hjemvisning af tilladelse til regulering af brinker i Tryggevælde Å, Faxe (formål: Grøn Trepart og klimatilpasning)](https://mfkn.naevneneshus.dk/afgoerelse/cd586dfb-9620-4d34-9835-34380fb7cb0d) - 🟡 - Faxe Kommune
   - 2026-11-09 - [Klimatanpassning i stora vattendrag (Room4water)](https://vaguiden.se/2026/11/klimatanpassning-i-stora-vattendrag/) - 🟡 - Room4water/VTI (SE)
   - 2026-11-09 - [Arbejder til vandløbsregulering og sikring mod oversvømmelser - Harrestrup Å i Vigerslevparken](https://ted.europa.eu/da/notice/-/detail/777149-2026) - 🟢 - Københavns Kommune
+
+### Social ulighed: hvem rammes af oversvømmelser, og hvordan fordeles klimatilpasningen?
+- **Status:** Spirende (oprettet 13/11-2026)
+- **Område:** Risiko og social sårbarhed
+- **Vinkel:** AAU har kortlagt social ulighed i risikoen for oversvømmelse. Et nyt KU-studie viser, at lejere i almene boliger betaler en større del af Københavns klimatilpasning. Spørgsmålet er, hvordan kommuner og forsyninger kan se fordelingen af risiko og omkostninger, når projekterne prioriteres. Vinklen holdes faglig og ikke som en konflikt om, hvem der betaler.
+- **Aktører:** AAU (Mia Prall), KU IGN (Natalie Marie Gulsrud) (2)
+- **Leads:** AAU-social-ulighed.md. Ingen Temadag-fil
+- **Sidst noteret:** 2026-11-13
+- **Fund:**
+  - 2026-11-13 - [Studie: Klimasikring kan koste de fattigste mest](https://www.tv2kosmopol.dk/koebenhavn/studie-klimasikring-kan-koste-de-fattigste-mest-3f932) - 🟡 - KU IGN
+  - 2026-10-20 - [Forskning afslører stor social ulighed i risikoen for oversvømmelser](https://nyheder.tv2.dk/2026-10-08-forskning-afsloerer-stor-social-ulighed-i-risikoen-for-oversvoemmelser) - 🟡 - AAU
 
 ## Arkiv
 
