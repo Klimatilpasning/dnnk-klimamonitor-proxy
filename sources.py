@@ -457,7 +457,7 @@ SCRAPE_SOURCES = {
     # (RSS_LOVGIVNING). Indenrigsministeriet fjernet: im.dk sender videre til
     # Sundheds- og Kirkeministeriet efter delingen 3/6-2026, og Økonomi- og
     # Indenrigsministeriet har sjældent klimatilpasningsstof.
-    "Miljøministeriet":                 {"url": "https://www.mim.dk/nyheder/", "gruppe": "Myndigheder"},
+    # 13/11-2026: Miljøministeriet flyttet til SITEMAP_SOURCES (listen er nu JS).
 
     # ── STYRELSER ──
     "Energistyrelsen":                  {"url": "https://ens.dk/presse/nyheder-og-pressemeddelelser", "gruppe": "Myndigheder"},
@@ -603,6 +603,15 @@ SITEMAP_SOURCES = {
     # Den nationale klimatilpasningsportal manglede helt. Nyhedslisten er JS,
     # artikelsiderne har <time datetime>. Titlerne rammer ofte kun brede ord
     # ("... gennem fysisk planlægning"), men kilden er per definition på feltet.
+    # 13/11-2026: mim.dk/nyheder sender videre til mim.dk/nyheder og listen er
+    # nu JS-renderet (0 titler). sitemap.xml har pressemeddelelserne med
+    # lastmod = udgivelsesdato.
+    "Miljøministeriet": {
+        "sitemap": "https://mim.dk/sitemap.xml",
+        "moenster": "/nyheder/pressemeddelelser/20",
+        "antal": 8,
+        "gruppe": "Myndigheder",
+    },
     "Klimatilpasning.dk": {
         "sitemap": "https://klimatilpasning.dk/sitemap.xml",
         "moenster": "/nyheder/20",
