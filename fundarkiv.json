@@ -1,5 +1,572 @@
 [
  {
+  "vurderet": "2026-11-13",
+  "farve": "groen",
+  "titel": "Billund: nyt administrationsgrundlag for vandhåndtering i lokalplanlægning",
+  "url": "https://billund.meetingsplus.dk/committees/teknik-plan-og-klimaudvalget/mode-i-teknik-plan-og-klimaudvalget-13368#id_203049",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Billund godkender en vejledning til vandhåndtering i lokalplanlægning og har en ny vanddisponeringsplan for Billund by (aug. 2026), behandlet på mødet hos Billund Vand og Energi."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "groen",
+  "titel": "Ikast-Brande: vejledning og krav om vandhåndteringsplaner for udviklere",
+  "url": "https://dagsordener.ikast-brande.dk/vis?id=e81f3c6d-52a8-4af8-9415-ac66b10fafe8&punktid=f932b6cb-45d6-4de7-88ae-b6043ec49f3f",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Ikast-Brande har med NIRAS lavet en vejledning, skabelon og administrationspraksis, der kræver vandhåndteringsplaner for hverdagsregn, ekstremregn og terrænnært grundvand i nye lokalplanprojekter. Praksis er ifølge forvaltningen godt modtaget af udviklerne."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "groen",
+  "titel": "KU-studie: regningen for klimatilpasning rammer lejere hårdest",
+  "url": "https://www.tv2kosmopol.dk/koebenhavn/studie-klimasikring-kan-koste-de-fattigste-mest-3f932",
+  "kilde": "Bing News – skybrud",
+  "dato": "2026-11-12",
+  "begrundelse": "Nyt studie fra Københavns Universitet (Natalie Marie Gulsrud) viser, at lejere i almene boliger og etageejendomme i København kan ende med at betale en større del af klimatilpasningen end husejere, bl.a. via huslejen."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Thyborøn: tilladelse til kunstigt sandrev (Vester Revet)",
+  "url": "https://mst.dk/offentliggoerelser/soeterritoriet/2026/oktober/2025-102557-tilladelse-til-etablering-af-kunstigt-sandrev-vester-revet-i-thyboroen-kanal-ud-for-90a-thyboroen-by-lemvig-kommune",
+  "kilde": "Miljøstyrelsen - kyst og søterritorium (offentliggørelser)",
+  "dato": "2026-10-29",
+  "begrundelse": "Sandrev med geotekstilsække i Thyborøn Kanal. Lille, men usædvanlig løsning."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Lemvig: 575.000 kr. til kystbeskyttelse på Lemvig Havn",
+  "url": "https://dagsordener.lemvig.dk/vis?id=90d22eee-c680-494b-944f-3feda3835903&punktid=1160ffb4-95b7-4c32-a3f8-4a6527d853d2",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Lille anlægsbevilling til klimatilpasning i Lemvig Midtby. Dagsordenen svarede SERVERFEJL."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Vejle: køb af mobile stormflodsbarrierer, 2. etape",
+  "url": "https://dagsordener.vejle.dk/vis?id=e6dd5813-491b-4b65-83f1-c583f16c50cc&punktid=7a4735ba-fe3d-4b87-ad0e-bd5b6e829044",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Samme sag som sidste uge (lukket punkt)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Solrød: tre løsningsspor mod oversvømmelser i Solrød Strand",
+  "url": "https://dagsordener.solrod.dk/vis?id=f072e9b8-bd3f-48eb-908e-6df16ed7609e&punktid=217441c3-1281-4231-a3f9-ee0584b1ac7b",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Konkret valg mellem løsningsspor kan blive en case. Dagsordenen svarede SERVERFEJL, vurderet på titel."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Solrød: lokalplan om klimatilpasning og terrænforhold på Tykmose Fælled",
+  "url": "https://dagsordener.solrod.dk/vis?id=f072e9b8-bd3f-48eb-908e-6df16ed7609e&punktid=e16f911b-425f-4217-970d-2e453682039d",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Lokalplan, der regulerer klimatilpasning og terræn. Passer til temaet om vandhåndtering i lokalplaner. SERVERFEJL."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Slagelse deltager i Kystklar (Gate 21, Interreg)",
+  "url": "https://dagsordener.slagelse.dk/vis?id=6d0ce479-8140-4397-907c-d60483175e2c&punktid=3f13fb8d-2690-441e-9061-03cabdb16851",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Gate 21/Interreg er kontekst, jf. reglen 22/10."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Frederiksberg: spildevandsplantillæg for klimatilpasning af Hospitalshaven",
+  "url": "https://dagsordener.frederiksberg.dk/vis?id=57b192d0-180e-4d68-b6b1-3bf550c8e79d&punktid=9cfdf9fa-fa24-4b5d-9aa4-467647d82a97",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-02",
+  "begrundelse": "Frederiksberg Forsyning klimatilpasser Hospitalshaven; tillægget vedtaget med miljøredegørelse. Kan bruges i Miljoevurderinger-klimatilpasning.md."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Vejle: spildevandsplanlægning om terrænnært grundvand",
+  "url": "https://dagsordener.vejle.dk/vis?id=fb520fff-a888-41f2-a8bd-9e91edfdf049&punktid=70ef9868-a7b6-497a-b542-466222ff5561",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Samme sag som sidste uge (andet link); kladde til Kjartan (Vejle Spildevand)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "København: anlægsbevilling til stormflodssikring frigives",
+  "url": "https://www.kk.dk/dagsordener-og-referater/%C3%98konomiudvalget/m%C3%B8de-03112026/referat/punkt-5#punkt-5",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Randers: Vandmiljø Randers udsætter separatkloakering - regnvandsbassin i Kristrup",
+  "url": "https://dagsordener.randers.dk/vis?id=019c11b1-49a1-42b8-9f20-2d9b1d4e947b&punktid=49635e6f-2572-4d05-b02b-eea4a2d18ae1",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Ny strukturplan (juni 2026) udsætter omfattende separatkloakering på ubestemt tid for at rense regnvand og stoppe overløb i midtbyen. Strategiskifte, der passer til overløbssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Slagelse: lokalplan for stort regnvandsbassin ved Omfartsvejen (Envafors)",
+  "url": "https://dagsordener.slagelse.dk/vis?id=a4fa01ae-d7ae-411a-8f42-769c6de38600&punktid=157f128c-8937-4296-acfc-6d9d7021b222",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Ca. 6,5 ha bassin med 'renseløsning 2' for erhvervs- og byudvikling, borgermøde januar 2027; (A) ønskede miljøvurdering pga. OSD og Harrested Å. Mest spildevand/rensning."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Odsherred: ekspropriationsvilje for kystsikring af Klint Havnevej",
+  "url": "https://dagsordener.odsherred.dk/vis?id=c14da5c5-3fbb-4c8e-9433-bfccf37d8f02&punktid=0c645cab-8115-499b-8820-5370376c6a69",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Byrådet skal genudtrykke vilje til ekspropriation for kystsikringen. Dagsordenen svarede SERVERFEJL, vurderet på titel."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Billund: orientering om vandhåndtering i Billund by",
+  "url": "https://billund.meetingsplus.dk/committees/teknik-plan-og-klimaudvalget/mode-i-teknik-plan-og-klimaudvalget-13368#id_203044",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Orientering med Vanddisponeringsplan august 2026 som bilag. Hører sammen med Billunds nye administrationsgrundlag (grønt punkt)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Vallensbæk: ny spildevandsplan 2026-2036 endeligt godkendt",
+  "url": "https://dagsordener.vallensbaek.dk/vis?id=b4fa76a5-ef76-4db8-94a0-05a2333601a8&punktid=c3ba0b5d-1c43-4212-87b9-e052ec482841",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Ny spildevandsplan; uklart, hvad den siger om klimatilpasning."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Gentofte: principbeslutning om at genbesøge afløbsstrategien",
+  "url": "https://dagsordener.gentofte.dk/vis?id=8e6b85c7-952d-4d6c-87eb-da26fdaba158&punktid=fdb5f652-432d-47fc-8ca2-3784819a8031",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Gentofte: tillæg for Skovshoved bassin og udløbsledning",
+  "url": "https://dagsordener.gentofte.dk/vis?id=8e6b85c7-952d-4d6c-87eb-da26fdaba158&punktid=6b99146a-9cba-4bcb-b7d3-d866de766033",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Horsens deltager i Kystklar (Gate 21, Interreg)",
+  "url": "https://dagsordener.horsens.dk/vis?id=ed01de12-9dda-4295-b4a3-0327d3a2a5ff&punktid=34438c0f-83ea-4f59-9ab3-25d65e985b7a",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Gate 21/Interreg er kontekst, jf. reglen 22/10."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Frederikssund: indsatsplan ved forhøjet vandstand opdateret",
+  "url": "https://www.frederikssund.dk/Politik/Dagsordener-og-referater/teknik-og-klima/2026-11-03_08-15/referat#item-151",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-03",
+  "begrundelse": "Samme sag som sidste uge (andet link). Beredskab efter stormflod."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Fanø: lokalplan og kommuneplantillæg for dige ved Sønderho vedtages",
+  "url": "https://dagsordener.fanoe.dk/vis?id=ce3ccd89-1c89-41a3-bc09-18b3f9baeabf&punktid=33614eaf-5db9-4531-9356-cd46b98598a0",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Plangrundlaget for et nyt dige ved Sønderho vedtages. Kystbeskyttelsescase i beslutningsfasen."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Ringsted: anlægsbevilling til forsinkelsesbassin ved Ringsted Sportscenter",
+  "url": "https://dagsordener.ringsted.dk/vis?id=229777ba-ccdc-484b-9421-45c0467d94cf&punktid=aea0107b-3654-4487-a691-1e161f3b9133",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Konkret bassinprojekt. Dagsordenen svarede SERVERFEJL, vurderet på titel."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Haderslev: kystsikringsanlæg ved Diernæs Strand (kommunalt fællesprojekt)",
+  "url": "https://dagsordener.haderslev.dk/vis?id=89a1987b-4788-4796-bf64-f533f242cbcd&punktid=f9e03e4b-aaca-4ef6-b0da-0133a8ec675e",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Lokalplan og kommuneplantillæg for et ca. 750 m dige ved Diernæs Strandby igangsættes; Diernæs Strandby Kystsikringslag er bygherre. Endnu en case på kystlag som bygherre."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Haderslev: besparelser i Vores Kyst",
+  "url": "https://dagsordener.haderslev.dk/vis?id=89a1987b-4788-4796-bf64-f533f242cbcd&punktid=ab5d9568-0c68-47da-b149-2a1a6884e2c2",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Kolding: opstart af risikostyringsplan",
+  "url": "https://udvalg.kolding.dk/vis?id=248dd2fb-e55a-4e2b-9db1-9e7ace1eb63b&punktid=f95fa662-5240-461a-9727-495799c18c41",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Middelfart: forundersøgelse af kommunalt fællesprojekt ved Strib Nordstrand",
+  "url": "https://dagsordener.middelfart.dk/vis?id=3db1918d-24ef-40b7-93f6-08ed27cb802d&punktid=428406c4-5b1f-4e35-b818-730a61c64635",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Forundersøgelse efter kap. 1a efter erosion i stormene 2023/24 og borgerhenvendelser. Tidligt stadie; Strib-helhedsplanen blev nedjusteret 27/10."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Vordingborg: Kohaven Roneklint fremmes som kap. 1a-projekt med anlægsbevilling",
+  "url": "https://dagsordner.vordingborg.dk/vis?id=79a8ef8f-ea55-4005-b269-615c9db38fb9&punktid=4df829fd-871b-42d3-88f0-c1a8ebfb1e57",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Milepæl i lead Vordingborg-kap1a.md (kladde til Bent Hummelmose fra 3/11): projektet fremmes og anlægsbevilling frigives. Nyt til igangværende spor. Dagsordenteksten var tom ved hentning."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Vordingborg: Oddermose Strand fremmes som kap. 1a-projekt med anlægsbevilling",
+  "url": "https://dagsordner.vordingborg.dk/vis?id=79a8ef8f-ea55-4005-b269-615c9db38fb9&punktid=ddb4d495-4666-4386-a800-34fb6765bc89",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Samme milepæl som Kohaven Roneklint (Vordingborg-kap1a.md). Nyt til igangværende spor."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Skanderborg: status for Skanderupbækken (40 mio., medfinansieret)",
+  "url": "https://dagsordener.skanderborg.dk/vis?id=05f9541d-e2ef-4ee5-803f-68e86db79d1c&punktid=4990f265-c318-4cb2-86a8-8756c9d2429c",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Sidste af 11 medfinansierede projekter: 6 bassiner i 3 etaper til 2028, langt dialogforløb og fornyet VVM. Kan blive case for overgangsordningen (L 92)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Kerteminde: status på Klimatilpasningsplan 2027",
+  "url": "https://dagsordener.kerteminde.dk/vis?id=18af3d21-f406-4392-941a-3e601c4c3494&punktid=5db56493-80b6-4eb2-89b9-8aab97f34df7",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Samme sag som sidste uge (andet link)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Lolland: Nakskov - valg af løsning til videre bearbejdning",
+  "url": "https://dagsordener.lolland.dk/vis?id=3c507620-7b3d-40ca-ba6e-451cd49527f2&punktid=8b30cb1a-e98e-45d7-b4cf-32a9d084bf33",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Allerede dybdetjekket 10/11 (Dybdetjek-2026-11-10.md). Dagsordenen svarede SERVERFEJL."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Aarhus: forslag om handleplan for grønne facader og tage",
+  "url": "https://dagsordener.aarhus.dk/vis?id=5c81d642-767a-4640-abbf-88f62c47ff06&punktid=88e468c2-a673-49b8-b93c-cf3199523e95",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-04",
+  "begrundelse": "Byrådsbehandling; kan have regnvandsvinkel."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "MFKN: Struers udledningstilladelse for regnvandsbassin ophævet",
+  "url": "https://mfkn.naevneneshus.dk/afgoerelse/22919074-a109-4e46-b7a9-f6a88b3d3437",
+  "kilde": "Miljø- og Fødevareklagenævnet",
+  "dato": "2026-11-05",
+  "begrundelse": "DN fik medhold; tilladelse til udledning til Kilen hjemvist. Enkeltafgørelse - jf. 22/10 er de for smalle alene."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Halsnæs: ekspropriationsvilje til regnvandsbassiner ved Ullerup Å",
+  "url": "https://dagsorden.halsnaes.dk/vis?id=843369e6-1f5d-45d6-8ad8-23b3d68f4fb2&punktid=3a42a2a6-c50b-4915-9926-04e0e549cf2b",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Halsnæs Forsyning beder om ekspropriationsvilje, hvis frivillige aftaler ikke lykkes. Arealerhvervelse til bassiner er et tilbagevendende problem."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Køge Dige: lokalplan, tilladelse og bidragsfordeling endeligt vedtaget",
+  "url": "https://dagsordener.koege.dk/vis?id=4f47aec8-d347-420d-a33f-7de47216d3f1&punktid=ea25286a-4d18-47de-a19b-cf818e9d7e18",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Samme sag som sidste uge (andet link); lead Koege-Dige-og-BRS.md."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Roskilde: driftsbidrag for Jyllinge Nordmark og Tangbjerg Digelag",
+  "url": "https://dagsordener.roskilde.dk/vis?id=54308478-74d9-4acd-a7d6-b7884b3ae67b&punktid=ec5fe1d2-2b77-4be6-940b-42f937765f0b",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Driftsbidrag til digelag. Hører til sporet om finansiering af kystbeskyttelse."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Roskilde: driftsbidrag for Strandgade Kystbeskyttelseslag",
+  "url": "https://dagsordener.roskilde.dk/vis?id=54308478-74d9-4acd-a7d6-b7884b3ae67b&punktid=481ebc14-3173-4d81-81e3-d2c11323379b",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Driftsbidrag til kystbeskyttelseslag, allerede noteret af den daglige rutine 10/11."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Svendborg: tillæg om terrænnært grundvand",
+  "url": "https://dagsordener.svendborg.dk/vis?id=a2e56bbf-e35b-46e4-822d-1437e5cf5a58&punktid=055efe26-f40f-4ac9-8c3b-ce07f7df183e",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Samme sag som sidste uge (andet link); del af grundvandssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Thisted: risikostyringsplan for Vestlig Limfjord og principper for klimarobusthed",
+  "url": "https://dagsordener.thisted.dk/vis?id=ff96be30-cda2-4289-b291-8dd2bb0c9329&punktid=d98ddd21-70e4-43ee-8460-1a016d009be9",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "Principper for videre arbejde; del af planssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Thisted: Hawblink - tillægsbevilling og status",
+  "url": "https://dagsordener.thisted.dk/vis?id=ff96be30-cda2-4289-b291-8dd2bb0c9329&punktid=237d3a02-f925-4ea7-8acd-c8792fd2b862",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-05",
+  "begrundelse": "KP parkerede Thisted-Vorupoer.md til efter sommeren 2027. Kontekst."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Realdania/KL/DTU: nyt projekt skal vise effekten af klimatilpasning",
+  "url": "https://realdania.dk/nyhedsoverblik/nyheder/2026/11/nyt-projekt-skal-vise-effekten-af-klimatilpasning",
+  "kilde": "Realdania",
+  "dato": "2026-11-05",
+  "begrundelse": "Noteret af den daglige rutine; kontekst til planssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Struer: forslag til risikostyringsplan 2027-2033",
+  "url": "https://dagsordener.struer.dk/vis?id=0d841461-73ca-4f06-b6a4-251e81efe145&punktid=6a2033f3-b798-4a9d-9a18-b8757fbc7e19",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-06",
+  "begrundelse": "Ny risikostyringsplan; del af sporet om nye planer."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Tønder: tilskud til Juvre Digelag i budgetforlig 2027",
+  "url": "https://dagsordener.toender.dk/vis?id=192a7444-2fb2-4dba-ba27-4e349bcb442f&punktid=909808e6-20c5-4812-a0ae-40bf1af97a0f",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-06",
+  "begrundelse": "Kommunalt tilskud til digelag. Kontekst til finansieringssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Tønder: landzonetilladelse til forstærkning af Ballum Dige syd",
+  "url": "https://dagsordener.toender.dk/vis?id=192a7444-2fb2-4dba-ba27-4e349bcb442f&punktid=c59dbbe3-4a1b-41da-b535-4319ecf97a67",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-06",
+  "begrundelse": "Næste skridt for Ballum Dige (Digelaget i Brede Ådalen, udbud 19/10)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Rudersdal: onlineformidling om søer og overløb",
+  "url": "https://dagsordener.rudersdal.dk/vis?id=aadd86f7-57bb-415c-a2e3-ab4e6d097ae8&punktid=35f8e09f-5e94-4980-93d3-3731b3458342",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-06",
+  "begrundelse": "Kommunen formidler overløb til borgerne online. Kontekst. SERVERFEJL."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Aalborg: gåtur gennem fremtidens Aalborg",
+  "url": "https://www.tv2nord.dk/kort-nyt/aalborg/tag-med-pa-gatur-gennem-fremtidens-aalborg-2ea1e",
+  "kilde": "Bing News – skybrud",
+  "dato": "2026-11-06",
+  "begrundelse": "Samme sag som ovenfor."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Høringsportalen: L 92 - forlængelse af overgangsperiode",
+  "url": "https://hoeringsportalen.dk/Hearing/Details/71474",
+  "kilde": "Høringsportalen",
+  "dato": "2026-11-06",
+  "begrundelse": "Kontekst, jf. reglen fra 6/11 om lovforslag, der kun forlænger en frist."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Klimamonitor: L 22 undtager kun lufthavnens lokalplan",
+  "url": "https://klimamonitor.dk/nyheder/klimatilpasning/article19805247.ece",
+  "kilde": "klimamonitor.dk",
+  "dato": "2026-11-06",
+  "begrundelse": "Noteret af den daglige rutine; kontekst."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Aalborg: borgermøde om ny klimatilpasningsplan",
+  "url": "https://nordjyske.dk/nyheder/ligehernu/6238763",
+  "kilde": "Bing News – klimatilpasning",
+  "dato": "2026-11-07",
+  "begrundelse": "Borgerinddragelse i ny plan; noteret af den daglige rutine."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Nyborg: anlægsmidler frigives til vejprojekt og kystsikring på Risingevej",
+  "url": "https://dagsordener.nyborg.dk/vis?id=0133af22-0192-46ca-87d1-bb9565b7e65b&punktid=74d00206-91b6-40cc-8b5a-5fd4384e1f69",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-09",
+  "begrundelse": "Kombineret vej- og kystsikringsprojekt. Dagsordenen svarede SERVERFEJL, vurderet på titel."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Mariagerfjord: overløb halveret, 35 tilbage",
+  "url": "https://fjordavisen.nu/kloakoverloeb-til-mariager-fjord-er-halveret-men-35-overloeb-er-stadig-tilbage/",
+  "kilde": "Bing News – spildevand",
+  "dato": "2026-11-09",
+  "begrundelse": "Ren Forsyning Mariagerfjord; noteret af den daglige rutine. Del af overløbssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Altinget: klimaforsker - Parisaftalen er død, hvor godt vil vi forberede os?",
+  "url": "https://www.altinget.dk/klima/artikel/klimaforsker-historien-om-et-15-graders-klimamaal-vi-lod-doe",
+  "kilde": "Altinget Klima",
+  "dato": "2026-11-09",
+  "begrundelse": "Debat, der flytter fokus til tilpasning. Kontekst."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Room4water: klimatilpasning i store vandløb (SE)",
+  "url": "https://vaguiden.se/2026/11/klimatanpassning-i-stora-vattendrag/",
+  "kilde": "VA-guiden (SE)",
+  "dato": "2026-11-09",
+  "begrundelse": "Spirende spor Plads til vandet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Energistyrelsen: omkostningsvejledning (VEJ 10274)",
+  "url": "https://www.retsinformation.dk/eli/retsinfo/2026/10274",
+  "kilde": "Retsinformation",
+  "dato": "2026-11-10",
+  "begrundelse": "Nyt til igangværende spor: KP har lead ENS-omkostningsvejledning-grundvand.md og kontakten Torsten Duer."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Norddjurs: kommunalbestyrelsen godkender risikostyringsplaner",
+  "url": "https://norddjurs.meetingsplus.dk/committees/kommunalbestyrelsen/10-11-2026#id_163616",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-10",
+  "begrundelse": "Næste trin for planerne (Risikostyringsplaner-Aabenraa.md, kladde til Maria Freund 3/11). Nyt til igangværende spor."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Aalborg: strategisk-fysisk udviklingsplan for Kattegatkysten",
+  "url": "https://apps.aalborgkommune.dk/dagsordenreferat/visreferat?id=56&moedetitel=2026-11-10%2008.30#punkt-7",
+  "kilde": "Politiske dagsordener",
+  "dato": "2026-11-10",
+  "begrundelse": "Orientering om plan for kyststrækningen; uklart, hvor meget klimatilpasning fylder."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Mariagerfjord: nye tal for kloakoverløb til fjorden",
+  "url": "https://fjordavisen.nu/kloakvand-loeber-stadig-ud-i-mariager-fjord-nu-afsloerer-nye-tal-hvor-meget-udledningerne-er-faldet/",
+  "kilde": "Bing News – regnvand",
+  "dato": "2026-11-10",
+  "begrundelse": "Samme sag som ovenfor (anden kilde)."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Naturvårdsverket: stærkere samordning af afløb og dagvatten (SE)",
+  "url": "https://vaguiden.se/2026/11/naturvardsverket-foreslar-starkt-samordning-i-avloppsfragor/",
+  "kilde": "VA-guiden (SE)",
+  "dato": "2026-11-11",
+  "begrundelse": "Forslag om national samordning af afløb, dagvand og klimatilpasning. Siden blokerede, vurderet på resumé."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "SGI: vandregulering påvirker skredrisiko mere end klimaændringer (SE)",
+  "url": "https://vaguiden.se/2026/11/vattenreglering-kan-paverka-skredrisken-mer-an-klimatforandringar/",
+  "kilde": "VA-guiden (SE)",
+  "dato": "2026-11-11",
+  "begrundelse": "Svensk studie om erosion og skred i regulerede vandløb. Værd et kig."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "The Conversation: naturbaseret klimatilpasning er billigere",
+  "url": "https://theconversation.com/concrete-and-steel-or-mangroves-and-forests-when-it-comes-to-climate-adaptation-nature-is-much-cheaper-292462",
+  "kilde": "The Conversation Env.",
+  "dato": "2026-11-12",
+  "begrundelse": "Argument for naturbaserede løsninger; kontekst."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Bornholm: ingen målere på 99 overløb og ingen fysiske tilsyn",
+  "url": "https://bornholm.nu/?Id=143129",
+  "kilde": "Bing News – spildevand",
+  "dato": "2026-11-12",
+  "begrundelse": "Ministersvar viser manglende måling og tilsyn. Kontekst til overløbssporet."
+ },
+ {
+  "vurderet": "2026-11-13",
+  "farve": "gul",
+  "titel": "Alle 98 kommuner har svaret på Søren Gades 1.176 spørgsmål om overløb",
+  "url": "https://ekstrabladet.dk/nyheder/samfund/nu-er-der-kommet-svar-paa-soeren-gades-1.176-spoergsmaal/11351887",
+  "kilde": "Bing News – spildevand",
+  "dato": "2026-11-12",
+  "begrundelse": "Samlet datagrundlag om overløb kommune for kommune. Kontekst til overløbssporet."
+ },
+ {
   "vurderet": "2026-11-06",
   "farve": "groen",
   "titel": "L 92: overgangsperiode for klimatilpasningsprojekter forlænges",
